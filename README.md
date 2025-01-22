@@ -1,0 +1,2 @@
+# MiniGo
+My PPL Assignment
