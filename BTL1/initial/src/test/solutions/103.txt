@@ -1,1 +1,1 @@
-var,abc,int,;,<EOF>
+a123,<EOF>

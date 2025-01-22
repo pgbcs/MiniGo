@@ -1,0 +1,1 @@
+type,abc,interface,{,func,a,(,),;,},<EOF>

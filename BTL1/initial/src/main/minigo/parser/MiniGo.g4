@@ -34,7 +34,12 @@ vardecl: VAR ID INT SEMICO ;
 funcdecl: FUNC ID LPAREN RPAREN LBRACE RBRACE SEMICO ;
 
 //skip comments
-COMMENT: '//' ~[\r\n]* -> skip | '/*' .*? '*/' -> skip;
+// Skip single-line comments
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+
+// Skip multi-line comments
+BLOCK_COMMENT: '/*' .*? '*/' -> skip;
+
 
 //keywords
 IF: 'if';
@@ -74,6 +79,7 @@ AND: '&&';
 OR: '||';
 NOT: '!';
 ASSIGN: '=';
+SHORT_ASSIGN: ':=';
 PLUS_ASSIGN: '+=';
 MINUS_ASSIGN: '-=';
 MUL_ASSIGN: '*=';
@@ -95,10 +101,10 @@ HEX_LIT: '0' [xX] [0-9a-fA-F]+;
 FLOAT_LIT: DIGIT+ '.' DIGIT* EXP?;
 //string literals
 STRING_LIT: '"' (ESC|~["\\])* '"';
-//boolean literals
-BOOL_LIT: 'true' | 'false';
-//nil literal
-NIL_LIT: 'nil';
+// //boolean literals
+// BOOL_LIT: 'true' | 'false';
+// //nil literal
+// NIL_LIT: 'nil';
 
 //identifiers
 ID: (LETTER|'_') (DIGIT|LETTER|'_')* ;
@@ -114,12 +120,13 @@ RBRACK: ']';
 fragment EXP: [eE] [+\-]? DIGIT+ ;
 fragment DIGIT: [0-9] ;
 fragment LETTER: [a-zA-Z] ;
-fragment ESC: [\n\t\r\\"\\\\];
+fragment ESC: [\n\t\r\\] | '\"';
+
 
 NL: '\n' -> skip; //skip newlines
 
 WS : [ \t\r]+ -> skip ; // skip spaces, tabs 
 
+ILLEGAL_ESCAPE: '"' (ESC|~["])* '"';
+UNCLOSE_STRING: '"' (ESC|~["\\])*;
 ERROR_CHAR: .;
-ILLEGAL_ESCAPE:.;
-UNCLOSE_STRING:.;
