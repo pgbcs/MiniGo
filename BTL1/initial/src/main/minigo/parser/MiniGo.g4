@@ -1,3 +1,4 @@
+//id: 2210254
 grammar MiniGo;
 
 @lexer::header {
@@ -28,11 +29,92 @@ program  : decl+ EOF ;
 
 decl: funcdecl | vardecl  ;
 
-vardecl: 'var' ID 'int' ';' ;
+vardecl: VAR ID INT SEMICO ;
 
-funcdecl: 'func' ID '(' ')' '{' '}' ';' ;
+funcdecl: FUNC ID LPAREN RPAREN LBRACE RBRACE SEMICO ;
 
-ID: [a-z]+;
+//skip comments
+COMMENT: '//' ~[\r\n]* -> skip | '/*' .*? '*/' -> skip;
+
+//keywords
+IF: 'if';
+ELSE: 'else';
+FOR: 'for';
+RETURN: 'return';
+FUNC: 'func';
+TYPE: 'type';
+STRUCT: 'struct';
+INTERFACE: 'interface';
+STRING: 'string';
+INT: 'int';
+FLOAT: 'float';
+BOOLEAN: 'boolean';
+CONST: 'const';
+VAR: 'var';
+CONTINUE: 'continue';
+BREAK: 'break';
+RANGE: 'range';
+NIL: 'nil';
+TRUE: 'true';
+FALSE: 'false';
+
+//operators
+PLUS: '+';
+MINUS: '-';
+MUL: '*';
+DIV: '/';
+MOD: '%';
+EQUAL: '==';
+NOT_EQUAL: '!=';
+LESS: '<';
+GREATER: '>';
+LESS_OR_EQUAL: '<=';
+GREATER_OR_EQUAL: '>=';
+AND: '&&';
+OR: '||';
+NOT: '!';
+ASSIGN: '=';
+PLUS_ASSIGN: '+=';
+MINUS_ASSIGN: '-=';
+MUL_ASSIGN: '*=';
+DIV_ASSIGN: '/=';
+MOD_ASSIGN: '%=';
+SELECTOR: '.';
+
+//separator
+COMMA: ',';
+SEMICO: ';';
+
+//literals
+//interger literals
+DEC_LIT: '0' | [1-9] DIGIT*;
+BIN_LIT: '0' [bB] [01]+;
+OCT_LIT: '0' [oO] [0-7]+;
+HEX_LIT: '0' [xX] [0-9a-fA-F]+;
+//floating-point literals
+FLOAT_LIT: DIGIT+ '.' DIGIT* EXP?;
+//string literals
+STRING_LIT: '"' (ESC|~["\\])* '"';
+//boolean literals
+BOOL_LIT: 'true' | 'false';
+//nil literal
+NIL_LIT: 'nil';
+
+//identifiers
+ID: (LETTER|'_') (DIGIT|LETTER|'_')* ;
+
+LPAREN: '(';
+RPAREN: ')';
+LBRACE: '{';
+RBRACE: '}';
+LBRACK: '[';
+RBRACK: ']';
+
+
+fragment EXP: [eE] [+\-]? DIGIT+ ;
+fragment DIGIT: [0-9] ;
+fragment LETTER: [a-zA-Z] ;
+fragment ESC: [\n\t\r\\"\\\\];
 
 NL: '\n' -> skip; //skip newlines
 
