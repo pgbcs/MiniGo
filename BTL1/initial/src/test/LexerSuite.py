@@ -310,22 +310,36 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.checkLexeme("var a = nil","var,a,=,nil,<EOF>",191))
     
     #test wrong token
-    def test_wrong_token(self):
+    def test_wrong_token1(self):
         self.assertTrue(TestLexer.checkLexeme("ab?sVN","ab,ErrorToken ?",192))
     
-    #def test_identifier_contain_keyword(self):
-    #     """test identifier contain keyword"""
-    #     self.assertTrue(TestLexer.checkLexeme("ifelse","ifelse,<EOF>",141))
-    # def test(self):
-    #     self.assertTrue(TestLexer.checkLexeme(".123",".,123,<EOF>",142))
-    # def test1(self):
-    #     self.assertTrue(TestLexer.checkLexeme("123.;","123.,;,<EOF>",143))
-    # def test2(self):
-    #     self.assertTrue(TestLexer.checkLexeme("123..123","123.,.,123,<EOF>",144))
-    # def test3(self):
-    #     self.assertTrue(TestLexer.checkLexeme("\"\\\"\\\"\"","\"\\\"\\\"\",<EOF>",145))
-    # def test196(self):
-    #     """test function with parameters"""
-    #     self.assertTrue(TestLexer.checkLexeme("func f(a, b: int) {}", "func,f,(,a,,,b,ErrorToken :", 196))
-    # #test wrong token
-    
+    def test_identifier_contain_keyword(self):
+        """test identifier contain keyword"""
+        self.assertTrue(TestLexer.checkLexeme("ifelse","ifelse,<EOF>",193))
+    def test_float_with_double_point(self):
+        """test float with double point"""
+        self.assertTrue(TestLexer.checkLexeme("123..123","123.,.,123,<EOF>",194))
+    def test_string_literal_with_many_backslash(self):
+        """test string with many backslash"""
+        self.assertTrue(TestLexer.checkLexeme("\"\\\"\\\"\"","\"\\\"\\\"\",<EOF>",195))
+    def test_wrong_token2(self):
+        """test wrong token"""
+        self.assertTrue(TestLexer.checkLexeme("func foo(x, y: int) {}", "func,foo,(,x,,,y,ErrorToken :", 196))
+    #more test cases
+    def test_more_test_cases1(self):
+        """test more test cases"""
+        self.assertTrue(TestLexer.checkLexeme("a := 1; b := 2;", "a,:=,1,;,b,:=,2,;,<EOF>", 197))
+    def test_more_test_cases2(self):
+        """test complex code"""
+        self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
+            arr := [1, 2, 3];
+            if (a > b) { return; }
+        }""", 
+        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 198))
+    def test_more_test_cases3(self):
+        """test complex code"""
+        self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
+            arr := [1, 2, 3];
+            if (a > b) { return; }
+        }""", 
+        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 199))

@@ -1,1 +1,1 @@
-func f(a, b: int) {}
+func foo(x, y: int) {}

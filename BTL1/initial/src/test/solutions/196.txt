@@ -1,1 +1,1 @@
-func,f,(,a,,,b,ErrorToken :
+func,foo,(,x,,,y,ErrorToken :
