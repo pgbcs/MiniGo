@@ -99,8 +99,15 @@ OCT_LIT: '0' [oO] [0-7]+;
 HEX_LIT: '0' [xX] [0-9a-fA-F]+;
 //floating-point literals
 FLOAT_LIT: DIGIT+ '.' DIGIT* EXP?;
+
+
 //string literals
-STRING_LIT: '"' (ESC|~["\\])* '"';
+STRING_LIT: '"' (ESC|~[\r\n"\\])* '"';
+
+// UNCLOSE_STRING: '"' (ESC|~["\\])* '"'?;
+ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '\\'.; // throw from start to escape char
+// ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '"';// throw whole string
+UNCLOSE_STRING: '"' (ESC|~[\r\n"\\])* [\r\n]?;
 // //boolean literals
 // BOOL_LIT: 'true' | 'false';
 // //nil literal
@@ -120,13 +127,13 @@ RBRACK: ']';
 fragment EXP: [eE] [+\-]? DIGIT+ ;
 fragment DIGIT: [0-9] ;
 fragment LETTER: [a-zA-Z] ;
-fragment ESC: [\n\t\r\\] | '\"';
-
+// fragment ESC: [\n\t\r\\] | '\"';
+fragment ESC: '\\' [ntr"\\];
 
 NL: '\n' -> skip; //skip newlines
 
 WS : [ \t\r]+ -> skip ; // skip spaces, tabs 
 
-ILLEGAL_ESCAPE: '"' (ESC|~["])* '"';
-UNCLOSE_STRING: '"' (ESC|~["\\])*;
+
+
 ERROR_CHAR: .;

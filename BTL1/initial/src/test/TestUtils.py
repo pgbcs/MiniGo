@@ -39,6 +39,14 @@ class TestLexer:
         dest = open("./test/solutions/" + str(num) + ".txt","w")
         lexer = MiniGoLexer(inputfile)
         try:
+            # tokens = lexer.getAllTokens()  # Lấy toàn bộ token từ lexer
+        
+            # for token in tokens:
+            #     token_text = token.text
+            #     token_type = lexer.symbolicNames[token.type]  # Lấy tên token từ lexer
+            #     dest.write(f"{token_text} ({token_type}), ")  # Ghi cả text và type vào file
+            
+            # dest.write("<EOF> (EOF)")  # Ghi token kết thúc
             TestLexer.printLexeme(dest,lexer,",")
         except (ErrorToken,UncloseString,IllegalEscape) as err:
             dest.write(err.message)

@@ -137,9 +137,195 @@ class LexerSuite(unittest.TestCase):
         """test operator greater than or equal"""
         self.assertTrue(TestLexer.checkLexeme("a>=b","a,>=,b,<EOF>",140))
     def test_operator_assign(self):
-        pass
+        """test operator assign"""
+        self.assertTrue(TestLexer.checkLexeme("a=b","a,=,b,<EOF>",141))
+    def test_operator_plus_assign(self):
+        """test operator plus assign"""
+        self.assertTrue(TestLexer.checkLexeme("a+=b","a,+=,b,<EOF>",142))
+    def test_operator_minus_assign(self):
+        """test operator minus assign"""
+        self.assertTrue(TestLexer.checkLexeme("a-=b","a,-=,b,<EOF>",143))
+    def test_operator_multiply_assign(self):
+        """test operator multiply assign"""
+        self.assertTrue(TestLexer.checkLexeme("a*=b","a,*=,b,<EOF>",144))
+    def test_operator_divide_assign(self):
+        """test operator divide assign"""
+        self.assertTrue(TestLexer.checkLexeme("a/=b","a,/=,b,<EOF>",145))
+    def test_operator_mod_assign(self):
+        """test operator mod assign"""
+        self.assertTrue(TestLexer.checkLexeme("a%=b","a,%=,b,<EOF>",146))
+    def test_operator_select(self):
+        """test operator select"""
+        self.assertTrue(TestLexer.checkLexeme("a.b","a,.,b,<EOF>",147))
+    def test_operator_select_chain(self):
+        """test operator select chain"""
+        self.assertTrue(TestLexer.checkLexeme("a.b.c","a,.,b,.,c,<EOF>",148))
+    def test_consecutive_operators1(self):
+        """test consecutive operators"""
+        self.assertTrue(TestLexer.checkLexeme("a+++b---c","a,+,+,+,b,-,-,-,c,<EOF>",149))
+    def test_consecutive_operators2(self):
+        """test consecutive operators"""
+        self.assertTrue(TestLexer.checkLexeme("a&&&b|||c","a,&&,ErrorToken &",150))
+    def test_consecutive_operators3(self):
+        """test consecutive operators"""
+        self.assertTrue(TestLexer.checkLexeme("num**2", "num,*,*,2,<EOF>", 151))
+    def test_operators_in_string(self):
+        """test operators in string"""
+        self.assertTrue(TestLexer.checkLexeme("\"a+b\"","\"a+b\",<EOF>",152))
+    def test_operators_with_whitespace(self):
+        """test operators with whitespace"""
+        self.assertTrue(TestLexer.checkLexeme("x\t*\ty", "x,*,y,<EOF>", 153))
+    def test_operators_with_complex_expression(self):
+        """test operators with complex expression"""
+        self.assertTrue(TestLexer.checkLexeme("a+b*c/d-e","a,+,b,*,c,/,d,-,e,<EOF>",154))
+    def test_operators_in_comment1(self):
+        """Test operators inside comments"""
+        self.assertTrue(TestLexer.checkLexeme("// This is a comment with + - * /", "<EOF>", 155))
+    def test_operators_in_comment2(self):
+        """Test operators inside comments"""
+        self.assertTrue(TestLexer.checkLexeme("/* == != >= <= */", "<EOF>", 156))
     
+    #test seperators
+    def test_seperator_comma(self):
+        """test seperator comma"""
+        self.assertTrue(TestLexer.checkLexeme("a,b","a,,,b,<EOF>",157))
+    def test_seperator_semicolon(self):
+        """test seperator semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("a;b","a,;,b,<EOF>",158))
+    def test_seperator_comma_with_bracket(self):
+        """test seperator comma with bracket"""
+        self.assertTrue(TestLexer.checkLexeme("a,(b,c)","a,,,(,b,,,c,),<EOF>",159))
+    def test_seperator_comma_with_brace(self):
+        """test seperator comma with brace"""
+        self.assertTrue(TestLexer.checkLexeme("a,{b,c}","a,,,{,b,,,c,},<EOF>",160))
+    def test_seperator_comma_with_square_bracket(self):
+        """test seperator comma with square bracket"""
+        self.assertTrue(TestLexer.checkLexeme("a,[b,c]","a,,,[,b,,,c,],<EOF>",161))
+    def test_separators_in_array_declaration(self):
+        """test separators in array declaration"""
+        self.assertTrue(TestLexer.checkLexeme("arr := [1, 2, 3];", "arr,:=,[,1,,,2,,,3,],;,<EOF>", 162))
+    def test_separators_with_complex_code(self):
+        """test separators with complex code"""
+        self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
+                arr := [1, 2, 3];
+                if (a > b) { return; }
+            }""", 
+        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 163))
 
+    #test literals
+    #test integer literal
+    def test_decimal_integer_literal(self):
+        """test decimal integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123","var,a,=,123,<EOF>",164))
+    def test_binary_integer_literal1(self):
+        """test binary integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0b101","var,a,=,0b101,<EOF>",165))
+    def test_binary_integer_literal2(self):
+        """test binary integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0B101","var,a,=,0B101,<EOF>",166))
+    def test_octal_integer_literal1(self):
+        """test octal integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0o123","var,a,=,0o123,<EOF>",167))
+    def test_octal_integer_literal2(self):
+        """test octal integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0O123","var,a,=,0O123,<EOF>",168))
+    def test_hexadecimal_integer_literal1(self):
+        """test hexadecimal integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0x123","var,a,=,0x123,<EOF>",169))
+    def test_hexadecimal_integer_literal2(self):
+        """test hexadecimal integer literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 0X123","var,a,=,0X123,<EOF>",170))
+
+    #test floating-point literal
+    def test_floating_point(self):
+        """test floating-point literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.0","var,a,=,123.0,<EOF>",171))
+    def test_floating_point_with_no_fractional_part(self):
+        """test floating-point literal with no fractional part"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.","var,a,=,123.,<EOF>",172))
+    def test_floating_point_with_no_integral_part(self):
+        """test floating-point literal with no integral part"""
+        self.assertTrue(TestLexer.checkLexeme("var a = .123","var,a,=,.,123,<EOF>",173))
+    def test_floating_point_with_exponent1(self):
+        """test floating-point literal with exponent"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.e10","var,a,=,123.e10,<EOF>",174))
+    def test_floating_point_with_exponent2(self):
+        """test floating-point literal with exponent"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.1E10","var,a,=,123.1E10,<EOF>",175))
+    def test_floating_point_with_negative_exponent(self):
+        """test floating-point literal with negative exponent"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.e-10","var,a,=,123.e-10,<EOF>",176))
+    def test_floating_point_with_positive_exponent(self):
+        """test floating-point literal with positive exponent"""
+        self.assertTrue(TestLexer.checkLexeme("var a = 123.2E+10","var,a,=,123.2E+10,<EOF>",177))
+    
+    #test string literal
+    def test_string_literal(self):
+        """test string literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = \"abc\"","var,a,=,\"abc\",<EOF>",178))
+    def test_string_literal_with_escape_sequence(self):
+        """test string literal with escape sequence"""
+        self.assertTrue(TestLexer.checkLexeme("var a = \"\\\"abc\\\"\"","var,a,=,\"\\\"abc\\\"\",<EOF>",179))
+    def test_string_literal_with_all_escape_sequence(self):
+        """test string literal with all escape sequence"""
+        self.assertTrue(TestLexer.checkLexeme("var a = \"\\n\\t\\r\\\\\\\"\"", "var,a,=,\"\\n\\t\\r\\\\\\\"\",<EOF>", 180))
+    def test_empty_string_literal(self):
+        """Test empty string"""
+        self.assertTrue(TestLexer.checkLexeme('""', '"",<EOF>', 181))
+    def test_string_literal_with_mixed_content(self):
+        """Test string with mixed letters, numbers, and symbols"""
+        self.assertTrue(TestLexer.checkLexeme('"Hello123!@#"', 
+                                              '"Hello123!@#",<EOF>', 182))
+    def test_string_literal_with_newline(self):
+        """Test string with newline character"""
+        self.assertTrue(TestLexer.checkLexeme("\"Hello \n world!\"", 
+                                              'Unclosed string: "Hello \n', 183))
+    def test_string_literal_with_double_quote(self):
+        """Test string with double quote character"""
+        self.assertTrue(TestLexer.checkLexeme('"Hello \\"world\\"!"', 
+                                              '"Hello \\"world\\"!",<EOF>', 184))
+    def test_unclosed_string(self):
+        """Test unclosed string"""
+        self.assertTrue(TestLexer.checkLexeme('"Hello', 'Unclosed string: "Hello', 185))
+    def test_string_literal_with_triple_quote(self):
+        """Test string with triple quote"""
+        self.assertTrue(TestLexer.checkLexeme('"""Hello"""', '"","Hello","",<EOF>', 186))
+    def test_string_literal_with_tab_escape_sequence(self):
+        """Test string with tab escape sequence"""
+        self.assertTrue(TestLexer.checkLexeme('"Hello\tworld!"', '"Hello\tworld!",<EOF>', 187))
+    def test_string_literal_with_illigal_escape_sequence(self):
+        """Test string with illigal escape sequence"""
+        self.assertTrue(TestLexer.checkLexeme('"Hello \\a world!"', 'Illegal escape in string: "Hello \\a', 188))
+    
+    #test boolean literal
+    def test_boolean_literal_true(self):
+        """test boolean literal true"""
+        self.assertTrue(TestLexer.checkLexeme("var a = true","var,a,=,true,<EOF>",189))
+    def test_boolean_literal_false(self):
+        """test boolean literal false"""
+        self.assertTrue(TestLexer.checkLexeme("var a = false","var,a,=,false,<EOF>",190))
+    #test nil literal
+    def test_nil_literal(self):
+        """test nil literal"""
+        self.assertTrue(TestLexer.checkLexeme("var a = nil","var,a,=,nil,<EOF>",191))
+    
+    #test wrong token
+    def test_wrong_token(self):
+        self.assertTrue(TestLexer.checkLexeme("ab?sVN","ab,ErrorToken ?",192))
+    
+    #def test_identifier_contain_keyword(self):
+    #     """test identifier contain keyword"""
+    #     self.assertTrue(TestLexer.checkLexeme("ifelse","ifelse,<EOF>",141))
+    # def test(self):
+    #     self.assertTrue(TestLexer.checkLexeme(".123",".,123,<EOF>",142))
+    # def test1(self):
+    #     self.assertTrue(TestLexer.checkLexeme("123.;","123.,;,<EOF>",143))
+    # def test2(self):
+    #     self.assertTrue(TestLexer.checkLexeme("123..123","123.,.,123,<EOF>",144))
+    # def test3(self):
+    #     self.assertTrue(TestLexer.checkLexeme("\"\\\"\\\"\"","\"\\\"\\\"\",<EOF>",145))
+    # def test196(self):
+    #     """test function with parameters"""
+    #     self.assertTrue(TestLexer.checkLexeme("func f(a, b: int) {}", "func,f,(,a,,,b,ErrorToken :", 196))
     # #test wrong token
-    # def test_wrong_token(self):
-    #     self.assertTrue(TestLexer.checkLexeme("ab?sVN","ab,ErrorToken ?",114))
+    
