@@ -279,7 +279,7 @@ class LexerSuite(unittest.TestCase):
     def test_string_literal_with_newline(self):
         """Test string with newline character"""
         self.assertTrue(TestLexer.checkLexeme("\"Hello \n world!\"", 
-                                              'Unclosed string: "Hello \n', 183))
+                                              'Unclosed string: "Hello ', 183))
     def test_string_literal_with_double_quote(self):
         """Test string with double quote character"""
         self.assertTrue(TestLexer.checkLexeme('"Hello \\"world\\"!"', 
@@ -343,3 +343,12 @@ class LexerSuite(unittest.TestCase):
             if (a > b) { return; }
         }""", 
         "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 199))
+
+    def test_error_token11(self):
+        # Numeric literal with an extra dot causing a malformed number.
+        # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.
+        self.assertTrue(TestLexer.checkLexeme("1.2.3", "1.2,ErrorToken .", 281))
+    # def test_string_literal_with_single_quote(self):
+    #     """Test string with single quote character"""
+    #     self.assertTrue(TestLexer.checkLexeme("'Hello \\'world\\'!'", 
+    #                                           "'Hello \\'world\\'!',<EOF>", 200))
