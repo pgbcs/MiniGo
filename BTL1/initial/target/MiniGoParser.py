@@ -11,7 +11,7 @@ else:
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3A")
+        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3B")
         buf.write("#\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\3\2\6\2\f\n\2\r\2\16")
         buf.write("\2\r\3\2\3\2\3\3\3\3\5\3\24\n\3\3\4\3\4\3\4\3\4\3\4\3")
         buf.write("\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\2\2\6\2\4\6\b\2\2\2")
@@ -19,10 +19,10 @@ def serializedATN():
         buf.write("\n\f\5\4\3\2\13\n\3\2\2\2\f\r\3\2\2\2\r\13\3\2\2\2\r\16")
         buf.write("\3\2\2\2\16\17\3\2\2\2\17\20\7\2\2\3\20\3\3\2\2\2\21\24")
         buf.write("\5\b\5\2\22\24\5\6\4\2\23\21\3\2\2\2\23\22\3\2\2\2\24")
-        buf.write("\5\3\2\2\2\25\26\7\22\2\2\26\27\7\66\2\2\27\30\7\16\2")
-        buf.write("\2\30\31\7/\2\2\31\7\3\2\2\2\32\33\7\t\2\2\33\34\7\66")
-        buf.write("\2\2\34\35\7\67\2\2\35\36\78\2\2\36\37\79\2\2\37 \7:\2")
-        buf.write("\2 !\7/\2\2!\t\3\2\2\2\4\r\23")
+        buf.write("\5\3\2\2\2\25\26\7\22\2\2\26\27\79\2\2\27\30\7\16\2\2")
+        buf.write("\30\31\7/\2\2\31\7\3\2\2\2\32\33\7\t\2\2\33\34\79\2\2")
+        buf.write("\34\35\7:\2\2\35\36\7;\2\2\36\37\7<\2\2\37 \7=\2\2 !\7")
+        buf.write("/\2\2!\t\3\2\2\2\4\r\23")
         return buf.getvalue()
 
 
@@ -42,11 +42,11 @@ class MiniGoParser ( Parser ):
                      "'const'", "'var'", "'continue'", "'break'", "'range'", 
                      "'nil'", "'true'", "'false'", "'+'", "'-'", "'*'", 
                      "'/'", "'%'", "'=='", "'!='", "'<'", "'>'", "'<='", 
-                     "'>='", "'&&'", "'||'", "'!'", "'='", "'+='", "'-='", 
-                     "'*='", "'/='", "'%='", "'.'", "','", "';'", "<INVALID>", 
+                     "'>='", "'&&'", "'||'", "'!'", "'='", "':='", "'+='", 
+                     "'-='", "'*='", "'/='", "'%='", "','", "';'", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "'('", "')'", "'{'", "'}'", 
-                     "'['", "']'", "'\n'" ]
+                     "'.'", "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
+                     "'('", "')'", "'{'", "'}'", "'['", "']'", "'\n'" ]
 
     symbolicNames = [ "<INVALID>", "LINE_COMMENT", "BLOCK_COMMENT", "IF", 
                       "ELSE", "FOR", "RETURN", "FUNC", "TYPE", "STRUCT", 
@@ -55,12 +55,12 @@ class MiniGoParser ( Parser ):
                       "TRUE", "FALSE", "PLUS", "MINUS", "MUL", "DIV", "MOD", 
                       "EQUAL", "NOT_EQUAL", "LESS", "GREATER", "LESS_OR_EQUAL", 
                       "GREATER_OR_EQUAL", "AND", "OR", "NOT", "ASSIGN", 
-                      "PLUS_ASSIGN", "MINUS_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", 
-                      "MOD_ASSIGN", "SELECTOR", "COMMA", "SEMICO", "DEC_LIT", 
-                      "BIN_LIT", "OCT_LIT", "HEX_LIT", "FLOAT_LIT", "STRING_LIT", 
+                      "SHORT_ASSIGN", "PLUS_ASSIGN", "MINUS_ASSIGN", "MUL_ASSIGN", 
+                      "DIV_ASSIGN", "MOD_ASSIGN", "COMMA", "SEMICO", "DEC_LIT", 
+                      "BIN_LIT", "OCT_LIT", "HEX_LIT", "FLOAT_LIT", "SELECTOR", 
+                      "STRING_LIT", "ILLEGAL_ESCAPE", "UNCLOSE_STRING", 
                       "ID", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "LBRACK", 
-                      "RBRACK", "NL", "WS", "ILLEGAL_ESCAPE", "UNCLOSE_STRING", 
-                      "ERROR_CHAR" ]
+                      "RBRACK", "NL", "WS", "ERROR_CHAR" ]
 
     RULE_program = 0
     RULE_decl = 1
@@ -107,12 +107,12 @@ class MiniGoParser ( Parser ):
     OR=35
     NOT=36
     ASSIGN=37
-    PLUS_ASSIGN=38
-    MINUS_ASSIGN=39
-    MUL_ASSIGN=40
-    DIV_ASSIGN=41
-    MOD_ASSIGN=42
-    SELECTOR=43
+    SHORT_ASSIGN=38
+    PLUS_ASSIGN=39
+    MINUS_ASSIGN=40
+    MUL_ASSIGN=41
+    DIV_ASSIGN=42
+    MOD_ASSIGN=43
     COMMA=44
     SEMICO=45
     DEC_LIT=46
@@ -120,19 +120,20 @@ class MiniGoParser ( Parser ):
     OCT_LIT=48
     HEX_LIT=49
     FLOAT_LIT=50
-    STRING_LIT=51
-    ID=52
-    LPAREN=53
-    RPAREN=54
-    LBRACE=55
-    RBRACE=56
-    LBRACK=57
-    RBRACK=58
-    NL=59
-    WS=60
-    ILLEGAL_ESCAPE=61
-    UNCLOSE_STRING=62
-    ERROR_CHAR=63
+    SELECTOR=51
+    STRING_LIT=52
+    ILLEGAL_ESCAPE=53
+    UNCLOSE_STRING=54
+    ID=55
+    LPAREN=56
+    RPAREN=57
+    LBRACE=58
+    RBRACE=59
+    LBRACK=60
+    RBRACK=61
+    NL=62
+    WS=63
+    ERROR_CHAR=64
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
         super().__init__(input, output)

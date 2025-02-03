@@ -35,17 +35,33 @@ mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 vardecl: VAR ID (normal_vardecl | arr_vardecl) endstmt;
 
 //normal variable declaration
-normal_vardecl: type (EQUAL expr)?;
+normal_vardecl: EQUAL expr | type (EQUAL expr)?;
 //array variable declaration
-arr_vardecl: arr_dim+ type (EQUAL arr_dim+ type list_value )?;
+arr_vardecl: arr_dim+ type (EQUAL arr_dim+ type list_value)? | EQUAL arr_dim+ type list_value;
 
 //có thể dùng một mảng toàn nil???
 list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
 
 
+//struct
+structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
+
+fielddecl: ID type endstmt;
+
+// struct instance
+structinst: ID LBRACE fieldinst* RBRACE endstmt;
+
+fieldinst: ID expr endstmt;
+
+//interface
+interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
+
+methoddecl: ID LPAREN param_list RPAREN type? endstmt;
 
 //fucntion declaration
-funcdecl: FUNC ID LPAREN RPAREN LBRACE RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN LBRACE RBRACE endstmt;
+
+param_list: (ID type? (COMMA ID type?)*)?;//need test without ?
 
 //constant declaration
 //TODO: add expression
@@ -63,12 +79,12 @@ factor5: (MINUS | NOT) factor6 | factor6;
 factor6: value | ID | LPAREN expr RPAREN;
 
 //assignment
-assignstmt: (ID arr_dim* (.ID)? ) assign expr endstmt;
+assignstmt: (ID arr_dim* (.ID)* ) assign expr endstmt;
 
-assign: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+assign: ASSIGN | SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 //value declaration
-value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL;
+value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | ID arr_dim* (.ID)*;
 
 //type declaration
 type: INT | FLOAT | STRING | BOOLEAN | ID;
