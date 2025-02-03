@@ -58,14 +58,14 @@ interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
 
 methoddecl: ID LPAREN param_list RPAREN type? endstmt;
 
+//TODO: add function body
 //fucntion declaration
-funcdecl: FUNC ID LPAREN param_list RPAREN LBRACE RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN type LBRACE  RBRACE endstmt;
 
 param_list: (ID type? (COMMA ID type?)*)?;//need test without ?
 
 //constant declaration
-//TODO: add expression
-constdecl: CONST ID expr endstmt;
+constdecl: CONST ID expr endstmt; //what happend if assign a variable to a constant?
 
 
 
@@ -76,15 +76,17 @@ factor2: factor2 (EQUAL| NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR
 factor3: factor3 (PLUS | MINUS) factor4 | factor4;
 factor4: factor4 (MUL | DIV | MOD) factor5 | factor5;
 factor5: (MINUS | NOT) factor6 | factor6;
-factor6: value | ID | LPAREN expr RPAREN;
+factor6: value | var | LPAREN expr RPAREN;
+
+var: ID (arr_dim | .ID)*;
 
 //assignment
-assignstmt: (ID arr_dim* (.ID)* ) assign expr endstmt;
+assignstmt: var assign expr endstmt;
 
 assign: ASSIGN | SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 //value declaration
-value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | ID arr_dim* (.ID)*;
+value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | var;
 
 //type declaration
 type: INT | FLOAT | STRING | BOOLEAN | ID;
