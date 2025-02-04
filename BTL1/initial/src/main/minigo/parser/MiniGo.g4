@@ -105,8 +105,10 @@ endstmt: SEMICO | NL;
 // Skip single-line comments
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
+fragment ANY_CHAR: .;
+
 // Skip multi-line comments
-BLOCK_COMMENT: '/*' .*? '*/' -> skip;
+BLOCK_COMMENT: '/*' ANY_CHAR* '*/' -> skip;
 
 
 //keywords
@@ -172,10 +174,12 @@ FLOAT_LIT: DIGIT+ '.' DIGIT* EXP?;
 //string literals
 STRING_LIT: '"' (ESC|~[\r\n"\\])* '"';
 
-// UNCLOSE_STRING: '"' (ESC|~["\\])* '"'?;
-ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '\\'.; // throw from start to escape char
-// ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '"';// throw whole string
+
 UNCLOSE_STRING: '"' (ESC|~[\r\n"\\])* /*[\r\n]?*/;
+// UNCLOSE_STRING: '"' (ESC|~["\\])* '"'?;
+ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"\\])* '\\' .?; // throw from start to escape char
+// ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '"';// throw whole string
+
 // //boolean literals
 // BOOL_LIT: 'true' | 'false';
 // //nil literal
