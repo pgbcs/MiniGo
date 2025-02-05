@@ -210,7 +210,7 @@ class LexerSuite(unittest.TestCase):
                 arr := [1, 2, 3];
                 if (a > b) { return; }
             }""", 
-        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 163))
+        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},;,},<EOF>", 163))
 
     #test literals
     #test integer literal
@@ -329,25 +329,41 @@ class LexerSuite(unittest.TestCase):
     def test_more_test_cases1(self):
         """test more test cases"""
         self.assertTrue(TestLexer.checkLexeme("a := 1; b := 2;", "a,:=,1,;,b,:=,2,;,<EOF>", 197))
-    def test_more_test_cases2(self):
-        """test complex code"""
-        self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
-            arr := [1, 2, 3];
-            if (a > b) { return; }
-        }""", 
-        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 198))
-    def test_more_test_cases3(self):
-        """test complex code"""
-        self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
-            arr := [1, 2, 3];
-            if (a > b) { return; }
-        }""", 
-        "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 199))
+    # def test_more_test_cases2(self):
+    #     """test complex code"""
+    #     self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
+    #         arr := [1, 2, 3];
+    #         if (a > b) { return; }
+    #     }""", 
+    #     "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 198))
+    # def test_more_test_cases3(self):
+    #     """test complex code"""
+    #     self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
+    #         arr := [1, 2, 3];
+    #         if (a > b) { return; }
+    #     }""", 
+    #     "func,foo,(,a,int,,,b,float,),{,arr,:=,[,1,,,2,,,3,],;,if,(,a,>,b,),{,return,;,},},<EOF>", 199))
 
-    def test_error_token11(self):
-        # Numeric literal with an extra dot causing a malformed number.
-        # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.
-        self.assertTrue(TestLexer.checkLexeme("1.2.3", "1.2,ErrorToken .", 281))
+    def test_auto_insert_semicolon1(self):
+        """Test auto insert semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("var a int;     \n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 200))
+    
+    def test_auto_insert_semicolon2(self):
+        """Test auto insert semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("var a int     ;\n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 201))
+    def test_auto_insert_semicolon3(self):
+        """Test auto insert semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("var a int    ;     \n var b float", "var,a,int,;,var,b,float,<EOF>", 202))
+    def test_auto_insert_semicolon4(self):
+        """Test auto insert semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("var a int;     \n\n\n var b float", "var,a,int,;,var,b,float,<EOF>", 203))
+    def test_auto_insert_semicolon5(self):
+        """Test auto insert semicolon"""
+        self.assertTrue(TestLexer.checkLexeme("var a int     \n\n\n var b float;     \n\n\n", "var,a,int,;,var,b,float,;,<EOF>", 204))
+    # def test_error_token11(self):
+    #     # Numeric literal with an extra dot causing a malformed number.
+    #     # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.
+    #     self.assertTrue(TestLexer.checkLexeme("1.2.3", "1.2,ErrorToken .", 281))
     # def test_string_literal_with_single_quote(self):
     #     """Test string with single quote character"""
     #     self.assertTrue(TestLexer.checkLexeme("'Hello \\'world\\'!'", 

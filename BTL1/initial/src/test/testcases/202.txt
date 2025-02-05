@@ -1,2 +1,2 @@
-func foo () {
-        };
+var a int    ;     
+ var b float

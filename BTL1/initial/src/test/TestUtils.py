@@ -37,6 +37,7 @@ class TestLexer:
     def checkLexeme(input,expect,num):
         inputfile = TestUtil.makeSource(input,num)
         dest = open("./test/solutions/" + str(num) + ".txt","w")
+        # print("Test ", num)
         lexer = MiniGoLexer(inputfile)
         try:
             # tokens = lexer.getAllTokens()  # Lấy toàn bộ token từ lexer
@@ -61,6 +62,7 @@ class TestLexer:
     @staticmethod    
     def printLexeme(dest,lexer,char):
         tok = lexer.nextToken()
+
         if tok.type != Token.EOF:
             dest.write(tok.text+char)
             TestLexer.printLexeme(dest,lexer,char)

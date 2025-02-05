@@ -6,6 +6,8 @@ from lexererr import *
 }
 
 @lexer::members {
+lineCount = 1
+prevToken = None
 def emit(self):
     tk = self.type
     if tk == self.UNCLOSE_STRING:       
@@ -17,27 +19,35 @@ def emit(self):
     elif tk == self.ERROR_CHAR:
         result = super().emit();
         raise ErrorToken(result.text); 
+    elif tk==self.NL:
+        result = super().emit();
+        result.text = ';'
+        result.type = self.SEMICO
+        self.prevToken = None
+        return result  
     else:
-        return super().emit();
+        result = super().emit();
+        self.prevToken = result
+        return result;
 }
 
 options{
 	language=Python3;
 }
 
-program  : decl* mainfunc decl* EOF;
+program  : decl+ EOF;
 
 decl: funcdecl | vardecl;
 
-mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
+// mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 
 //variable declaration
 vardecl: VAR ID (normal_vardecl | arr_vardecl) endstmt;
 
 //normal variable declaration
-normal_vardecl: EQUAL expr | type (EQUAL expr)?;
+normal_vardecl: EQUAL expr | typedecl (EQUAL expr)?;
 //array variable declaration
-arr_vardecl: arr_dim+ type (EQUAL arr_dim+ type list_value)? | EQUAL arr_dim+ type list_value;
+arr_vardecl: arr_dim+ typedecl (EQUAL arr_dim+ typedecl list_value)? | EQUAL arr_dim+ typedecl list_value;
 
 //có thể dùng một mảng toàn nil???
 list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
@@ -46,7 +56,7 @@ list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
 //struct
 structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
 
-fielddecl: ID type endstmt;
+fielddecl: ID typedecl endstmt;
 
 // struct instance
 structinst: ID LBRACE fieldinst* RBRACE endstmt;
@@ -56,13 +66,13 @@ fieldinst: ID expr endstmt;
 //interface
 interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
 
-methoddecl: ID LPAREN param_list RPAREN type? endstmt;
+methoddecl: ID LPAREN param_list RPAREN typedecl? endstmt;
 
 //TODO: add function body
 //fucntion declaration
-funcdecl: FUNC ID LPAREN param_list RPAREN type LBRACE  RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN typedecl LBRACE  RBRACE endstmt;
 
-param_list: (ID type? (COMMA ID type?)*)?;//need test without ?
+param_list: (ID typedecl? (COMMA ID typedecl?)*)?;//need test without ?
 
 //constant declaration
 constdecl: CONST ID expr endstmt; //what happend if assign a variable to a constant?
@@ -89,7 +99,7 @@ assign: ASSIGN | SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_AS
 value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | var;
 
 //type declaration
-type: INT | FLOAT | STRING | BOOLEAN | ID;
+typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
 
 // type_with_init: INT EQUAL DEC_LIT | FLOAT EQUAL FLOAT_LIT | STRING EQUAL STRING_LIT | BOOLEAN EQUAL TRUE | BOOLEAN EQUAL FALSE;
 
@@ -202,9 +212,21 @@ fragment LETTER: [a-zA-Z] ;
 // fragment ESC: [\n\t\r\\] | '\"';
 fragment ESC: '\\' [ntr"\\];
 
-NL: '\n' -> skip; //skip newlines
-
-WS : [ \t\r]+ -> skip ; // skip spaces, tabs 
+// NL: '\n' -> skip; //skip newlines
+//change newline to semicolon
+NL: '\n'{
+    statement_end_tokens = {
+    self.ID, self.DEC_LIT, self.BIN_LIT, self.OCT_LIT, self.HEX_LIT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.NIL, self.STRING_LIT,
+    self.INT, self.FLOAT, self.BOOLEAN, self.STRING,
+    self.RETURN, self.CONTINUE, self.BREAK,
+    self.RPAREN, self.RBRACK, self.RBRACE
+}
+    if(self.prevToken == None):
+        self.skip()
+    elif self.prevToken.type not in statement_end_tokens:
+        self.skip()
+    };
+WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs 
 
 
 
