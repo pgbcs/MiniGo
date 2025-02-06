@@ -38,7 +38,7 @@ class LexerSuite(unittest.TestCase):
         """test mix comment"""
         self.assertTrue(TestLexer.checkLexeme('''//abc
                                                 abc
-                                                /*cde*/''',"abc,<EOF>",109))
+                                                /*cde*/''',"abc,;,<EOF>",109))
 
     #test keywords
     def test_keyword_var(self):
@@ -329,6 +329,19 @@ class LexerSuite(unittest.TestCase):
     def test_more_test_cases1(self):
         """test more test cases"""
         self.assertTrue(TestLexer.checkLexeme("a := 1; b := 2;", "a,:=,1,;,b,:=,2,;,<EOF>", 197))
+    def test_block_comment_with_star(self):
+        """Test block comment with star character"""
+        self.assertTrue(TestLexer.checkLexeme("/**\n* Get all books\n* @param $page\n* @param $perPage\n* @return [$result, $msg, [$books, $count]]    */", "<EOF>", 198))
+    def test_block_comment_interleaved_with_code(self):
+        """test block comment interleaved with code"""
+        self.assertTrue(TestLexer.checkLexeme("a := 1; /* This is a comment */ b := 2;", "a,:=,1,;,b,:=,2,;,<EOF>", 199))
+    def test_many_block_comments_interleaved_with_code(self):
+        """test many block comments interleaved with code"""
+        self.assertTrue(TestLexer.checkLexeme("/*HIHI*/a := 1; /* This is a comment */ b := 2; /* Another comment */ c := 3;", "a,:=,1,;,b,:=,2,;,c,:=,3,;,<EOF>", 200))
+    def test_cmt(self):
+        self.assertTrue(TestLexer.checkLexeme("/****/", "<EOF>", 201))
+    def test_cmt1(self):
+        self.assertTrue(TestLexer.checkLexeme("/***/", "<EOF>", 202))
     # def test_more_test_cases2(self):
     #     """test complex code"""
     #     self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
@@ -346,20 +359,20 @@ class LexerSuite(unittest.TestCase):
 
     def test_auto_insert_semicolon1(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int;     \n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 200))
+        self.assertTrue(TestLexer.checkLexeme("var a int;     \n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 201))
     
     def test_auto_insert_semicolon2(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int     ;\n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 201))
+        self.assertTrue(TestLexer.checkLexeme("var a int     ;\n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 202))
     def test_auto_insert_semicolon3(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int    ;     \n var b float", "var,a,int,;,var,b,float,<EOF>", 202))
+        self.assertTrue(TestLexer.checkLexeme("var a int    ;     \n var b float", "var,a,int,;,var,b,float,<EOF>", 203))
     def test_auto_insert_semicolon4(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int;     \n\n\n var b float", "var,a,int,;,var,b,float,<EOF>", 203))
+        self.assertTrue(TestLexer.checkLexeme("var a int;     \n\n\n var b float", "var,a,int,;,var,b,float,<EOF>", 204))
     def test_auto_insert_semicolon5(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int     \n\n\n var b float;     \n\n\n", "var,a,int,;,var,b,float,;,<EOF>", 204))
+        self.assertTrue(TestLexer.checkLexeme("var a int     \n\n\n var b float;     \n\n\n", "var,a,int,;,var,b,float,;,<EOF>", 205))
     # def test_error_token11(self):
     #     # Numeric literal with an extra dot causing a malformed number.
     #     # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.

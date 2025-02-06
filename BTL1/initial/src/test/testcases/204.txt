@@ -1,6 +1,4 @@
-var a int     
+var a int;     
 
 
- var b float;     
-
-
+ var b float

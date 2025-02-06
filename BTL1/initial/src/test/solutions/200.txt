@@ -1,1 +1,1 @@
-var,a,int,;,var,b,float,;,<EOF>
+a,:=,1,;,b,:=,2,;,c,:=,3,;,<EOF>

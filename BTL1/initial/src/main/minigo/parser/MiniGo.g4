@@ -115,10 +115,14 @@ endstmt: SEMICO | NL;
 // Skip single-line comments
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
-fragment ANY_CHAR: .;
+fragment ALLOWED_TEXT: 
+    ( ~[*/] 
+    | '*' ~[/]  
+    | '/' ~[*]
+    )*;
 
 // Skip multi-line comments
-BLOCK_COMMENT: '/*' ANY_CHAR* '*/' -> skip;
+BLOCK_COMMENT: '/*' ALLOWED_TEXT BLOCK_COMMENT* ALLOWED_TEXT '*/' -> skip;
 
 
 //keywords

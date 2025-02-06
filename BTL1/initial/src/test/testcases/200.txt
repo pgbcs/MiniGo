@@ -1,2 +1,1 @@
-var a int;     
- var b float;
+/*HIHI*/a := 1; /* This is a comment */ b := 2; /* Another comment */ c := 3;

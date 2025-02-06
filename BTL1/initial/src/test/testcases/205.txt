@@ -1,1 +1,6 @@
-var i ;
+var a int     
+
+
+ var b float;     
+
+
