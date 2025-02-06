@@ -85,3 +85,101 @@ class ParserSuite(unittest.TestCase):
         input = """var a [5][5][10][10] string;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,318))
+    def test_array_declare_without_size(self):
+        input = """var a [] int;"""
+        expect = "Error on line 1 col 8: ]"
+        self.assertTrue(TestParser.checkParser(input,expect,319))
+    def test_array_declare_with_negative_size(self):
+        input = """var a [-5] int;"""
+        expect = "Error on line 1 col 8: -"
+        self.assertTrue(TestParser.checkParser(input,expect,320))
+    def test_array_declare_with_init(self):
+        input = """var a [5] int = [5] int{1,2,3,4,5};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,321))
+    def test_array_declare_with_init_and_many_dim(self):
+        input = """var a [5][5][5] int = [5][5][5]int{
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}      },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}        },
+        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}        },        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}        },        {
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0}        }};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,322))
+    def test_array_declare_with_init_not_enough_element(self):
+        input = """var a [5] int = [5] int{1,2,3,4};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,323))
+    def test_array_declare_with_init_too_many_element(self):
+        input = """var a [5] int = [5] int{1,2,3,4,5,6};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,324))
+    def test_array_declare_with_not_equal_dim(self):
+        input = """var a [1][2] int = [2][1]int{{1},{2}};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,325))
+    def test_array_declare_with_not_enough_dim(self):
+        input = """var a [1][2] int = [1]int{1};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,326))
+    #struct declare
+    def test_struct_declare(self):
+        input = """type foo struct {
+            a int;
+            b float64;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,327))
+    def test_struct_declare_missing_id(self):
+        input = """type struct {
+            a int;
+            b float;
+        };"""
+        expect = "Error on line 1 col 6: struct"
+        self.assertTrue(TestParser.checkParser(input,expect,328))
+    def test_struct_declare_missing_semi(self):
+        input = """type foo struct {
+            a int;
+            b float
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,329))
+    def test_struct_declare_method_in_struct(self):
+        input = """type foo struct {
+            a int;
+            b float;
+            func main() {};
+        };"""
+        expect = "Error on line 4 col 13: func"
+        self.assertTrue(TestParser.checkParser(input,expect,330))
+    def test_use_instance_of_struct(self):
+        input = """type student struct {
+            name string;
+            age int;
+        };
+        var s student = student{name: "Nguyen Van A",age: 20};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,331))

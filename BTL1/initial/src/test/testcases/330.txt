@@ -1,0 +1,5 @@
+type foo struct {
+            a int;
+            b float;
+            func main() {};
+        };

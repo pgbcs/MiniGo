@@ -63,9 +63,11 @@ structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
 fielddecl: ID typedecl endstmt;
 
 // struct instance
-structinst: ID LBRACE fieldinst* RBRACE;
+structinst: ID LBRACE fieldinstlist RBRACE;
 
-fieldinst: ID expr endstmt;
+fieldinstlist: (fieldinst (COMMA fieldinst)*) | ; 
+
+fieldinst: ID ':' expr;
 
 //interface
 interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
@@ -96,7 +98,7 @@ factor1: factor1 AND factor2 | factor2;
 factor2: factor2 (EQUAL| NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR_EQUAL) factor3 | factor3;
 factor3: factor3 (PLUS | MINUS) factor4 | factor4;
 factor4: factor4 (MUL | DIV | MOD) factor5 | factor5;
-factor5: (MINUS | NOT) factor6 | factor6;
+factor5: (MINUS | NOT) factor5 | factor6;
 factor6: value | var | LPAREN expr RPAREN;
 
 var: ID (arr_dim | .ID)*;
