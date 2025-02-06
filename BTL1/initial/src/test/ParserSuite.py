@@ -183,3 +183,140 @@ class ParserSuite(unittest.TestCase):
         var s student = student{name: "Nguyen Van A",age: 20};"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,331))
+    def test_declare_struct_method(self):
+        input = """func (s student) getAge() int {
+            return s.age
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,332))
+    def test_call_method_of_struct(self):
+        input = """PutStringLn(s.getAge());"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,333))
+    def test_nested_struct(self):
+        input ="""type student struct{
+            name string;
+            age int;
+            type address struct{
+                street string;
+                city string;
+            };
+        };"""
+        expect = "Error on line 4 col 13: type"
+        self.assertTrue(TestParser.checkParser(input,expect,334))
+    #test interface declare
+    def test_interface_declare(self):
+        input = """type Calculator interface {
+Add(x, y int) int;
+Subtract(a, b float, c int) float;
+Reset()
+SayHello(name string)
+};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,335))
+    def test_interface_declare_missing_id(self):
+        input = """type interface {
+Add(x, y int) int;
+Subtract(a, b float, c int) float;
+Reset()
+SayHello(name string)
+};"""
+        expect = "Error on line 1 col 6: interface"
+        self.assertTrue(TestParser.checkParser(input,expect,336))
+    
+    #test function declare
+    def test_function_declare(self):
+        input = """func main() {
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,337))
+    def test_function_declare_with_param(self):
+        input = """func main(a int, b float, c string) {
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,338))
+    def test_function_declare_with_return(self):
+        input = """func main() int {
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,339))
+    def test_function_declare_with_param_and_return(self):
+        input = """func main(a int, b float, c string) int {
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,340))
+    def test_function_declare_with_param_and_return_and_body(self):
+        input = """func main(a int, b float, c string) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,341))
+    def test_function_declare_with_param_sharing_same_type(self):
+        input = """func main(a, b, c int) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,342))
+    
+    #test expression
+    def test_complex_arithmetic_operators1(self):
+        input = """func main() {
+            a = b + c - d * e / f % g;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,343))    
+    def test_complex_arithmetic_operators2(self):
+        input = """func main() {
+            a = b + c - d * e / f % g;
+            b = a * c / d % e + f - g;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,344))
+    def test_complex_arithmetic_operators3(self):
+        input = """func main() {
+            a = b + c - d * e / f % g;
+            b = a * c / d % e + f - g;
+            c = a + b + c + d + e;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,345))
+    def test_complex_arithmetic_operators4(self):
+        input = """func main() {
+            a = a-b+c*d/e%f+g;
+            b = d*e/f%g+a;
+            c = e+ 2*f - 3/g + 4*h + 5+i;
+            d = (a+b)*c/d;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,346))
+
+    def test_relational_operators1(self):
+        input = """func main() {
+            bao = oba == boa;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,347))
+    def test_relational_operators2(self):
+        input = """func main() {
+            bdh = sda != cdss;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,348))
+    def test_relational_operators3(self):
+        input =  """X = y >= z + 1"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,349))
+    def test_relational_operators4(self):
+        input =  """X = y <= z * 732004"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,350))
+    def test_relational_operators5(self):
+        input =  """X = y < z - 1505"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,351))
+    def test_relational_operators6(self):
+        input =  """X = y > z / 2225"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input,expect,352))
+    #khai báo hàm lồng hàm thì sao
+    #test lại các declare với expr

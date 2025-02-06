@@ -1,0 +1,1 @@
+PutStringLn(s.getAge());

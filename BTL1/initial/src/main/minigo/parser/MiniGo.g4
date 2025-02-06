@@ -38,7 +38,7 @@ options{
 program  : (decl|stmt)+ EOF;
 
 decl: funcdecl | vardecl | constdecl | structdecl | interfacedecl | methodimple;
-stmt: expr | endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
+stmt: expr | endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt | returnstmt;
 // mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 
 //variable declaration
@@ -67,7 +67,7 @@ structinst: ID LBRACE fieldinstlist RBRACE;
 
 fieldinstlist: (fieldinst (COMMA fieldinst)*) | ; 
 
-fieldinst: ID ':' expr;
+fieldinst: ID COLON expr;
 
 //interface
 interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
@@ -78,7 +78,7 @@ methoddecl: ID LPAREN param_list RPAREN typedecl? endstmt;
 //fucntion declaration
 funcdecl: FUNC ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)* RBRACE endstmt;
 
-methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE  RBRACE endstmt;
+methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)* RBRACE endstmt;
 
 param_list: (ID typedecl? (COMMA ID typedecl?)*)?;//need test without ?
 
@@ -146,6 +146,7 @@ fragment ALLOWED_TEXT:
 // Skip multi-line comments
 BLOCK_COMMENT: '/*' ALLOWED_TEXT BLOCK_COMMENT* ALLOWED_TEXT '*/' -> skip;
 
+COLON: ':';
 
 //keywords
 IF: 'if';

@@ -324,7 +324,7 @@ class LexerSuite(unittest.TestCase):
         self.assertTrue(TestLexer.checkLexeme("\"\\\"\\\"\"","\"\\\"\\\"\",<EOF>",195))
     def test_wrong_token2(self):
         """test wrong token"""
-        self.assertTrue(TestLexer.checkLexeme("func foo(x, y: int) {}", "func,foo,(,x,,,y,ErrorToken :", 196))
+        self.assertTrue(TestLexer.checkLexeme("func foo(x, y: int) {}", "func,foo,(,x,,,y,:,int,),{,},<EOF>", 196))
     #more test cases
     def test_more_test_cases1(self):
         """test more test cases"""
@@ -341,7 +341,7 @@ class LexerSuite(unittest.TestCase):
     def test_cmt(self):
         self.assertTrue(TestLexer.checkLexeme("/****/", "<EOF>", 201))
     def test_cmt1(self):
-        self.assertTrue(TestLexer.checkLexeme("/***/", "<EOF>", 202))
+        self.assertTrue(TestLexer.checkLexeme("/*ab****/", "<EOF>", 202))
     # def test_more_test_cases2(self):
     #     """test complex code"""
     #     self.assertTrue(TestLexer.checkLexeme("""func foo(a int, b float) {
@@ -373,6 +373,12 @@ class LexerSuite(unittest.TestCase):
     def test_auto_insert_semicolon5(self):
         """Test auto insert semicolon inside function parameter list"""
         self.assertTrue(TestLexer.checkLexeme("func(int a,\nint b,\nint c)", "func,(,int,a,,,int,b,,,int,c,),<EOF>", 205))
+    def test_nested_block_comment(self):
+        """Test nested block comment"""
+        self.assertTrue(TestLexer.checkLexeme("""/* This is a /* nested
+multi-line
+comment. */
+*/""", "<EOF>", 206))
     # def test_error_token11(self):
     #     # Numeric literal with an extra dot causing a malformed number.
     #     # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.
