@@ -363,16 +363,16 @@ class LexerSuite(unittest.TestCase):
     
     def test_auto_insert_semicolon2(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int     ;\n var b float;", "var,a,int,;,var,b,float,;,<EOF>", 202))
+        self.assertTrue(TestLexer.checkLexeme("var a int   ;     \n\n\n var b float", "var,a,int,;,var,b,float,<EOF>", 202))
     def test_auto_insert_semicolon3(self):
         """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int    ;     \n var b float", "var,a,int,;,var,b,float,<EOF>", 203))
+        self.assertTrue(TestLexer.checkLexeme("var a int     \n\n\n var b float;     \n\n\n", "var,a,int,;,var,b,float,;,<EOF>", 203))
     def test_auto_insert_semicolon4(self):
-        """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int;     \n\n\n var b float", "var,a,int,;,var,b,float,<EOF>", 204))
+        """Test auto insert semicolon with arithmetic operations"""
+        self.assertTrue(TestLexer.checkLexeme("x = 5\ny = x + 2", "x,=,5,;,y,=,x,+,2,<EOF>", 204))
     def test_auto_insert_semicolon5(self):
-        """Test auto insert semicolon"""
-        self.assertTrue(TestLexer.checkLexeme("var a int     \n\n\n var b float;     \n\n\n", "var,a,int,;,var,b,float,;,<EOF>", 205))
+        """Test auto insert semicolon inside function parameter list"""
+        self.assertTrue(TestLexer.checkLexeme("func(int a,\nint b,\nint c)", "func,(,int,a,,,int,b,,,int,c,),<EOF>", 205))
     # def test_error_token11(self):
     #     # Numeric literal with an extra dot causing a malformed number.
     #     # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.

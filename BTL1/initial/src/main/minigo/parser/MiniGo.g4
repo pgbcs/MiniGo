@@ -35,19 +35,23 @@ options{
 	language=Python3;
 }
 
-program  : decl+ EOF;
+program  : (decl|stmt)+ EOF;
 
-decl: funcdecl | vardecl;
-
+decl: funcdecl | vardecl | constdecl | structdecl | interfacedecl | methodimple;
+stmt: expr | endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
 // mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 
 //variable declaration
-vardecl: VAR ID (normal_vardecl | arr_vardecl) endstmt;
+vardecl: (normal_vardecl_init | normal_vardecl_non_init |arr_vardecl) endstmt;
 
 //normal variable declaration
-normal_vardecl: EQUAL expr | typedecl (EQUAL expr)?;
+normal_vardecl_non_init: VAR ID typedecl;
+normal_vardecl_init: VAR ID typedecl? ASSIGN expr;
+
+// //normal variable declaration
+// normal_vardecl: EQUAL expr | typedecl (EQUAL expr)?;
 //array variable declaration
-arr_vardecl: arr_dim+ typedecl (EQUAL arr_dim+ typedecl list_value)? | EQUAL arr_dim+ typedecl list_value;
+arr_vardecl: VAR ID (arr_dim+ typedecl (ASSIGN arr_dim+ typedecl list_value)? | ASSIGN arr_dim+ typedecl list_value);
 
 //có thể dùng một mảng toàn nil???
 list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
@@ -59,7 +63,7 @@ structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
 fielddecl: ID typedecl endstmt;
 
 // struct instance
-structinst: ID LBRACE fieldinst* RBRACE endstmt;
+structinst: ID LBRACE fieldinst* RBRACE;
 
 fieldinst: ID expr endstmt;
 
@@ -70,13 +74,20 @@ methoddecl: ID LPAREN param_list RPAREN typedecl? endstmt;
 
 //TODO: add function body
 //fucntion declaration
-funcdecl: FUNC ID LPAREN param_list RPAREN typedecl LBRACE  RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)* RBRACE endstmt;
+
+methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE  RBRACE endstmt;
 
 param_list: (ID typedecl? (COMMA ID typedecl?)*)?;//need test without ?
 
 //constant declaration
-constdecl: CONST ID expr endstmt; //what happend if assign a variable to a constant?
+constdecl: CONST ID ASSIGN expr endstmt; //what happend if assign a variable to a constant?
 
+funccall: ID LPAREN (actualparam)? RPAREN;
+
+methodcall: ID SELECTOR ID LPAREN actualparam? RPAREN;
+
+actualparam: expr | funccall | methodcall | var (COMMA var)*;
 
 
 //expression
@@ -107,9 +118,18 @@ typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
 arr_dim: LBRACK (DEC_LIT | ID) RBRACK; //ID is constant name
 
 //TODO: need check again
-endstmt: SEMICO | NL;
+endstmt: SEMICO;
 
+ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | decl)* RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|decl)* RBRACE)* (ELSE LBRACE (stmt | decl)* RBRACE)? endstmt;
 
+forstmt: FOR expr LBRACE (stmt | decl)* RBRACE endstmt 
+        | FOR (assignstmt | normal_vardecl_init) SEMICO expr SEMICO assignstmt LBRACE (stmt | decl)* RBRACE endstmt
+        | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | typedecl arr_dim+ list_value) LBRACE (stmt | decl)* RBRACE endstmt;
+
+breakstmt: BREAK endstmt;
+continuestmt: CONTINUE endstmt;
+callstmt: (funccall | methodcall) endstmt;
+returnstmt: RETURN expr endstmt;
 
 //skip comments
 // Skip single-line comments
@@ -117,9 +137,9 @@ LINE_COMMENT: '//' ~[\r\n]* -> skip;
 
 fragment ALLOWED_TEXT: 
     ( ~[*/] 
-    | '*' ~[/]  
-    | '/' ~[*]
-    )*;
+    | '*'+ ~[/]  
+    | '/'+ ~[*]
+    )* ('/'+| '*'+)?;
 
 // Skip multi-line comments
 BLOCK_COMMENT: '/*' ALLOWED_TEXT BLOCK_COMMENT* ALLOWED_TEXT '*/' -> skip;
