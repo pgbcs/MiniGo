@@ -38,7 +38,7 @@ options{
 program  : (decl|stmt)+ EOF;
 
 decl: funcdecl | vardecl | constdecl | structdecl | interfacedecl | methodimple;
-stmt: expr | endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt | returnstmt;
+stmt: endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt | returnstmt;
 // mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 
 //variable declaration
@@ -60,7 +60,7 @@ list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
 //struct
 structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
 
-fielddecl: ID typedecl endstmt;
+fielddecl: ID (arr_dim)* typedecl endstmt;
 
 // struct instance
 structinst: ID LBRACE fieldinstlist RBRACE;
@@ -85,11 +85,11 @@ param_list: (ID typedecl? (COMMA ID typedecl?)*)?;//need test without ?
 //constant declaration
 constdecl: CONST ID ASSIGN expr endstmt; //what happend if assign a variable to a constant?
 
-funccall: ID LPAREN (actualparam)? RPAREN;
+funccall: ID LPAREN (actualparam (COMMA actualparam)*)? RPAREN;
 
-methodcall: ID SELECTOR ID LPAREN actualparam? RPAREN;
+methodcall: ID SELECTOR ID LPAREN (actualparam (COMMA actualparam)*)? RPAREN;
 
-actualparam: expr | funccall | methodcall | var (COMMA var)*;
+actualparam: expr | funccall | methodcall | var;
 
 
 //expression
@@ -101,8 +101,8 @@ factor4: factor4 (MUL | DIV | MOD) factor5 | factor5;
 factor5: (MINUS | NOT) factor5 | factor6;
 factor6: value | var | LPAREN expr RPAREN;
 
-var: ID (arr_dim | .ID)*;
-
+var: ID (arr_dim_acc | .ID)*;
+arr_dim_acc: LBRACK (expr | ID) RBRACK;
 //assignment
 assignstmt: var assign expr endstmt;
 

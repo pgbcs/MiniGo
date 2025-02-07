@@ -1,0 +1,3 @@
+func (s student) hello(x ,y int, z int){
+        }
+        s.hello(, a, b );

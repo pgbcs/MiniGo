@@ -1,0 +1,4 @@
+result = (((s1.a[B[i] + s2.b * C[j] / s3.c - D[k] % s4.d] <= s5.e[F[m]] || 
+(s6.f[G[n]] - s7.g / H[o] + s8.h * I[P[Q[r]]]) > s9.i[J[aa]] ) && 
+(!(s10.j[K[L[M[p] % s11.k]] == s12.l[O[R[s]]]) || 
+(s13.m[T[U[V[w] / X[y] - Z[bb] + s14.n.CC[dd] * EE[ff]]] != s15.o.FF[gg]))));

@@ -1,0 +1,1 @@
+cond = (price >= 1000000 && stock > 0) || (isSpecialItem == true && stock > 5);

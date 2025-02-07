@@ -1,0 +1,3 @@
+func hello(x ,y int, z int){
+        }
+        hello(1, 2 ,3);

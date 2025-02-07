@@ -1,0 +1,5 @@
+if (yourAge >= 18){
+            if (yourAge >= 22){
+                PutStringLn("You are a grown-up");
+            }
+        };

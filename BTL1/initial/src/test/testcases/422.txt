@@ -1,0 +1,2 @@
+if ()
+            PutStringLn("You are an adult");
