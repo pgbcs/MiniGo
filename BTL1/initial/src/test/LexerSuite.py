@@ -386,4 +386,14 @@ comment. */
     # def test_string_literal_with_single_quote(self):
     #     """Test string with single quote character"""
     #     self.assertTrue(TestLexer.checkLexeme("'Hello \\'world\\'!'", 
-    #                                           "'Hello \\'world\\'!',<EOF>", 200))
+    #                                   
+    #         "'Hello \\'world\\'!',<EOF>", 200))
+
+    def test_cmt_99(self):
+        self.assertTrue(TestLexer.checkLexeme("""
+                p := Person{
+                    name: "Alice", 
+                    age: 30
+                }"""
+        , "var,a,=,5,;,var,b,=,6,;,<EOF>", 999))
+    #write more test for unclose string

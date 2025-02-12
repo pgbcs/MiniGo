@@ -716,6 +716,16 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
         expect = "Error on line 1 col 5: )"
         self.assertTrue(TestParser.checkParser(input, expect, 422))
     
+
+    def test_029(self):
+        input = """
+        func (p Person) Greet() string {
+            if (1) {return;}
+            else if (1)
+            {}
+        };"""
+        expect = "Error on line 4 col 16: else"
+        self.assertTrue(TestParser.checkParser(input ,expect, 423))
 # #khai báo hàm lồng hàm thì sao
 #     #test lại các declare với expr *
 #     #test khai báo mảng với expression là size *

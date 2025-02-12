@@ -131,7 +131,7 @@ forstmt: FOR expr LBRACE (stmt | decl)* RBRACE endstmt
 breakstmt: BREAK endstmt;
 continuestmt: CONTINUE endstmt;
 callstmt: (funccall | methodcall) endstmt;
-returnstmt: RETURN expr endstmt;
+returnstmt: RETURN expr? endstmt;
 
 //skip comments
 // Skip single-line comments
