@@ -6,7 +6,6 @@ from lexererr import *
 }
 
 @lexer::members {
-lineCount = 1
 prevToken = None
 def emit(self):
     tk = self.type

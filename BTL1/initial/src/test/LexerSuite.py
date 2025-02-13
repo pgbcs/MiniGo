@@ -379,6 +379,9 @@ class LexerSuite(unittest.TestCase):
 multi-line
 comment. */
 */""", "<EOF>", 206))
+    def test_auto_insert_semicolon_with_comment(self):
+        """Test auto insert semicolon with comment"""
+        self.assertTrue(TestLexer.checkLexeme("var a int // This is a comment\n", "var,a,int,;,<EOF>", 207))
     # def test_error_token11(self):
     #     # Numeric literal with an extra dot causing a malformed number.
     #     # The lexer should form the first valid token "1.2" and then report the extra '.' as an error.

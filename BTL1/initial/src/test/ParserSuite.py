@@ -732,3 +732,11 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
 #     #test khai báo struct với field là array *
 #     #test nhét array vào paramlist được hay không
     
+    def test_struct_literal5(self):
+        input = """ func main() {
+                        var x = Person{}
+
+                        Person[0][1].[0]x[0][1].age := (wow / test) + 1
+                    };"""
+        expect = "Error on line 4 col 38: ["
+        self.assertTrue(TestParser.checkParser(input, expect, 483))

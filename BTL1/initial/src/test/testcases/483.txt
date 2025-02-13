@@ -1,0 +1,5 @@
+ func main() {
+                        var x = Person{}
+
+                        Person[0][1].[0]x[0][1].age := (wow / test) + 1
+                    };
