@@ -1,1 +1,1 @@
-check = GPA >= 3.5 && income < 7000000 || volunteer_hours > 30 && is_disabled;
+check := GPA >= 3.5 && income < 7000000 || volunteer_hours > 30 && is_disabled;

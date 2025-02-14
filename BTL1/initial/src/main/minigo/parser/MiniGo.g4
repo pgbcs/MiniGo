@@ -36,8 +36,9 @@ options{
 
 program  : (decl|stmt)+ EOF;
 
-decl: funcdecl | vardecl | constdecl | structdecl | interfacedecl | methodimple;
+decl: funcdecl | structdecl | interfacedecl | methodimple | blockdecl;
 stmt: endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt | returnstmt;
+blockdecl: vardecl | constdecl;
 // mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
 
 //variable declaration
@@ -53,7 +54,7 @@ normal_vardecl_init: VAR ID typedecl? ASSIGN expr;
 arr_vardecl: VAR ID (arr_dim+ typedecl (ASSIGN arr_dim+ typedecl list_value)? | ASSIGN arr_dim+ typedecl list_value);
 
 //có thể dùng một mảng toàn nil???
-list_value: '{' (list_value (COMMA list_value)* | expr (COMMA expr)*) '}';
+list_value: LBRACE (list_value (COMMA list_value)* | expr (COMMA expr)*) RBRACE;
 
 
 //struct
@@ -75,11 +76,16 @@ methoddecl: ID LPAREN param_list RPAREN typedecl? endstmt;
 
 //TODO: add function body
 //fucntion declaration
-funcdecl: FUNC ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)* RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN returntype? LBRACE (stmt|blockdecl)* RBRACE endstmt;
 
-methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)* RBRACE endstmt;
+methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN returntype? LBRACE (stmt|blockdecl)* RBRACE endstmt;
 
-param_list: (ID typedecl? (COMMA ID typedecl?)*)?;//need test without ?
+returntype: typedecl | arr_dim+ typedecl;
+
+param_list: param_group_prime | ;//need test without ?
+param_group_prime: param_group (COMMA param_group_prime) | param_group;
+param_group: param_mem_list (typedecl | arr_dim+ typedecl);
+param_mem_list: ID COMMA param_mem_list | ID;
 
 //constant declaration
 constdecl: CONST ID ASSIGN expr endstmt; //what happend if assign a variable to a constant?
@@ -98,17 +104,18 @@ factor2: factor2 (EQUAL| NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR
 factor3: factor3 (PLUS | MINUS) factor4 | factor4;
 factor4: factor4 (MUL | DIV | MOD) factor5 | factor5;
 factor5: (MINUS | NOT) factor5 | factor6;
-factor6: value | var | LPAREN expr RPAREN;
+factor6: value | LPAREN expr RPAREN;
 
 var: ID (arr_dim_acc | .ID)*;
-arr_dim_acc: LBRACK (expr | ID) RBRACK;
+arr_lit: arr_dim+ typedecl list_value;
+arr_dim_acc: LBRACK expr RBRACK;
 //assignment
 assignstmt: var assign expr endstmt;
 
-assign: ASSIGN | SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+assign: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 //value declaration
-value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | var;
+value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | var | structinst | arr_lit;
 
 //type declaration
 typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
@@ -121,11 +128,13 @@ arr_dim: LBRACK (DEC_LIT | ID) RBRACK; //ID is constant name
 //TODO: need check again
 endstmt: SEMICO;
 
-ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | decl)* RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|decl)* RBRACE)* (ELSE LBRACE (stmt | decl)* RBRACE)? endstmt;
 
-forstmt: FOR expr LBRACE (stmt | decl)* RBRACE endstmt 
-        | FOR (assignstmt | normal_vardecl_init) SEMICO expr SEMICO assignstmt LBRACE (stmt | decl)* RBRACE endstmt
-        | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | typedecl arr_dim+ list_value) LBRACE (stmt | decl)* RBRACE endstmt;
+ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | blockdecl)* RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|blockdecl)* RBRACE)* (ELSE LBRACE (stmt | decl)* RBRACE)? endstmt;
+forstmt: FOR expr LBRACE (stmt | blockdecl)* RBRACE endstmt
+ | FOR (assignstmt | normal_vardecl_init) expr SEMICO updatestmt LBRACE (stmt | blockdecl)* RBRACE endstmt
+ | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | arr_lit) LBRACE (stmt | blockdecl)* RBRACE endstmt;
+
+updatestmt: var assign expr;
 
 breakstmt: BREAK endstmt;
 continuestmt: CONTINUE endstmt;
@@ -257,3 +266,23 @@ WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 
 
 ERROR_CHAR: .;
+
+
+/*update 14/2/2025: 
+remove ASSIGN in assign stmt,
+remove ID in arr_acc
+modify paramlist
+modify forstmt
+add array literal
+*/
+
+/*if in block not allow empty statement, I will modify: 
+ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | decl)+ RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|decl)+ RBRACE)* (ELSE LBRACE (stmt | decl)+ RBRACE)? endstmt;
+forstmt: FOR expr LBRACE (stmt | decl)+ RBRACE endstmt 
+        | FOR (assignstmt | normal_vardecl_init) SEMICO expr SEMICO assignstmt LBRACE (stmt | decl)+ RBRACE endstmt
+        | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | typedecl arr_dim+ list_value) LBRACE (stmt | decl)+ RBRACE endstmt;
+funcdecl: FUNC ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)+ RBRACE endstmt;
+methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)+ RBRACE endstmt;
+interfacedecl: TYPE ID INTERFACE LBRACE methoddecl+ RBRACE endstmt;
+structdecl: TYPE ID STRUCT LBRACE fielddecl+ RBRACE endstmt;
+*/

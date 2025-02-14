@@ -1,1 +1,1 @@
-s.name = "Nguyen Van A";
+s.name := "Nguyen Van A";

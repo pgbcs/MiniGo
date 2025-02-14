@@ -1,0 +1,7 @@
+
+        func main() {
+            {
+                var b float = 3.0e+;
+            }
+        }
+        

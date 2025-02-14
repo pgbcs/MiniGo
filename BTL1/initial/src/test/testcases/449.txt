@@ -1,0 +1,3 @@
+func main(a student, b, c [3][3]string) int {
+            return 1;
+        };

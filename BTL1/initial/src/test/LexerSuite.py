@@ -392,11 +392,17 @@ comment. */
     #                                   
     #         "'Hello \\'world\\'!',<EOF>", 200))
 
-    def test_cmt_99(self):
-        self.assertTrue(TestLexer.checkLexeme("""
-                p := Person{
-                    name: "Alice", 
-                    age: 30
-                }"""
-        , "var,a,=,5,;,var,b,=,6,;,<EOF>", 999))
-    #write more test for unclose string
+#     def test_cmt_99(self):
+#         self.assertTrue(TestLexer.checkLexeme("""
+#                 for i := 0; i < 10; i += 1 {
+# PutStringLn(i);
+# i+=1;
+# };"""
+#         , "var,a,=,5,;,var,b,=,6,;,<EOF>", 999))
+#     #write more test for unclose string
+
+#     def test_abcxyz(self):
+#         self.assertTrue(TestLexer.checkLexeme("""
+#         /* test
+#         / a / */
+# """, "a,;,<EOF>", 1))

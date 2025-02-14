@@ -1,5 +1,5 @@
 func main() {
-            a = b + c - d * e / f % g;
-            b = a * c / d % e + f - g;
-            c = a + b + c + d + e;
+            a := b + c - d * e / f % g;
+            b := a * c / d % e + f - g;
+            c := a + b + c + d + e;
         };

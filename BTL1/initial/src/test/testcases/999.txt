@@ -1,5 +1,5 @@
 
-                p := Person{
-                    name: "Alice", 
-                    age: 30
-                }
+                for i := 0; i < 10; i += 1 {
+PutStringLn(i);
+i+=1;
+};

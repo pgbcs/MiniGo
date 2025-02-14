@@ -261,179 +261,179 @@ SayHello(name string)
     #test expression
     def test_complex_arithmetic_operators1(self):
         input = """func main() {
-            a = b + c - d * e / f % g;
+            a := b + c - d * e / f % g;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,343))    
     def test_complex_arithmetic_operators2(self):
         input = """func main() {
-            a = b + c - d * e / f % g;
-            b = a * c / d % e + f - g;
+            a := b + c - d * e / f % g;
+            b := a * c / d % e + f - g;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,344))
     def test_complex_arithmetic_operators3(self):
         input = """func main() {
-            a = b + c - d * e / f % g;
-            b = a * c / d % e + f - g;
-            c = a + b + c + d + e;
+            a := b + c - d * e / f % g;
+            b := a * c / d % e + f - g;
+            c := a + b + c + d + e;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,345))
     def test_complex_arithmetic_operators4(self):
         input = """func main() {
-            a = a-b+c*d/e%f+g;
-            b = d*e/f%g+a;
-            c = e+ 2*f - 3/g + 4*h + 5+i;
-            d = (a+b)*c/d;
+            a := a-b+c*d/e%f+g;
+            b := d*e/f%g+a;
+            c := e+ 2*f - 3/g + 4*h + 5+i;
+            d := (a+b)*c/d;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,346))
 
     def test_relational_operators1(self):
         input = """func main() {
-            bao = oba == boa;
+            bao := oba == boa;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,347))
     def test_relational_operators2(self):
         input = """func main() {
-            bdh = sda != cdss;
+            bdh := sda != cdss;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,348))
     def test_relational_operators3(self):
-        input =  """X = y >= z + 1;"""
+        input =  """X := y >= z + 1;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,349))
     def test_relational_operators4(self):
-        input =  """X = y <= z * 732004;"""
+        input =  """X := y <= z * 732004;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,350))
     def test_relational_operators5(self):
-        input =  """X = y < z - 1505;"""
+        input =  """X := y < z - 1505;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,351))
     def test_relational_operators6(self):
-        input =  """X = y > z / 2225;"""
+        input =  """X := y > z / 2225;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,352))
     def test_complex_relational_operators1(self):
-        input = """check = GPA >= 3.5 && income < 7000000 || volunteer_hours > 30 && is_disabled;"""
+        input = """check := GPA >= 3.5 && income < 7000000 || volunteer_hours > 30 && is_disabled;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,353))
     def test_complex_relational_operators2(self):
-        input ="""cond = (price >= 1000000 && stock > 0) || (isSpecialItem == true && stock > 5);"""
+        input ="""cond := (price >= 1000000 && stock > 0) || (isSpecialItem == true && stock > 5);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,354))
     
     def test_negation_operators(self):
         input = """func main() {
-            a = !b;
+            a := !b;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,355))
     def test_conjunction_operators(self):
         input = """func main() {
-            a = b && c;
+            a := b && c;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,356))
 
     def test_disjunction_operators(self):
         input = """func main() {
-            a = b || c;
+            a := b || c;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,357))
 
     def test_boolean_operators1(self):
         input = """func main() {
-            ew = bn && mc || dl;
+            ew := bn && mc || dl;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,358))
     def test_boolean_operators2(self):
         input = """func main(){
-            woo = !!foo || !bar && !baz;
+            woo := !!foo || !bar && !baz;
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,359))
     def test_complex_boolean_operators1(self):
-        input = """cond = n > 1 && (n % 2 != 0 || n == 2) && (n % 3 != 0 || n == 3) && (n % 5 != 0 || n == 5);"""
+        input = """cond := n > 1 && (n % 2 != 0 || n == 2) && (n % 3 != 0 || n == 3) && (n % 5 != 0 || n == 5);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,360))
     def test_complex_boolean_operators2(self):
-        input = """cond = (totalSpent > 5000000 && lastPurchaseDate <= 30) || (isVIP == true && referralCount >= 5);"""
+        input = """cond := (totalSpent > 5000000 && lastPurchaseDate <= 30) || (isVIP == true && referralCount >= 5);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,361))
     def test_complex_boolean_operators3(self):
-        input = """cond = (age >= 18 && age <= 65) && (healthCondition == "good" || hasMedicalApproval == true);"""
+        input = """cond := (age >= 18 && age <= 65) && (healthCondition == "good" || hasMedicalApproval == true);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,362))
 
     #test accessing element of array
     def test_access_array_element(self):
-        input = """arr[1]= 2;"""
+        input = """arr[1]:= 2;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,363))
     def test_access_array_element_with_expression1(self):
-        input = """arr[1+2*3]= 2;"""
+        input = """arr[1+2*3]:= 2;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,364))
     def test_access_array_element_with_expression2(self):
-        input = """arr[-1--3]= 2+3;"""
+        input = """arr[-1--3]:= 2+3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,365))
     def test_nested_access_array_element(self):
-        input = """arr[arr[2]] = 3;"""
+        input = """arr[arr[2]] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,366))
     def test_array_access_with_variable(self):
-        input = """arr[i] = 3;"""
+        input = """arr[i] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,367))
     def test_array_access_with_many_dim(self):
-        input = """arr[1][2][3] = 3;"""
+        input = """arr[1][2][3] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,368))
     def test_many_dim_array_access_with_expression(self):
-        input = """arr[1+2][2*3][3/4] = 3;"""
+        input = """arr[1+2][2*3][3/4] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,369))
 
     def test_struct_access_field(self):
-        input = """s.name = "Nguyen Van A";"""
+        input = """s.name := "Nguyen Van A";"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,370))
     def test_struct_deep_access_field(self):
-        input = """s.info.id.address.street = "123 Nguyen";"""
+        input = """s.info.id.address.street := "123 Nguyen";"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,371))
     def test_struct_access_with_array_field(self):
-        input = """s.info.id[2][s.info.id[1]] = 3;"""
+        input = """s.info.id[2][s.info.id[1]] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,372))
     def test_struct_access_with_expression(self):
-        input = """s.info.id[2+3] = 3;"""
+        input = """s.info.id[2+3] := 3;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,373))
     
     #test complex expressiion
     def test_complex_expression1(self):
-        input = """c = ((a + b * c / d) % e == f) && ((g - h) * (i / j) >= k) || (!(m < n) && (o + p * q <= r)) && (s % t != 0 || u / v > w);"""
+        input = """c := ((a + b * c / d) % e == f) && ((g - h) * (i / j) >= k) || (!(m < n) && (o + p * q <= r)) && (s % t != 0 || u / v > w);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,374))
     def test_complex_expression2(self):
-        input ="""b = ((a + b * c / (d - e) % f) == g || h * i - j / k >= l) && (!(m + n < o - p) || (q / r + s % t <= u)) && (v - w * x / y != z || (aa + bb * cc > dd && ee / ff <= gg)) || (!(hh % ii == 0) && jj * kk - ll / mm >= nn);"""
+        input ="""b := ((a + b * c / (d - e) % f) == g || h * i - j / k >= l) && (!(m + n < o - p) || (q / r + s % t <= u)) && (v - w * x / y != z || (aa + bb * cc > dd && ee / ff <= gg)) || (!(hh % ii == 0) && jj * kk - ll / mm >= nn);"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,375))
     def test_complex_expression3(self):
-        input = """a = (((a * b + c / d - e % f) > g) && ((h + i * j - k / l) <= m) || (!(n - o < p * q) && (r % s != 0 || t / u >= v))) && (((w * x - y + z / aa) == bb) || ((cc % dd < ee && ff + gg >= hh) && (!(ii / jj > kk) || ll - mm * nn != oo)));"""
+        input = """a := (((a * b + c / d - e % f) > g) && ((h + i * j - k / l) <= m) || (!(n - o < p * q) && (r % s != 0 || t / u >= v))) && (((w * x - y + z / aa) == bb) || ((cc % dd < ee && ff + gg >= hh) && (!(ii / jj > kk) || ll - mm * nn != oo)));"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,376))
     def test_complex_expression4(self):
-        input = """a = (((a + b * c / d - e % f) <= g || (h - i / j + k * l) > m) && (!(n % o == p) || (q / r - s + t * u != v))) || (((w + x - y * z / aa) >= bb && (cc % dd != ee || ff + gg / hh < ii)) && (!(jj - kk * ll > mm) || (nn / oo + pp - qq * rr <= ss)));"""
+        input = """a := (((a + b * c / d - e % f) <= g || (h - i / j + k * l) > m) && (!(n % o == p) || (q / r - s + t * u != v))) || (((w + x - y * z / aa) >= bb && (cc % dd != ee || ff + gg / hh < ii)) && (!(jj - kk * ll > mm) || (nn / oo + pp - qq * rr <= ss)));"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input,expect,377))
     def test_variable_declare_with_expression(self):
@@ -473,7 +473,7 @@ SayHello(name string)
         expect = "Error on line 4 col 30: ="
         self.assertTrue(TestParser.checkParser(input,expect,384))
     def test_array_access_in_complex_expression(self):
-        input = """result = (((A[B[i] + C[j] * D[k] / E[l] - F[m] % G[n]] <= H[o] || I[P[Q[r]] - R[S[t]] / U[v] + W[x] * Y[z]] > J[aa]) && 
+        input = """result := (((A[B[i] + C[j] * D[k] / E[l] - F[m] % G[n]] <= H[o] || I[P[Q[r]] - R[S[t]] / U[v] + W[x] * Y[z]] > J[aa]) && 
 (!(K[L[M[p] % N[q]] == O[R[s]]) || (T[U[V[w] / X[y] - Z[bb] + CC[dd] * EE[ff]]] != FF[gg]))) || 
 (((GG[HH[II[jj] - JJ[kk] * KK[ll] / LL[mm]]] + MM[NN[OO[pp]]]) >= PP[QQ[rr]] && 
 (RR[SS[TT[uu] % UU[vv]] != VV[WW[xx]] || XX[YY[zz] + AAA[bbb] / BBB[ccc]] < CCC[DDD[eee]]))) && 
@@ -482,7 +482,7 @@ SayHello(name string)
         self.assertTrue(TestParser.checkParser(input,expect,385))
     
     def test_struct_access_in_complex_expression(self):
-        input = """result = (((s1.a + s2.b * s3.c / s4.d - s5.e % s6.f) <= s7.g || 
+        input = """result := (((s1.a + s2.b * s3.c / s4.d - s5.e % s6.f) <= s7.g || 
 (s8.h - s9.i / s10.j + s11.k * s12.l) > s13.m) && 
 (!(s14.n.p == s15.o.q) || 
 (s16.r.s / s17.t.u - s18.v.w + s19.x.y * s20.z.aa != s21.bb.cc))) || 
@@ -495,7 +495,7 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 386))
     def test_struct_and_array_access_in_complex_expression(self):
-        input = """result = (((s1.a[B[i] + s2.b * C[j] / s3.c - D[k] % s4.d] <= s5.e[F[m]] || 
+        input = """result := (((s1.a[B[i] + s2.b * C[j] / s3.c - D[k] % s4.d] <= s5.e[F[m]] || 
 (s6.f[G[n]] - s7.g / H[o] + s8.h * I[P[Q[r]]]) > s9.i[J[aa]] ) && 
 (!(s10.j[K[L[M[p] % s11.k]] == s12.l[O[R[s]]]) || 
 (s13.m[T[U[V[w] / X[y] - Z[bb] + s14.n.CC[dd] * EE[ff]]] != s15.o.FF[gg]))));"""
@@ -608,7 +608,7 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
 
     #test asign statement
     def test_assign_statement1(self):
-        input = """a = b+c;"""
+        input = """a := b+c;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 405))
     def test_short_assign_statement(self):
@@ -636,11 +636,11 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 411))
     def test_assign_statement_with_array(self):
-        input = """a[1] = 2;"""
+        input = """a[1] := 2;"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 412))
     def test_assign_statement_with_struct(self):
-        input = """s.name = "Nguyen Van A";"""
+        input = """s.name := "Nguyen Van A";"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 413))
 
@@ -715,28 +715,190 @@ s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));"""
             PutStringLn("You are an adult");"""
         expect = "Error on line 1 col 5: )"
         self.assertTrue(TestParser.checkParser(input, expect, 422))
+    def test_if_with_no_statement(self):
+        input = """if (yourAge >= 18){}
+        ;"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 423))
     
-
-    def test_029(self):
-        input = """
-        func (p Person) Greet() string {
-            if (1) {return;}
-            else if (1)
-            {}
+    def test_basic_for_loop(self):
+        input = """for i < 10 {
+i+=1;
+PutStringLn(i);
+};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 424))
+    def test_loop_with_init_statement(self):
+        input = """for i := 0; a > 10; i += 1 {
+PutStringLn(i);
+i+=1;
+};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 425))
+    def test_loop_with_no_condition(self):
+        input = """for i := 0; ; i += 1 {
+PutStringLn(i);
+i+=1;
+};"""
+        expect = "Error on line 1 col 13: ;"
+        self.assertTrue(TestParser.checkParser(input, expect, 426))
+    def test_for_loop_with_range(self):
+        input ="""for index, value := range array {
+// statements
+};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 427))
+    def test_for_loop_with_no_curly_brace(self):
+        input = """for i := 0; i < 10; i += 1
+PutStringLn(i);""" 
+        expect = "Error on line 1 col 28: ;"
+        self.assertTrue(TestParser.checkParser(input, expect, 428))
+    def test_for_loop_with_no_statement(self):
+        input = """for i := 0; i < 10; i += 1 {};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 429))
+    def test_for_loop_with_no_init_statement(self):
+        input = """for ; i < 10; i += 1 {   };"""
+        expect = "Error on line 1 col 5: ;"
+        self.assertTrue(TestParser.checkParser(input, expect, 430))
+    def test_for_range_loop_with_array_literal(self):
+        input = """for index, value := range [5]int{1, 2, 3, 4, 5} {
+        // statements
         };"""
-        expect = "Error on line 4 col 16: else"
-        self.assertTrue(TestParser.checkParser(input ,expect, 423))
-# #khai báo hàm lồng hàm thì sao
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 431))
+    def test_for_range_loop_with_array_variable(self):
+        input = """for index, value := range a {
+        // statements
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 432))
+    def test_for_range_loop_with_without_index(self):
+        input = """for value := range a {
+        // statements
+        };"""
+        expect = "Error on line 1 col 14: range"
+        self.assertTrue(TestParser.checkParser(input, expect, 433))
+    def test_for_range_loop_with_without_index2(self):
+        input = """for _, value := range a {
+        value += 1;};"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 434))
+    def test_for_loop_with_break(self):
+        input = """for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                break;
+            }
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 435))
+
+    def test_for_loop_with_continue(self):
+        input = """for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                continue;
+            }
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 436))
+    def test_for_loop_with_break_continue(self):
+        input = """for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                break;
+            }
+            continue;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 437))
+    def test_break_and_continue_outside_loop(self):
+        input = """break;break;break;continue;continue;continue;"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 438))
+    def test_return_statement_in_function(self):
+        input = """func main() int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 439))
+    def test_return_statement_in_function_with_expression(self):
+        input = """func main() int {
+            return 1+2*3/4%5;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 440))
+    def test_return_statement_in_function_with_variable(self):
+        input = """func main() int {
+            return a;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 441))
+    def test_return_statement_in_function_with_no_value(self):
+        input = """func main() int {
+            return;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 442))
+    def test_return_statement_outside_function(self):
+        input = """return;"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 443))
+    
+    def test_empty_program(self):
+        input = """;"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 444))
+    def test_function_with_param_sharing_same_type(self):
+        input = """func main(a, b, c) int {
+            return 1;
+        };"""
+        expect = "Error on line 1 col 18: )"
+        self.assertTrue(TestParser.checkParser(input, expect, 445))
+    def test_function_with_param_sharing_many_type(self):
+        input = """func main(a int, b, c string) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 446))
+    def test_function_with_array_param(self):
+        input = """func main(a [5] int) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 447))
+    def test_function_with_arram_param_sharing_many_type(self):
+        input = """func main(a [5] int, b, c [3][3]string) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 448))
+    def test_function_with_struct_param_sharing_many_type(self):
+        input = """func main(a student, b, c [3][3]string) int {
+            return 1;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 449))
+    def test_function_nested_in_function(self):
+        input = """func who() {
+            func what() {
+                return;
+            }
+        };"""
+        expect = "Error on line 2 col 13: func"
+        self.assertTrue(TestParser.checkParser(input, expect, 450))
+    def test_function_with_return_type_array(self):
+        input = """func main() [5] int {
+            return [5]int{1,2,3,4,5};
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 451))
+
+    
+# #khai báo hàm lồng hàm thì sao*
 #     #test lại các declare với expr *
 #     #test khai báo mảng với expression là size *
 #     #test khai báo struct với field là array *
-#     #test nhét array vào paramlist được hay không
+#     #test nhét array vào paramlist được hay không*
+#     #break nằm ngoài vòng lặp   *
+#    #test khai báo array_lit với element là expr 
+#   #test empty program*
     
-    def test_struct_literal5(self):
-        input = """ func main() {
-                        var x = Person{}
-
-                        Person[0][1].[0]x[0][1].age := (wow / test) + 1
-                    };"""
-        expect = "Error on line 4 col 38: ["
-        self.assertTrue(TestParser.checkParser(input, expect, 483))
