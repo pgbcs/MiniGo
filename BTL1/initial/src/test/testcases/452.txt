@@ -1,5 +1,4 @@
-
-        var a int = 5;
-        var b float = 10.0;
-        var c string = "hello";
-        func main() {};
+var car = Car{                    brand = "Toyota",
+                    model = "Corolla",
+                    year = 2023
+                };

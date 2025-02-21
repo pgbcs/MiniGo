@@ -1,1 +1,3 @@
-var a int // This is a comment
+func(int a,
+int b,
+int c)

@@ -34,113 +34,121 @@ options{
 	language=Python3;
 }
 
-program  : (decl|stmt)+ EOF;
+program  : decllist EOF;
+decllist: decl decllist | decl;
+decl: vardecl | constdecl | structdecl | interfacedecl | funcdecl | methodimple;
+vardecl: normal_vardecl | arr_vardecl;
+normal_vardecl: normal_vardecl_without_init | normal_vardecl_with_init;
+normal_vardecl_without_init: VAR ID typedecl SEMICO;
+normal_vardecl_with_init: VAR ID typedecl? ASSIGN expr SEMICO;
 
-decl: funcdecl | structdecl | interfacedecl | methodimple | blockdecl;
-stmt: endstmt | assignstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt | returnstmt;
-blockdecl: vardecl | constdecl;
-// mainfunc: FUNC 'main' LPAREN RPAREN LBRACE RBRACE endstmt;
-
-//variable declaration
-vardecl: (normal_vardecl_init | normal_vardecl_non_init |arr_vardecl) endstmt;
-
-//normal variable declaration
-normal_vardecl_non_init: VAR ID typedecl;
-normal_vardecl_init: VAR ID typedecl? ASSIGN expr;
-
-// //normal variable declaration
-// normal_vardecl: EQUAL expr | typedecl (EQUAL expr)?;
-//array variable declaration
-arr_vardecl: VAR ID (arr_dim+ typedecl (ASSIGN arr_dim+ typedecl list_value)? | ASSIGN arr_dim+ typedecl list_value);
-
-//có thể dùng một mảng toàn nil???
-list_value: LBRACE (list_value (COMMA list_value)* | expr (COMMA expr)*) RBRACE;
-
-
-//struct
-structdecl: TYPE ID STRUCT LBRACE fielddecl* RBRACE endstmt;
-
-fielddecl: ID (arr_dim)* typedecl endstmt;
-
-// struct instance
-structinst: ID LBRACE fieldinstlist RBRACE;
-
-fieldinstlist: (fieldinst (COMMA fieldinst)*) | ; 
-
-fieldinst: ID COLON expr;
-
-//interface
-interfacedecl: TYPE ID INTERFACE LBRACE methoddecl* RBRACE endstmt;
-
-methoddecl: ID LPAREN param_list RPAREN typedecl? endstmt;
-
-//TODO: add function body
-//fucntion declaration
-funcdecl: FUNC ID LPAREN param_list RPAREN returntype? LBRACE (stmt|blockdecl)* RBRACE endstmt;
-
-methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN returntype? LBRACE (stmt|blockdecl)* RBRACE endstmt;
-
-returntype: typedecl | arr_dim+ typedecl;
-
-param_list: param_group_prime | ;//need test without ?
-param_group_prime: param_group (COMMA param_group_prime) | param_group;
-param_group: param_mem_list (typedecl | arr_dim+ typedecl);
-param_mem_list: ID COMMA param_mem_list | ID;
-
-//constant declaration
-constdecl: CONST ID ASSIGN expr endstmt; //what happend if assign a variable to a constant?
-
-funccall: ID LPAREN (actualparam (COMMA actualparam)*)? RPAREN;
-
-methodcall: ID SELECTOR ID LPAREN (actualparam (COMMA actualparam)*)? RPAREN;
-
-actualparam: expr | funccall | methodcall | var;
-
-
-//expression
-expr: expr OR factor1 | factor1;
-factor1: factor1 AND factor2 | factor2;
-factor2: factor2 (EQUAL| NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR_EQUAL) factor3 | factor3;
-factor3: factor3 (PLUS | MINUS) factor4 | factor4;
-factor4: factor4 (MUL | DIV | MOD) factor5 | factor5;
-factor5: (MINUS | NOT) factor5 | factor6;
-factor6: value | LPAREN expr RPAREN;
-
-var: ID (arr_dim_acc | .ID)*;
-arr_lit: arr_dim+ typedecl list_value;
-arr_dim_acc: LBRACK expr RBRACK;
-//assignment
-assignstmt: var assign expr endstmt;
-
-assign: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
-
-//value declaration
-value: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | var | structinst | arr_lit;
-
-//type declaration
 typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
 
-// type_with_init: INT EQUAL DEC_LIT | FLOAT EQUAL FLOAT_LIT | STRING EQUAL STRING_LIT | BOOLEAN EQUAL TRUE | BOOLEAN EQUAL FALSE;
+arr_vardecl: arr_vardecl_without_init | arr_vardecl_with_init;
+arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN arrliteral SEMICO;
+arr_vardecl_without_init: VAR ID arrdimlist typedecl SEMICO;
 
-//array dimension
-arr_dim: LBRACK (DEC_LIT | ID) RBRACK; //ID is constant name
+arrdimlist: arrdim arrdimlist | arrdim;
+arrdim: LBRACK (DEC_LIT|ID) RBRACK;
+arrliteral: arrdimlist typedecl arrlistvalue;
+arrlistvalue: LBRACE listvalue RBRACE;
+listvalue: value_for_arr COMMA listvalue | value_for_arr;
+value_for_arr: literalvalue_for_arr | arrlistvalue;
+literalvalue_for_arr: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING_LIT | TRUE | FALSE | NIL | structinst | ID;
 
-//TODO: need check again
-endstmt: SEMICO;
+constdecl: CONST ID ASSIGN expr SEMICO;
+
+//struct declare, empty struct is allowed
+structdecl: TYPE ID STRUCT structbody SEMICO; 
+structbody: LBRACE fieldlist RBRACE;
+fieldlist: field fieldlist | ;
+field: ID arrdimlist? typedecl SEMICO;
+//struct instance
+structinst: ID structinst_body;
+structinst_body: LBRACE structinst_fieldlist RBRACE;
+structinst_fieldlist: structinst_fieldprime | ;
+structinst_fieldprime: structinst_field COMMA structinst_fieldprime | structinst_field;
+structinst_field: ID COLON expr;
+
+//interface declare, empty interface is allowed
+interfacedecl: TYPE ID INTERFACE interfacebody SEMICO;
+interfacebody: LBRACE methodlist RBRACE;
+methodlist: method methodlist | ;
+method: ID LPAREN paramlist RPAREN returntype? SEMICO;
+
+//function declare, empty function is allowed
+funcdecl: FUNC ID LPAREN paramlist RPAREN returntype? funcbody SEMICO;
+paramlist: param_group_prime | ;
+param_group_prime: param_group COMMA param_group_prime | param_group;
+param_group: param_mem_list arrdimlist? typedecl;
+param_mem_list: ID COMMA param_mem_list | ID;
+
+funcbody: LBRACE stmtlist RBRACE;
+stmtlist: stmt stmtlist | ;
+
+returntype: arrdimlist? typedecl;
+
+//method implementation
+methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN paramlist RPAREN returntype? methodimple_body SEMICO;
+methodimple_body: LBRACE stmtlist RBRACE;
+
+//expr
+expr: expr OR expr0 | expr0;
+expr0: expr0 AND expr1 | expr1;
+expr1: expr1 (EQUAL | NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR_EQUAL) expr2 | expr2;
+expr2: expr2 (PLUS | MINUS) expr3 | expr3;
+expr3: expr3 (MUL | DIV | MOD) expr4 | expr4;
+expr4: (MINUS | NOT) expr4 | expr5;
+expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
+expr6: subexpr | value;
+
+value: literalvalue | ID | funccall;//remove methodcall here
+subexpr: LPAREN expr RPAREN;
+literalvalue: literalvalue_for_arr | arrliteral;
+
+funccall: ID LPAREN arglist RPAREN;
+arglist: argprime | ;
+argprime: expr COMMA argprime | expr;
+
+methodcall: expr accesslist LPAREN arglist RPAREN;
 
 
-ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | blockdecl)* RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|blockdecl)* RBRACE)* (ELSE LBRACE (stmt | decl)* RBRACE)? endstmt;
-forstmt: FOR expr LBRACE (stmt | blockdecl)* RBRACE endstmt
- | FOR (assignstmt | normal_vardecl_init) expr SEMICO updatestmt LBRACE (stmt | blockdecl)* RBRACE endstmt
- | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | arr_lit) LBRACE (stmt | blockdecl)* RBRACE endstmt;
+stmt: vardecl | constdecl | assignstmt | returnstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
+assignstmt: var assignop expr SEMICO;
+var: ID accesslist?;
+accesslist:  access accesslist | access;
+access: arrayaccess | structaccess;
+arrayaccess: LBRACK expr RBRACK;
+structaccess: SELECTOR ID;
+assignop: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
-updatestmt: var assign expr;
+returnstmt: RETURN expr? SEMICO;
 
-breakstmt: BREAK endstmt;
-continuestmt: CONTINUE endstmt;
-callstmt: (funccall | methodcall) endstmt;
-returnstmt: RETURN expr? endstmt;
+callstmt: (funccall| methodcall) SEMICO;
 
+ifstmt: firstifstmt elseifstmtlist elsestmt? SEMICO;
+firstifstmt: IF LPAREN expr RPAREN ifstmtbody;
+ifstmtbody: LBRACE stmtlist RBRACE;
+elseifstmtlist: elseifstmt elseifstmtlist | ;
+elseifstmt: ELSE IF LPAREN expr RPAREN ifstmtbody;
+elsestmt: ELSE ifstmtbody;
+
+forstmt: basicforstmt | init_cond_update_forstmt |rangeforstmt;
+basicforstmt: FOR expr forstmtbody SEMICO;
+forstmtbody: LBRACE stmtlist RBRACE;
+init_cond_update_forstmt: FOR init_for SEMICO expr SEMICO assign forstmtbody SEMICO;
+init_for: assign | VAR ID typedecl? ASSIGN expr;
+assign: var assignop expr;
+rangeforstmt: FOR ID COMMA ID SHORT_ASSIGN RANGE expr forstmtbody SEMICO;
+
+breakstmt: BREAK SEMICO;
+
+continuestmt: CONTINUE SEMICO;
+
+
+
+
+/*****LEXER RULE******/
 //skip comments
 // Skip single-line comments
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
@@ -152,7 +160,7 @@ fragment ALLOWED_TEXT:
     )* ('/'+| '*'+)?;
 
 // Skip multi-line comments
-BLOCK_COMMENT: '/*' ALLOWED_TEXT BLOCK_COMMENT* ALLOWED_TEXT '*/' -> skip;
+BLOCK_COMMENT: '/*' (ALLOWED_TEXT BLOCK_COMMENT)* ALLOWED_TEXT '*/' -> skip;
 
 COLON: ':';
 
@@ -220,9 +228,9 @@ FLOAT_LIT: DIGIT+ '.' DIGIT* EXP?;
 STRING_LIT: '"' (ESC|~[\r\n"\\])* '"';
 
 
-UNCLOSE_STRING: '"' (ESC|~[\r\n"\\])* /*[\r\n]?*/;
+UNCLOSE_STRING: '"' (ESC|~[\r\n\\"])* /*[\r\n]?*/;
 // UNCLOSE_STRING: '"' (ESC|~["\\])* '"'?;
-ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"\\])* '\\' .?; // throw from start to escape char
+ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"\\])* '\\' .; // throw from start to escape char
 // ILLEGAL_ESCAPE: '"' (ESC|~[\r\n"])* '"';// throw whole string
 
 // //boolean literals
@@ -249,7 +257,7 @@ fragment ESC: '\\' [ntr"\\];
 
 // NL: '\n' -> skip; //skip newlines
 //change newline to semicolon
-NL: '\n'{
+NL: '\r'? '\n'{
     statement_end_tokens = {
     self.ID, self.DEC_LIT, self.BIN_LIT, self.OCT_LIT, self.HEX_LIT, self.FLOAT_LIT, self.TRUE, self.FALSE, self.NIL, self.STRING_LIT,
     self.INT, self.FLOAT, self.BOOLEAN, self.STRING,
@@ -268,21 +276,4 @@ WS : [ \t\r\f]+ -> skip ; // skip spaces, tabs
 ERROR_CHAR: .;
 
 
-/*update 14/2/2025: 
-remove ASSIGN in assign stmt,
-remove ID in arr_acc
-modify paramlist
-modify forstmt
-add array literal
-*/
-
-/*if in block not allow empty statement, I will modify: 
-ifstmt: IF LPAREN expr RPAREN LBRACE (stmt | decl)+ RBRACE (ELSE IF LPAREN expr RPAREN LBRACE (stmt|decl)+ RBRACE)* (ELSE LBRACE (stmt | decl)+ RBRACE)? endstmt;
-forstmt: FOR expr LBRACE (stmt | decl)+ RBRACE endstmt 
-        | FOR (assignstmt | normal_vardecl_init) SEMICO expr SEMICO assignstmt LBRACE (stmt | decl)+ RBRACE endstmt
-        | FOR ID COMMA ID SHORT_ASSIGN RANGE ( ID | typedecl arr_dim+ list_value) LBRACE (stmt | decl)+ RBRACE endstmt;
-funcdecl: FUNC ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)+ RBRACE endstmt;
-methodimple: FUNC LPAREN ID ID RPAREN ID LPAREN param_list RPAREN typedecl? LBRACE (stmt|decl)+ RBRACE endstmt;
-interfacedecl: TYPE ID INTERFACE LBRACE methoddecl+ RBRACE endstmt;
-structdecl: TYPE ID STRUCT LBRACE fielddecl+ RBRACE endstmt;
-*/
+//kiểm tra lại các vị trí sử dụng expr

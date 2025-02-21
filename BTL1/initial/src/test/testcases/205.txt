@@ -1,3 +1,6 @@
-func(int a,
-int b,
-int c)
+var a int     
+
+
+ var b float;     
+
+

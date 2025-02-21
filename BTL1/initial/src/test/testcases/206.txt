@@ -1,4 +1,2 @@
-/* This is a /* nested
-multi-line
-comment. */
-*/
+x = 5
+y = x + 2
