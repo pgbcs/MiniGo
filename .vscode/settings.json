@@ -1,0 +1,6 @@
+{
+  "python.analysis.extraPaths": [
+    "./BTL2/initial/src/main/minigo/utils",
+    "./BTL2/initial/target"
+  ]
+}

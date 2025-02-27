@@ -102,6 +102,11 @@ expr4: (MINUS | NOT) expr4 | expr5;
 expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
 expr6: subexpr | value;
 
+arrdimlist_expr: arrdimlist_expr arrdim_expr | arrdim_expr;
+arrdim_expr: LBRACK expr RBRACK;
+
+
+
 value: literalvalue | ID | funccall;//remove methodcall here
 subexpr: LPAREN expr RPAREN;
 literalvalue: literalvalue_for_arr | arrliteral;
