@@ -1,0 +1,3 @@
+func main() {
+            a.method(1,2,3);
+        };

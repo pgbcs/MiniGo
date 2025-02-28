@@ -1,0 +1,3 @@
+func (s student) hello(x ,y int, z int){
+        }
+        func main() {s.hello(a, b ,c);};

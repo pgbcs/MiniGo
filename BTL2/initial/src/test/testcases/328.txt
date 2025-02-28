@@ -1,0 +1,4 @@
+type struct {
+            a int;
+            b float;
+        };

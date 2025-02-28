@@ -99,13 +99,18 @@ expr1: expr1 (EQUAL | NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR_EQ
 expr2: expr2 (PLUS | MINUS) expr3 | expr3;
 expr3: expr3 (MUL | DIV | MOD) expr4 | expr4;
 expr4: (MINUS | NOT) expr4 | expr5;
-expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
+// expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
+expr5: expr5 SELECTOR ID 
+    | expr5 SELECTOR ID LPAREN arglist RPAREN 
+    | expr5 SELECTOR ID LPAREN arglist RPAREN arrdimlist_expr
+    | expr5 SELECTOR ID arrdimlist_expr
+    | expr6 arrdimlist_expr 
+    | expr6;
 expr6: subexpr | value;
 
 arrdimlist_expr: arrdimlist_expr arrdim_expr | arrdim_expr;
 arrdim_expr: LBRACK expr RBRACK;
-
-
+// access_expr: SELECTOR ID | SELECTOR ID LPAREN arglist RPAREN;
 
 value: literalvalue | ID | funccall;//remove methodcall here
 subexpr: LPAREN expr RPAREN;
@@ -115,8 +120,16 @@ funccall: ID LPAREN arglist RPAREN;
 arglist: argprime | ;
 argprime: expr COMMA argprime | expr;
 
-methodcall: expr accesslist LPAREN arglist RPAREN;
-
+// methodcall: expr accesslist LPAREN arglist RPAREN;
+methodcall: methodcallbody methodcalltail;
+methodcallbody: methodcallbody SELECTOR ID
+    | methodcallbody SELECTOR ID LPAREN arglist RPAREN
+    | methodcallbody SELECTOR ID LPAREN arglist RPAREN arrdimlist_expr
+    | methodcallbody SELECTOR ID arrdimlist_expr
+    | methodcallbody arrdimlist_expr
+    | funccall
+    | ID;
+methodcalltail: SELECTOR ID LPAREN arglist RPAREN;
 
 stmt: vardecl | constdecl | assignstmt | returnstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
 assignstmt: var assignop expr SEMICO;

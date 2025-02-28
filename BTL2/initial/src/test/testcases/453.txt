@@ -1,0 +1,3 @@
+func main() student {
+            return student{name: "Nguyen Van A", age: 20};
+        };

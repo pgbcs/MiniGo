@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([])),VarDecl(x,IntType)])
+successful

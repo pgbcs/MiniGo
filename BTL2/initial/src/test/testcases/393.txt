@@ -1,0 +1,3 @@
+func hello(x ,y int, z int){
+        }
+        func testFunc() {hello(a, b ,c.d);};

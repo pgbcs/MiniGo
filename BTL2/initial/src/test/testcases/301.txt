@@ -1,1 +1,1 @@
-var x int ;
+func main() {};

@@ -229,14 +229,75 @@ class ASTGeneration(MiniGoVisitor):
     def visitExpr5(self, ctx:MiniGoParser.Expr5Context):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.getChild(0))
-        elif ctx.getChildCount()==3:
+        elif ctx.getChildCount() ==2:
+            return ArrayCell(self.visit(ctx.expr5()), self.visit(ctx.arrdimlist_expr()))
+        elif ctx.getChildCount() == 3:
             return FieldAccess(self.visit(ctx.expr5()), ctx.ID().getText())
-        elif ctx.getChildCount()==4:
-            return ArrayCell(self.visit(ctx.expr5()), self.visit(ctx.expr()))
+        elif ctx.getChildCount() == 4:
+            return ArrayCell(FieldAccess(self.visit(ctx.expr5()), ctx.ID().getText()),self.visit(ctx.arrdimlist_expr()))
+        elif ctx.getChildCount() == 6:
+            return MethCall(self.visit(ctx.expr5()), ctx.ID().getText(), self.visit(ctx.arglist()))
+        elif ctx.getChildCount() == 7:
+            return ArrayCell(MethCall(self.visit(ctx.expr5()), ctx.ID().getText(), self.visit(ctx.arglist())),self.visit(ctx.arrdimlist_expr()))
+
+    def visitExpr6(self, ctx:MiniGoParser.Expr6Context):
+        return self.visit(ctx.getChild(0))
+    
+    def visitArrdim_expr(self, ctx: MiniGoParser.Arrdimlist_exprContext):
+        return self.visit(ctx.arrdimlist_expr()) + [self.visit(ctx.arrdim_expr())] if ctx.arrdimlist_expr() else [self.visit(ctx.arrdim_expr())]
         
+    def visitArrdim_expr(self, ctx: MiniGoParser.Arrdim_exprContext):
+        return self.visit(ctx.expr())
+    
+    def visitValue(self, ctx:MiniGoParser.ValueContext):
+        return self.visit(ctx.getChild(0))
+    
+    def visitSubexpr(self, ctx:MiniGoParser.SubexprContext):
+        return self.visit(ctx.expr())
+    
+    def visitLiteralvalue(self, ctx:MiniGoParser.LiteralvalueContext):
+        return self.visit(ctx.getChild(0))
+    
+    def visitFunccall(self, ctx:MiniGoParser.FunccallContext):
+        return FuncCall(ctx.ID().getText(), self.visit(ctx.arglist()))
 
+    def visitArglist(self, ctx:MiniGoParser.ArglistContext):
+        return self.visit(ctx.argprime()) if ctx.argprime() else []
+    
+    def visitArgprime(self, ctx:MiniGoParser.ArgprimeContext):
+        return [self.visit(ctx.expr())] + self.visit(ctx.argprime()) if ctx.argprime() else [self.visit(ctx.expr())]
+    
 
-
+    def visitMethodcall(self, ctx:MiniGoParser.MethodcallContext):
+        methodbody = self.visit(ctx.methodcallbody())
+        methodcalltail_id, methodcalltail_arglist  = self.visit(ctx.methodcalltail())
+        return MethCall(methodbody, methodcalltail_id.getText(), methodcalltail_arglist)
+        
+    def visitMethodcallbody(self, ctx:MiniGoParser.MethodcallbodyContext):
+        if ctx.getChildCount==2:
+            return ArrayCell(self.visit(ctx.methodcallbody()), self.visit(ctx.arrdimlist_expr()))
+        elif ctx.getChildCount==3:
+            return FieldAccess(self.visit(ctx.methodcallbody()), ctx.ID().getText())
+        elif ctx.getChildCount==4:
+            return ArrayCell(FieldAccess(self.visit(ctx.methodcallbody()), ctx.ID().getText()),self.visit(ctx.arrdimlist_expr()))
+        elif ctx.getChildCount==6:
+            return MethCall(self.visit(ctx.methodcallbody()), ctx.ID().getText(), self.visit(ctx.arglist()))
+        elif ctx.getChildCount==7:
+            return ArrayCell(MethCall(self.visit(ctx.methodcallbody()), ctx.ID().getText(), self.visit(ctx.arglist())),self.visit(ctx.arrdimlist_expr()))
+        elif ctx.ID():
+            return Id(ctx.ID().getText())
+        else: self.visit(ctx.funccall())
+    
+    def visitMethodcalltail(self, ctx:MiniGoParser.MethodcalltailContext):
+        return [ctx.ID(), ctx.arglist()]
+    
+    def visitStmt(self, ctx:MiniGoParser.StmtContext):
+        return self.visit(ctx.getChild(0))
+    
+    def visitAssignstmt(self, ctx:MiniGoParser.AssignstmtContext):
+        return Assign(self.visit(ctx.var()), self.visit(ctx.expr()))
+    
+    # def visitVar(self, ctx:MiniGoParser.VarContext):
 
     # def visitExpr5(self, ctx:MiniGoParser.Expr5Context):
     #     if ctx.getChildCount() == 1:
@@ -252,4 +313,5 @@ class ASTGeneration(MiniGoVisitor):
 #need check interface decl 
 #recType???
 #method call and field access and array cell nested
-
+#change grammar rule of expr5
+#change methodcall rule
