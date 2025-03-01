@@ -419,7 +419,7 @@ def nested2Str(dat: NestedList):
 
 @dataclass
 class ArrayLiteral(Literal):
-    dimens:List[int]
+    dimens:List[Expr]#change from List[int] to List[Expr]
     eleType: Type
     value: NestedList
 

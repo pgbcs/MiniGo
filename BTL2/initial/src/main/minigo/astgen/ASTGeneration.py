@@ -9,7 +9,7 @@ class ASTGeneration(MiniGoVisitor):
     
     #decllist: decl decllist | decl
     def visitDecllist(self,ctx:MiniGoParser.DecllistContext):
-        if(ctx.getChildCount() == 1):
+        if ctx.getChildCount() == 1:
             return [self.visit(ctx.decl())]
         else:
             return [self.visit(ctx.decl())] + self.visit(ctx.decllist())
@@ -28,9 +28,9 @@ class ASTGeneration(MiniGoVisitor):
     
     def visitNormal_vardecl_with_init(self,ctx:MiniGoParser.Normal_vardecl_with_initContext):
         if(ctx.getChildCount() == 6):
-            return VarDecl(ctx.ID().getText(),self.visit(ctx.typedecl()),self.visit(ctx.exp()))
+            return VarDecl(ctx.ID().getText(),self.visit(ctx.typedecl()),self.visit(ctx.expr()))
         else:
-            return VarDecl(ctx.ID().getText(),None,self.visit(ctx.exp()))
+            return VarDecl(ctx.ID().getText(),None,self.visit(ctx.expr()))
         
     def visitTypedecl(self,ctx:MiniGoParser.TypedeclContext):
         if ctx.INT():
@@ -95,12 +95,14 @@ class ASTGeneration(MiniGoVisitor):
             return NilLiteral()
         elif ctx.structinst():
             return self.visit(ctx.structinst())
+        elif ctx.ID():
+            return Id(ctx.ID().getText())
 
     def visitConstdecl(self, ctx:MiniGoParser.ConstdeclContext):
         return ConstDecl(ctx.ID().getText(), None, self.visit(ctx.expr()))
     
     def visitStructdecl(self, ctx:MiniGoParser.StructdeclContext):
-        return StructLiteral(ctx.ID().getText(), self.visit(ctx.structbody()))
+        return StructType(ctx.ID().getText(), self.visit(ctx.structbody()), [])
 
     def visitStructbody(self, ctx:MiniGoParser.StructbodyContext):
         return self.visit(ctx.fieldlist())
@@ -110,7 +112,7 @@ class ASTGeneration(MiniGoVisitor):
 
     def visitField(self, ctx:MiniGoParser.FieldContext):
         if ctx.arrdimlist():
-            return VarDecl(ctx.ID().getText(), ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())), None)
+            return (ctx.ID().getText(), ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())))
         else: return (ctx.ID().getText(), self.visit(ctx.typedecl()))
     
     def visitStructinst(self, ctx:MiniGoParser.StructinstContext):

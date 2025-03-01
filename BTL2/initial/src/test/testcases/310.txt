@@ -1,0 +1,1 @@
+var i float = 1.0;

@@ -59,7 +59,7 @@ literalvalue_for_arr: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING
 constdecl: CONST ID ASSIGN expr SEMICO;
 
 //struct declare, empty struct is allowed
-structdecl: TYPE ID STRUCT structbody SEMICO; 
+structdecl: TYPE ID STRUCT structbody SEMICO;
 structbody: LBRACE fieldlist RBRACE;
 fieldlist: field fieldlist | ;
 field: ID arrdimlist? typedecl SEMICO;
@@ -112,7 +112,7 @@ arrdimlist_expr: arrdimlist_expr arrdim_expr | arrdim_expr;
 arrdim_expr: LBRACK expr RBRACK;
 // access_expr: SELECTOR ID | SELECTOR ID LPAREN arglist RPAREN;
 
-value: literalvalue | ID | funccall;//remove methodcall here
+value: literalvalue | funccall;//remove methodcall here
 subexpr: LPAREN expr RPAREN;
 literalvalue: literalvalue_for_arr | arrliteral;
 
