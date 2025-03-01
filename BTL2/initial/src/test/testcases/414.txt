@@ -1,3 +1,0 @@
-func foo() {if (yourAge >= 18){
-            PutStringLn("You are an adult");
-        };};

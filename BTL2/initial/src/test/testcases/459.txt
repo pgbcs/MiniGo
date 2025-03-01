@@ -1,3 +1,0 @@
-func testForLoop() {for index, value := range a[1][2][3] {
-        // statements
-        };};

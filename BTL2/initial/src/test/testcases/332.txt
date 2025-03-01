@@ -1,3 +1,0 @@
-func (s student) getAge() int {
-            return s.age
-        };

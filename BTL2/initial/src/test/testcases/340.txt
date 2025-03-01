@@ -1,2 +1,0 @@
-func main(a int, b float, c string) int {
-        };

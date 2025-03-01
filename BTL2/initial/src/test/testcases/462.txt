@@ -1,3 +1,0 @@
-func main() {
-            func1().a.method2().b.method3().method4();
-        };

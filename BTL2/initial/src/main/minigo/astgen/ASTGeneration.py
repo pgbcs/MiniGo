@@ -141,7 +141,7 @@ class ASTGeneration(MiniGoVisitor):
         flatten_paramlist = [x.varType for x in self.visit(ctx.paramlist())]
         return Prototype(ctx.ID().getText(), flatten_paramlist, self.visit(ctx.returntype())) if ctx.returntype() else Prototype(ctx.ID().getText(), flatten_paramlist, VoidType())
 
-    def visitFundecl(self, ctx:MiniGoParser.FuncdeclContext):
+    def visitFuncdecl(self, ctx:MiniGoParser.FuncdeclContext):
         flatten_paramlist = self.visit(ctx.paramlist())
         if ctx.returntype():
             return FuncDecl(ctx.ID().getText(), flatten_paramlist, self.visit(ctx.returntype()), self.visit(ctx.funcbody()))
@@ -275,7 +275,10 @@ class ASTGeneration(MiniGoVisitor):
         
     def visitMethodcallbody(self, ctx:MiniGoParser.MethodcallbodyContext):
         if ctx.getChildCount==2:
-            return ArrayCell(self.visit(ctx.methodcallbody()), self.visit(ctx.arrdimlist_expr()))
+            if ctx.ID():
+                return ArrayCell(Id(ctx.ID().getText()), self.visit(ctx.arrdimlist_expr()))
+            else:
+                return ArrayCell(self.visit(ctx.funccall()), self.visit(ctx.arrdimlist_expr()))
         elif ctx.getChildCount==3:
             return FieldAccess(self.visit(ctx.methodcallbody()), ctx.ID().getText())
         elif ctx.getChildCount==4:
@@ -295,9 +298,129 @@ class ASTGeneration(MiniGoVisitor):
         return self.visit(ctx.getChild(0))
     
     def visitAssignstmt(self, ctx:MiniGoParser.AssignstmtContext):
-        return Assign(self.visit(ctx.var()), self.visit(ctx.expr()))
+        if ctx.SHORT_ASSIGN():
+            return Assign(self.visit(ctx.accesslist()), self.visit(ctx.expr())) 
+        else:
+            return Assign(self.visit(ctx.accesslist()), BinaryOp(self.visit(ctx.otherassignop()), self.visit(ctx.accesslist()), self.visit(ctx.expr())))
+        
+    def visitAccesslist(self, ctx:MiniGoParser.AccesslistContext):
+        if ctx.getChildCount() == 1:
+            return Id(ctx.ID().getText())
+        elif ctx.getChildCount()==2:
+            return ArrayCell(Id(ctx.ID().getText()), self.visit(ctx.arrdimlist_expr()))
+        elif ctx.getChildCount()==3:
+            return FieldAccess(self.visit(ctx.accesslist()), ctx.ID().getText())
+        elif ctx.getChildCount()==4:
+            return ArrayCell(FieldAccess(self.visit(ctx.accesslist()), ctx.ID().getText()), self.visit(ctx.arrdimlist_expr()))
+
+    def visitOtherassignop(self, ctx:MiniGoParser.OtherassignopContext):
+        return ctx.getChild(0).getText()
     
-    # def visitVar(self, ctx:MiniGoParser.VarContext):
+    def visitReturnstmt(self, ctx:MiniGoParser.ReturnstmtContext):
+        return Return(self.visit(ctx.expr())) if ctx.expr() else Return(None)
+    
+    def visitCallstmt(self, ctx:MiniGoParser.CallstmtContext):
+        return self.visit(ctx.getChild(0))
+    
+    def visitIfstmt(self, ctx:MiniGoParser.IfstmtContext):
+        ifexpr, ifbody = self.visit(ctx.firstifstmt())
+        eliflist =self.visit(ctx.elseifstmtlist())
+        if ctx.elsestmt(): eliflist.elseStmt = self.visit(ctx.elsestmt())
+        return If(
+            ifexpr,
+            ifbody,
+            eliflist
+        )
+
+    def visitFirstifstmt(self, ctx:MiniGoParser.FirstifstmtContext):
+        return [self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())]
+
+    def visitIfstmtbody(self, ctx:MiniGoParser.IfstmtbodyContext):
+        return self.visit(ctx.stmtlist())
+
+    def visitElseifstmtlist(self, ctx:MiniGoParser.ElseifstmtlistContext):
+        if ctx.getChildCount() == 0:
+            return None
+        else:
+            elifstmt_expr, elifstmt_body = self.visit(ctx.elseifstmt())
+            return If(
+                elifstmt_expr,
+                elifstmt_body,
+                self.visit(ctx.elseifstmtlist())
+            )
+
+    def visitElseifstmt(self, ctx:MiniGoParser.ElseifstmtContext):
+        return [self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())]
+    
+    def visitElsestmt(self, ctx:MiniGoParser.ElsestmtContext):
+        return self.visit(ctx.ifstmtbody())
+    
+    def visitForstmt(self, ctx:MiniGoParser.ForstmtContext):
+        return self.visit(ctx.getChild(0))
+    
+    def visitBasicforstmt(self, ctx:MiniGoParser.BasicforstmtContext):
+        return ForBasic(
+            self.visit(ctx.expr()),
+            self.visit(ctx.forstmtbody())
+        )
+
+    def visitForstmtbody(self, ctx:MiniGoParser.ForstmtbodyContext):
+        return self.visit(ctx.stmtlist())
+    
+    def visitInit_cond_update_forstmt(self, ctx:MiniGoParser.Init_cond_update_forstmtContext):
+        return ForStep(
+            self.visit(ctx.init_for()),
+            self.visit(ctx.expr()),
+            self.visit(ctx.assign()),
+            self.visit(ctx.forstmtbody())
+        )
+
+
+    def visitInit_for(self, ctx:MiniGoParser.Init_forContext):
+        if ctx.getChildCount() ==1:
+            return self.visit(ctx.getChild(0))
+        elif ctx.getChildCount() == 4:
+            return VarDecl(
+                ctx.ID().getText(),
+                None,
+                self.visit(ctx.expr())
+            )
+        else:
+            return VarDecl(
+                ctx.ID().getText(),
+                self.visit(ctx.typedecl()),
+                self.visit(ctx.expr())
+            )
+        
+    def visitAssign(self, ctx:MiniGoParser.AssignContext):
+        if ctx.SHORT_ASSIGN():
+            return Assign(Id(ctx.ID().getText()), self.visit(ctx.expr()))
+        else:
+            return Assign(
+                Id(ctx.ID().getText()),
+                BinaryOp(
+                    self.visit(ctx.otherassignop()),
+                    Id(ctx.ID().getText()),
+                    self.visit(ctx.expr())
+                )
+            )
+        
+    def visitRangeforstmt(self, ctx:MiniGoParser.RangeforstmtContext):
+        return ForEach(
+            Id(ctx.ID(0).getText()),
+            Id(ctx.ID(1).getText()),
+            self.visit(ctx.expr()),
+            self.visit(ctx.forstmtbody())
+        )
+    
+    def visitBreakstmt(self, ctx:MiniGoParser.BreakstmtContext):
+        return Break()
+
+    def visitContinuestmt(self, ctx:MiniGoParser.ContinuestmtContext):
+        return Continue()
+    
+
+
 
     # def visitExpr5(self, ctx:MiniGoParser.Expr5Context):
     #     if ctx.getChildCount() == 1:

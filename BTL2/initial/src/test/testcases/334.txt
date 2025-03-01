@@ -1,8 +1,0 @@
-type student struct{
-            name string;
-            age int;
-            type address struct{
-                street string;
-                city string;
-            };
-        };

@@ -1,6 +1,0 @@
-func main() {
-            a := a-b+c*d/e%f+g;
-            b := d*e/f%g+a;
-            c := e+ 2*f - 3/g + 4*h + 5+i;
-            d := (a+b)*c/d;
-        };

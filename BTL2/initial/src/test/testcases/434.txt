@@ -1,2 +1,0 @@
-func testForLoop() {for _, value := range a {
-        value += 1;};};

@@ -1000,6 +1000,15 @@ PutStringLn(i);};"""
         };"""
         expect = "successful"
         self.assertTrue(TestParser.checkParser(input, expect, 468))
+
+    def test_for_init_cond_update_with_init_is_not_scala_var(self):
+        input = """func main() {
+            for a[2] := 1; a < 10; a += 1 {
+                break;
+            }
+        };"""
+        expect = "Error on line 2 col 21: :="
+        self.assertTrue(TestParser.checkParser(input, expect, 469))
     # def test_assign_
     # def test_test(self):
     #     input ="""var car = Car{                    brand = "Toyota",

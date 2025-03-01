@@ -1,3 +1,0 @@
-func main() {
-            ew := bn && mc || dl;
-        };

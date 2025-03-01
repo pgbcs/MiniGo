@@ -1,1 +1,0 @@
-const P = (a+b*b)/a*b;

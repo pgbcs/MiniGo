@@ -1,3 +1,0 @@
-func (s student) hello(){
-        }
-        func okenha() {s.hello();};

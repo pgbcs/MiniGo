@@ -126,19 +126,24 @@ methodcallbody: methodcallbody SELECTOR ID
     | methodcallbody SELECTOR ID LPAREN arglist RPAREN
     | methodcallbody SELECTOR ID LPAREN arglist RPAREN arrdimlist_expr
     | methodcallbody SELECTOR ID arrdimlist_expr
-    | methodcallbody arrdimlist_expr
+    | funccall arrdimlist_expr
+    | ID arrdimlist_expr
     | funccall
     | ID;
 methodcalltail: SELECTOR ID LPAREN arglist RPAREN;
 
 stmt: vardecl | constdecl | assignstmt | returnstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
-assignstmt: var assignop expr SEMICO;
-var: ID accesslist?;
-accesslist:  access accesslist | access;
-access: arrayaccess | structaccess;
-arrayaccess: LBRACK expr RBRACK;
-structaccess: SELECTOR ID;
-assignop: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+assignstmt: accesslist (SHORT_ASSIGN | otherassignop ) expr SEMICO;
+accesslist: ID arrdimlist_expr
+    | accesslist SELECTOR ID
+    | accesslist SELECTOR ID arrdimlist_expr
+    | ID;
+// var: ID accesslist?;
+// accesslist: accesslist  access | access;
+// access: arrayaccess | structaccess;
+// arrayaccess: LBRACK expr RBRACK;
+// structaccess: SELECTOR ID;
+otherassignop: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 returnstmt: RETURN expr? SEMICO;
 
@@ -156,7 +161,8 @@ basicforstmt: FOR expr forstmtbody SEMICO;
 forstmtbody: LBRACE stmtlist RBRACE;
 init_cond_update_forstmt: FOR init_for SEMICO expr SEMICO assign forstmtbody SEMICO;
 init_for: assign | VAR ID typedecl? ASSIGN expr;
-assign: var assignop expr;
+// assign: var assignop expr;
+assign: ID (SHORT_ASSIGN|otherassignop) expr;
 rangeforstmt: FOR ID COMMA ID SHORT_ASSIGN RANGE expr forstmtbody SEMICO;
 
 breakstmt: BREAK SEMICO;

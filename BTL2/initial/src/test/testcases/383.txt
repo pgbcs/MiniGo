@@ -1,5 +1,0 @@
-type student struct{
-            name string;
-            age int;
-            scores [5] float;
-        };

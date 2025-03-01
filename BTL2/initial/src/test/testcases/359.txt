@@ -1,3 +1,0 @@
-func main(){
-            woo := !!foo || !bar && !baz;
-        };

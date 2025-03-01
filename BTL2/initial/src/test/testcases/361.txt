@@ -1,1 +1,0 @@
-var cond = (totalSpent > 5000000 && lastPurchaseDate <= 30) || (isVIP == true && referralCount >= 5);

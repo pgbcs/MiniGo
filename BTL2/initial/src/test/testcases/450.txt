@@ -1,5 +1,0 @@
-func who() {
-            func what() {
-                return;
-            }
-        };
