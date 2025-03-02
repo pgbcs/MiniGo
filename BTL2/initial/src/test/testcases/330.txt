@@ -1,0 +1,7 @@
+type PPL struct{
+            requisite string;
+            min int;
+            avg float;
+            passed boolean;
+        };
+        var a PPL = PPL{requisite: "Math", min: 5, max: 7.5,passed: true};

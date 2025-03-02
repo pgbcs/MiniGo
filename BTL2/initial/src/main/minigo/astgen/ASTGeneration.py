@@ -146,9 +146,9 @@ class ASTGeneration(MiniGoVisitor):
     def visitFuncdecl(self, ctx:MiniGoParser.FuncdeclContext):
         flatten_paramlist = self.visit(ctx.paramlist())
         if ctx.returntype():
-            return FuncDecl(ctx.ID().getText(), flatten_paramlist, self.visit(ctx.returntype()), self.visit(ctx.funcbody()))
+            return FuncDecl(ctx.ID().getText(), flatten_paramlist, self.visit(ctx.returntype()),self.visit(ctx.funcbody()))
         else:
-            return FuncDecl(ctx.ID().getText(), flatten_paramlist, VoidType(), self.visit(ctx.funcbody()))
+            return FuncDecl(ctx.ID().getText(), flatten_paramlist, VoidType(),self.visit(ctx.funcbody()))
 
     def visitParamlist(self, ctx:MiniGoParser.ParamlistContext):
         paramlist = self.visit(ctx.param_group_prime()) if ctx.param_group_prime() else []
@@ -159,11 +159,11 @@ class ASTGeneration(MiniGoVisitor):
         return [self.visit(ctx.param_group())] + self.visit(ctx.param_group_prime()) if ctx.param_group_prime() else [self.visit(ctx.param_group())]
 
     def visitParam_group(self, ctx:MiniGoParser.Param_groupContext):
+        varList = self.visit(ctx.param_mem_list())
         if ctx.arrdimlist():
-            varList = self.visit(ctx.param_mem_list())
-            return [VarDecl(var, ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())), None) for var in varList]
+            return [ParamDecl(var, ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl()))) for var in varList]
         else:
-            return [VarDecl(var, self.visit(ctx.typedecl()), None) for var in varList]
+            return [ParamDecl(var, self.visit(ctx.typedecl())) for var in varList]
 
     def visitParam_mem_list(self, ctx:MiniGoParser.Param_mem_listContext):
         return [ctx.ID().getText()] + self.visit(ctx.param_mem_list()) if ctx.param_mem_list() else [ctx.ID().getText()]
@@ -187,10 +187,10 @@ class ASTGeneration(MiniGoVisitor):
             self.visit(ctx.returntype()) if ctx.returntype() else VoidType(),
             self.visit(ctx.methodimple_body())
         )
-        return MethodDecl(ctx.ID(0).getText(),StructType(ctx.ID(1).getText()) ,fundecl)
+        return MethodDecl(ctx.ID(0).getText(),Id(ctx.ID(1).getText()) ,fundecl)
     
     def visitMethodimple_body(self, ctx):
-        return self.visit(ctx.stmtlist())
+        return Block(self.visit(ctx.stmtlist()))
     
     def visitExpr(self, ctx:MiniGoParser.ExprContext):
         if ctx.getChildCount() == 1:
@@ -245,7 +245,7 @@ class ASTGeneration(MiniGoVisitor):
     def visitExpr6(self, ctx:MiniGoParser.Expr6Context):
         return self.visit(ctx.getChild(0))
     
-    def visitArrdim_expr(self, ctx: MiniGoParser.Arrdimlist_exprContext):
+    def visitArrdimlist_expr(self, ctx: MiniGoParser.Arrdimlist_exprContext):
         return self.visit(ctx.arrdimlist_expr()) + [self.visit(ctx.arrdim_expr())] if ctx.arrdimlist_expr() else [self.visit(ctx.arrdim_expr())]
         
     def visitArrdim_expr(self, ctx: MiniGoParser.Arrdim_exprContext):
@@ -363,11 +363,11 @@ class ASTGeneration(MiniGoVisitor):
     def visitBasicforstmt(self, ctx:MiniGoParser.BasicforstmtContext):
         return ForBasic(
             self.visit(ctx.expr()),
-            self.visit(ctx.forstmtbody())
+            Block(self.visit(ctx.forstmtbody()))
         )
 
     def visitForstmtbody(self, ctx:MiniGoParser.ForstmtbodyContext):
-        return self.visit(ctx.stmtlist())
+        return Block(self.visit(ctx.stmtlist()))
     
     def visitInit_cond_update_forstmt(self, ctx:MiniGoParser.Init_cond_update_forstmtContext):
         return ForStep(
@@ -412,7 +412,7 @@ class ASTGeneration(MiniGoVisitor):
             Id(ctx.ID(0).getText()),
             Id(ctx.ID(1).getText()),
             self.visit(ctx.expr()),
-            self.visit(ctx.forstmtbody())
+            Block(self.visit(ctx.forstmtbody()))
         )
     
     def visitBreakstmt(self, ctx:MiniGoParser.BreakstmtContext):

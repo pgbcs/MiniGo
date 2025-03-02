@@ -1,0 +1,1 @@
+func main() {s.info.id[2][s.info.id[1]] := 3;};

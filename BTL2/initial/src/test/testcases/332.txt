@@ -1,0 +1,6 @@
+type PPL struct{
+            requisite string;
+        };
+        func (p PPL) setRequisite(req, abc string, xyz int){
+            return;
+        };

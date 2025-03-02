@@ -303,3 +303,114 @@ class ASTGenSuite(unittest.TestCase):
             ]
             ))
         self.assertTrue(TestAST.checkASTGen(input,expect,329))
+
+    # def 
+    def test_use_instance_of_struct(self):
+        input = """type PPL struct{
+            requisite string;
+            min int;
+            avg float;
+            passed boolean;
+        };
+        var a PPL = PPL{requisite: "Math", min: 5, max: 7.5,passed: true};"""
+        expect =str(
+            Program(
+                [
+                    StructType("PPL",
+                        [
+                            ("requisite",StringType()),
+                            ("min",IntType()),
+                            ("avg",FloatType()),
+                            ("passed",BoolType())
+                        ],
+                        []
+                    ),
+                    VarDecl("a",Id("PPL"),StructLiteral("PPL",
+                        [
+                            ("requisite",StringLiteral("\"Math\"")),
+                            ("min",IntLiteral(5)),
+                            ("max",FloatLiteral(7.5)),
+                            ("passed",BooleanLiteral(True))
+                        ]
+                    ))
+                ]
+            ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,330))
+        
+    def test_declare_struct_method(self):
+        input = """type PPL struct{
+            requisite string;
+        };
+        func (p PPL) getRequisite() string{
+            return p.requisite;
+        };"""
+        expect = str(Program(
+            [
+                StructType("PPL",
+                    [
+                        ("requisite",StringType())
+                    ],[]),
+                MethodDecl(
+                    "p",
+                    Id("PPL"),
+                    FuncDecl(
+                        "getRequisite",
+                        [],
+                        StringType(),
+                        Block(
+                            [
+                                Return(FieldAccess(Id("p"),"requisite"))
+                            ]
+                        )
+                    )
+                )
+            ]
+            ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,331))
+
+    def test_struct_method_with_param(self):
+        input = """type PPL struct{
+            requisite string;
+        };
+        func (p PPL) setRequisite(req, abc string, xyz int){
+            return;
+        };"""
+        expect = str(Program(
+            [
+                StructType("PPL",
+                    [
+                        ("requisite",StringType())
+                    ],[]),
+                MethodDecl(
+                    "p",
+                    Id("PPL"),
+                    FuncDecl(
+                        "setRequisite",
+                        [ParamDecl("req",StringType()),ParamDecl("abc",StringType()),ParamDecl("xyz",IntType())],
+                        VoidType(),
+                        Block(
+                            [
+                                Return(None)
+                            ]
+                        )
+                    )
+                )
+            ]
+            ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,332))
+
+    # def test_
+    # def test_array_and_struct_access(self):
+    #     input = """func main(){
+    #         a[0][2].c[3]:=1;
+    #     };"""
+    #     expect = str(Program(
+    #         [
+    #             FuncDecl("main",[],VoidType(),Block(
+    #                 [
+    #                     Assign(ArrayCell(FieldAccess(ArrayCell(Id("a"),[IntLiteral(0), IntLiteral(2)]),"c"),[IntLiteral(3)]),IntLiteral(1))
+    #                 ]
+    #             ))
+    #         ]
+    #         ))
+    #     self.assertTrue(TestAST.checkASTGen(input,expect,330))

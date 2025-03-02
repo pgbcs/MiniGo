@@ -1,0 +1,6 @@
+type PPL struct{
+            requisite string;
+        };
+        func (p PPL) getRequisite() string{
+            return p.requisite;
+        };

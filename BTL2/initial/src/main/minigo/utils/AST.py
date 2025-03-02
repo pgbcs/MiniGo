@@ -91,7 +91,7 @@ class ConstDecl(Decl,BlockMember):
 @dataclass
 class FuncDecl(Decl):
     name: str
-    params: List[VarDecl]
+    params: List[ParamDecl]
     retType: Type # VoidType if there is no return type
     body: Block
 
@@ -219,8 +219,8 @@ class Assign(Stmt):
 @dataclass
 class If(Stmt):
     expr:Expr
-    thenStmt:Block
-    elseStmt:Block # None if there is no else
+    thenStmt:Stmt
+    elseStmt:Stmt # None if there is no else
 
     def __str__(self):
         return "If(" + str(self.expr) + "," + str(self.thenStmt) + ("" if (self.elseStmt is None) else "," + str(self.elseStmt)) + ")"
@@ -419,7 +419,7 @@ def nested2Str(dat: NestedList):
 
 @dataclass
 class ArrayLiteral(Literal):
-    dimens:List[Expr]#change from List[int] to List[Expr]
+    dimens:List[Expr]
     eleType: Type
     value: NestedList
 

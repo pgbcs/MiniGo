@@ -1,0 +1,10 @@
+func a(){result := (((s1.a + s2.b * s3.c / s4.d - s5.e % s6.f) <= s7.g || 
+(s8.h - s9.i / s10.j + s11.k * s12.l) > s13.m) && 
+(!(s14.n.p == s15.o.q) || 
+(s16.r.s / s17.t.u - s18.v.w + s19.x.y * s20.z.aa != s21.bb.cc))) || 
+(((s22.dd.ee - s23.ff.gg * s24.hh.ii / s25.jj.kk) >= s26.ll.mm && 
+(s27.nn.oo % s28.pp.qq != s29.rr.ss || 
+s30.tt.uu + s31.vv.ww / s32.xx.yy < s33.zz.aaa))) && 
+(!(s34.bbb.ccc.ddd > s35.eee.fff.ggg) || 
+(s36.hhh.iii.jjj / s37.kkk.lll.mmm + s38.nnn.ooo.ppp - 
+s39.qqq.rrr.sss * s40.ttt.uuu.vvv <= s41.www.xxx.yyy));};

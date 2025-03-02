@@ -1,0 +1,5 @@
+func main() {result := (((A[B[i] + C[j] * D[k] / E[l] - F[m] % G[n]] <= H[o] || I[P[Q[r]] - R[S[t]] / U[v] + W[x] * Y[z]] > J[aa]) && 
+(!(K[L[M[p] % N[q]] == O[R[s]]]) || (T[U[V[w] / X[y] - Z[bb] + CC[dd] * EE[ff]]] != FF[gg]))) || 
+(((GG[HH[II[jj] - JJ[kk] * KK[ll] / LL[mm]]] + MM[NN[OO[pp]]]) >= PP[QQ[rr]] && 
+(RR[SS[TT[uu] % UU[vv]] != VV[WW[xx]]] || XX[YY[zz] + AAA[bbb] / BBB[ccc]] < CCC[DDD[eee]]))) && 
+(!(EEE[FFF[GGG[hhh] - HHH[iii] * III[jjj] > JJJ[kkk]]] || KKK[LLL[MMM[nnn] / NNN[ooo] + OOO[ppp] - PPP[qqq] * QQQ[rrr]]] <= RRR[SSS[ttt]])));};

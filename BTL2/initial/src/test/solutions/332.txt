@@ -1,0 +1,1 @@
+Program([StructType(PPL,[(requisite,StringType)],[]),MethodDecl(p,Id(PPL),FuncDecl(setRequisite,[ParDecl(req,StringType),ParDecl(abc,StringType),ParDecl(xyz,IntType)],VoidType,Block([Return()])))])
