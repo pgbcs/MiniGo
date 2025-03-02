@@ -1,3 +1,1 @@
-func main() {
-            bdh := sda != cdss;
-        };
+func vitinhtu() [5] int{};

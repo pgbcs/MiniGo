@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(Id(a),BinaryOp(ArrayCell(FieldAccess(ArrayCell(FieldAccess(MethodCall(Id(car),run,[FuncCall(speed,[IntLiteral(50)])]),position),[IntLiteral(2)]),x),[IntLiteral(3)]),+,IntLiteral(1)))]))])

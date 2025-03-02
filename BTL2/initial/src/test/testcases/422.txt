@@ -1,2 +1,7 @@
-func ohnophake() {if ()
-            PutStringLn("You are an adult");};
+func main(){
+            if(your.feeling == "happy"){
+                print("Good for you");
+            }else{
+                print("Cheer up");
+            }
+        };

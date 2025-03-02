@@ -1,7 +1,3 @@
-func sub() {if (yourAge >= 18){
-            if (yourAge >= 22){
-                PutStringLn("You are a grown-up");
-            } else {
-                PutStringLn("You are an adult");
-            }
-        };};
+func main(){
+            a[1][2].e.f.b[3] %= 1;
+        };

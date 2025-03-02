@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(FieldAccess(ArrayCell(FieldAccess(FuncCall(wth,[]),a),[IntLiteral(1),IntLiteral(2)]),c),Cal,[BinaryOp(IntLiteral(1),+,IntLiteral(2)),BinaryOp(IntLiteral(3),*,IntLiteral(4)),BinaryOp(IntLiteral(5),/,IntLiteral(6))])]))])

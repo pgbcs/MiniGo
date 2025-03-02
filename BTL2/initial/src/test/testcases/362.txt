@@ -1,1 +1,3 @@
-var cond = (age >= 18 && age <= 65) && (healthCondition == "good" || hasMedicalApproval == true);
+func main(){
+            x1 := ((-b) + (b*b - 4*a*c)*1/2) / (2*a);
+        };

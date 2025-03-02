@@ -1,0 +1,1 @@
+Program([FuncDecl(testFunc,[],VoidType,Block([FuncCall(hello,[FuncCall(a,[]),Id(b),FuncCall(c,[Id(d)])])]))])

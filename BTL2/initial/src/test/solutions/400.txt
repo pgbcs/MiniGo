@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(bruh),okevjp,[ArrayCell(FieldAccess(Id(a),b),[IntLiteral(2)]),FieldAccess(ArrayCell(Id(b),[IntLiteral(2)]),a),FieldAccess(Id(c),d)])]))])

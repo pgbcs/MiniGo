@@ -1,1 +1,3 @@
-func main() {arr[1+2][2*3][3/4] := 3;};
+func main(){
+            var a = true || false || b ;
+        };

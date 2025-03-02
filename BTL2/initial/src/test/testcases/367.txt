@@ -1,1 +1,3 @@
-func main() {arr[i] := 3;};
+func main(){
+            var a = !true;
+        };

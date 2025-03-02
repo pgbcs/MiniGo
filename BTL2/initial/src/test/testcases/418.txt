@@ -1,6 +1,3 @@
-
-        func main(){if (yourAge >= 18){
-            if (yourAge >= 22){
-                PutStringLn("You are a grown-up");
-            }
-        };};
+func main(){
+            a[1][2].b[3].c += 1;
+        };

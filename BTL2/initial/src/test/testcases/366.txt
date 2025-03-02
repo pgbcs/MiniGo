@@ -1,1 +1,3 @@
-func main () {arr[arr[2]] := 3;};
+func main(){
+            var adult = age <=18;
+        };

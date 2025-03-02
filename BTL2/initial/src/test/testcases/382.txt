@@ -1,1 +1,3 @@
-var a [b] int;
+func main(){
+            car[0][f].wheel[0].brand[1] := "Michelin";
+        };

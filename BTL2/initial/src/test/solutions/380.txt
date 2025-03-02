@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(FieldAccess(ArrayCell(FieldAccess(Id(car),wheel),[IntLiteral(0)]),brand),StringLiteral("Michelin"))]))])

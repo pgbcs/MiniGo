@@ -1,1 +1,3 @@
-func ohh() {s.name := "Nguyen Van A";};
+func main(){
+            a *= b*c;
+        };

@@ -1,1 +1,3 @@
-var X = y > z / 2225;
+func vitinhtu(x int, y float) [2][3]oh{
+            return x + y;
+        };

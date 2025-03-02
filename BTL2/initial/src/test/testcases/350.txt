@@ -1,1 +1,1 @@
- var X = y <= z * 732004;
+func vitinhtu() int{};

@@ -1,1 +1,1 @@
-var X = y < z - 1505;
+func vitinhtu(x int, y float) [2][3]oh{};

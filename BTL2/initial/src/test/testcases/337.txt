@@ -1,2 +1,4 @@
-func main() {
+type PPL interface{
+            getRequisite() string;
+            setRequisite(req string);
         };

@@ -1,1 +1,3 @@
-func ko() { a *= b;};
+func main(){
+            wth().c()[2][3].a().b()
+        };

@@ -1,6 +1,12 @@
-type interface {
-Add(x, y int) int;
-Subtract(a, b float, c int) float;
-Reset()
-SayHello(name string)
-};
+type PPL struct{
+            requisite string;
+            min [5] int;
+            max [5][5] float;
+            passed boolean;
+            student Student;
+        };
+        type Student struct{
+            name string;
+            age int;
+            gpa float;
+        };

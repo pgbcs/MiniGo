@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(Id(yourGirlfriend),==,StringLiteral("single")),Block([FuncCall(print,[StringLiteral("Good for you")])]),If(BinaryOp(Id(yourGirlfriend),==,StringLiteral("taken")),Block([FuncCall(print,[StringLiteral("Cheer up")])]),Block([FuncCall(print,[StringLiteral("Still available")])])))]))])

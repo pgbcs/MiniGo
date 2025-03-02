@@ -1,1 +1,3 @@
-func huhu() {a := b+c;};
+func main(){
+            a:= car.run(speed(50)).position[2].x[3] + 1;
+        };

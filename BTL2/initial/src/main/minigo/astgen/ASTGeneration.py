@@ -60,7 +60,15 @@ class ASTGeneration(MiniGoVisitor):
         return [self.visit(ctx.arrdim())] + self.visit(ctx.arrdimlist()) if ctx.arrdimlist() else [self.visit(ctx.arrdim())]
 
     def visitArrdim(self,ctx:MiniGoParser.ArrdimContext):
-        return IntLiteral(int(ctx.DEC_LIT().getText())) if ctx.DEC_LIT() else Id(ctx.ID().getText())
+        if ctx.DEC_LIT():
+            return IntLiteral(int(ctx.DEC_LIT().getText()))
+        elif ctx.BIN_LIT():
+            return IntLiteral(int(ctx.BIN_LIT().getText()[2:],2))
+        elif ctx.OCT_LIT():
+            return IntLiteral(int(ctx.OCT_LIT().getText()[2:],8))
+        elif ctx.HEX_LIT():
+            return IntLiteral(int(ctx.HEX_LIT().getText()[2:],16))
+        else: return Id(ctx.ID().getText())
     
     def visitArrliteral(self, ctx:MiniGoParser.ArrliteralContext):
         return ArrayLiteral(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl()), self.visit(ctx.arrlistvalue()))
@@ -140,7 +148,7 @@ class ASTGeneration(MiniGoVisitor):
         return [self.visit(ctx.method())] + self.visit(ctx.methodlist()) if ctx.methodlist() else []
 
     def visitMethod(self, ctx:MiniGoParser.MethodContext):
-        flatten_paramlist = [x.varType for x in self.visit(ctx.paramlist())]
+        flatten_paramlist = [x.parType for x in self.visit(ctx.paramlist())]
         return Prototype(ctx.ID().getText(), flatten_paramlist, self.visit(ctx.returntype())) if ctx.returntype() else Prototype(ctx.ID().getText(), flatten_paramlist, VoidType())
 
     def visitFuncdecl(self, ctx:MiniGoParser.FuncdeclContext):
@@ -232,7 +240,7 @@ class ASTGeneration(MiniGoVisitor):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.getChild(0))
         elif ctx.getChildCount() ==2:
-            return ArrayCell(self.visit(ctx.expr5()), self.visit(ctx.arrdimlist_expr()))
+            return ArrayCell(self.visit(ctx.expr6()), self.visit(ctx.arrdimlist_expr()))
         elif ctx.getChildCount() == 3:
             return FieldAccess(self.visit(ctx.expr5()), ctx.ID().getText())
         elif ctx.getChildCount() == 4:
@@ -273,28 +281,30 @@ class ASTGeneration(MiniGoVisitor):
     def visitMethodcall(self, ctx:MiniGoParser.MethodcallContext):
         methodbody = self.visit(ctx.methodcallbody())
         methodcalltail_id, methodcalltail_arglist  = self.visit(ctx.methodcalltail())
-        return MethCall(methodbody, methodcalltail_id.getText(), methodcalltail_arglist)
+        return MethCall(methodbody, methodcalltail_id.getText(), self.visit(methodcalltail_arglist))
         
     def visitMethodcallbody(self, ctx:MiniGoParser.MethodcallbodyContext):
-        if ctx.getChildCount==2:
+        if ctx.getChildCount()==2:
             if ctx.ID():
                 return ArrayCell(Id(ctx.ID().getText()), self.visit(ctx.arrdimlist_expr()))
             else:
                 return ArrayCell(self.visit(ctx.funccall()), self.visit(ctx.arrdimlist_expr()))
-        elif ctx.getChildCount==3:
+        elif ctx.getChildCount()==3:
             return FieldAccess(self.visit(ctx.methodcallbody()), ctx.ID().getText())
-        elif ctx.getChildCount==4:
+        elif ctx.getChildCount()==4:
             return ArrayCell(FieldAccess(self.visit(ctx.methodcallbody()), ctx.ID().getText()),self.visit(ctx.arrdimlist_expr()))
-        elif ctx.getChildCount==6:
+        elif ctx.getChildCount()==6:
             return MethCall(self.visit(ctx.methodcallbody()), ctx.ID().getText(), self.visit(ctx.arglist()))
-        elif ctx.getChildCount==7:
+        elif ctx.getChildCount()==7:
             return ArrayCell(MethCall(self.visit(ctx.methodcallbody()), ctx.ID().getText(), self.visit(ctx.arglist())),self.visit(ctx.arrdimlist_expr()))
-        elif ctx.ID():
-            return Id(ctx.ID().getText())
-        else: self.visit(ctx.funccall())
+        elif ctx.getChildCount()==1:
+            if ctx.ID():
+                return Id(ctx.ID().getText())
+            else:
+                return self.visit(ctx.funccall())
     
     def visitMethodcalltail(self, ctx:MiniGoParser.MethodcalltailContext):
-        return [ctx.ID(), ctx.arglist()]
+        return ctx.ID(), ctx.arglist()
     
     def visitStmt(self, ctx:MiniGoParser.StmtContext):
         return self.visit(ctx.getChild(0))
@@ -327,15 +337,19 @@ class ASTGeneration(MiniGoVisitor):
     def visitIfstmt(self, ctx:MiniGoParser.IfstmtContext):
         ifexpr, ifbody = self.visit(ctx.firstifstmt())
         eliflist =self.visit(ctx.elseifstmtlist())
-        if ctx.elsestmt(): eliflist.elseStmt = self.visit(ctx.elsestmt())
+        if ctx.elsestmt(): 
+            if eliflist:
+                eliflist.elseStmt = Block(self.visit(ctx.elsestmt()))
+            else:
+                eliflist = Block(self.visit(ctx.elsestmt()))
         return If(
             ifexpr,
-            ifbody,
+            Block(ifbody),
             eliflist
         )
 
     def visitFirstifstmt(self, ctx:MiniGoParser.FirstifstmtContext):
-        return [self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())]
+        return self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())
 
     def visitIfstmtbody(self, ctx:MiniGoParser.IfstmtbodyContext):
         return self.visit(ctx.stmtlist())
@@ -347,7 +361,7 @@ class ASTGeneration(MiniGoVisitor):
             elifstmt_expr, elifstmt_body = self.visit(ctx.elseifstmt())
             return If(
                 elifstmt_expr,
-                elifstmt_body,
+                Block(elifstmt_body),
                 self.visit(ctx.elseifstmtlist())
             )
 

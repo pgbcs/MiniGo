@@ -75,7 +75,7 @@ def serializedATN():
         56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,
         100,102,104,106,108,110,112,114,116,118,120,122,124,126,128,130,
         132,134,136,138,140,142,144,146,148,150,152,154,156,158,160,162,
-        0,7,2,0,12,15,56,56,2,0,48,48,56,56,1,0,29,34,1,0,24,25,1,0,26,28,
+        0,7,2,0,12,15,56,56,2,0,48,51,56,56,1,0,29,34,1,0,24,25,1,0,26,28,
         2,0,25,25,37,37,1,0,40,44,739,0,164,1,0,0,0,2,171,1,0,0,0,4,179,
         1,0,0,0,6,183,1,0,0,0,8,187,1,0,0,0,10,189,1,0,0,0,12,194,1,0,0,
         0,14,203,1,0,0,0,16,207,1,0,0,0,18,209,1,0,0,0,20,220,1,0,0,0,22,
@@ -1188,6 +1188,15 @@ class MiniGoParser ( Parser ):
         def DEC_LIT(self):
             return self.getToken(MiniGoParser.DEC_LIT, 0)
 
+        def BIN_LIT(self):
+            return self.getToken(MiniGoParser.BIN_LIT, 0)
+
+        def OCT_LIT(self):
+            return self.getToken(MiniGoParser.OCT_LIT, 0)
+
+        def HEX_LIT(self):
+            return self.getToken(MiniGoParser.HEX_LIT, 0)
+
         def ID(self):
             return self.getToken(MiniGoParser.ID, 0)
 
@@ -1208,7 +1217,7 @@ class MiniGoParser ( Parser ):
             self.match(MiniGoParser.LBRACK)
             self.state = 233
             _la = self._input.LA(1)
-            if not(_la==48 or _la==56):
+            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 76279718688587776) != 0)):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)

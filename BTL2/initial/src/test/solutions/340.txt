@@ -1,0 +1,1 @@
+Program([InterfaceType(Cool,[Prototype(a,[ArrayType(BoolType,[IntLiteral(5)]),ArrayType(BoolType,[IntLiteral(5)]),ArrayType(BoolType,[IntLiteral(5)]),ArrayType(BoolType,[IntLiteral(5)])],Id(complex128)),Prototype(z,[ArrayType(Id(float32),[IntLiteral(5)]),ArrayType(Id(float64),[IntLiteral(5)])],Id(complex64)),Prototype(m,[],VoidType)])])

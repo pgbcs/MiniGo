@@ -1,1 +1,3 @@
-func hihi() {a := d+12*4;};
+func main(){
+            a:= !(c.findMax(university.students[2].subject.score)[2] > highestScore);
+        };

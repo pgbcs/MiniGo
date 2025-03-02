@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(FieldAccess(Id(Toyota),wheels),BinaryOp(FieldAccess(Id(Toyota),wheels),+=,IntLiteral(2)))]))])

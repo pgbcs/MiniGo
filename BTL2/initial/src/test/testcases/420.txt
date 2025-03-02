@@ -1,7 +1,5 @@
-func tadaaa(){if (yourAge >= 18){
-            if (yourAge >= 22){
-                PutStringLn("You are a grown-up");
-            } else if (yourAge >= 12){
-                PutStringLn("You are a teenager");
+func main(){
+            if(student.age>18){
+                print("Adult");
             }
-        };};
+        };

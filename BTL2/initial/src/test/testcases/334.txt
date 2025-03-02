@@ -1,8 +1,6 @@
-type student struct{
-            name string;
-            age int;
-            type address struct{
-                street string;
-                city string;
-            };
+type PPL struct{
+            requisite string;
+            min [5] int;
+            max [5][5] float;
+            passed boolean;
         };

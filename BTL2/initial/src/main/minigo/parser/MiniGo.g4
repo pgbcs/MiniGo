@@ -49,7 +49,7 @@ arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN arrliteral SEMICO;
 arr_vardecl_without_init: VAR ID arrdimlist typedecl SEMICO;
 
 arrdimlist: arrdim arrdimlist | arrdim;
-arrdim: LBRACK (DEC_LIT|ID) RBRACK;
+arrdim: LBRACK (DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | ID) RBRACK;
 arrliteral: arrdimlist typedecl arrlistvalue;
 arrlistvalue: LBRACE listvalue RBRACE;
 listvalue: value_for_arr COMMA listvalue | value_for_arr;

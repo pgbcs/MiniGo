@@ -1,1 +1,3 @@
-func main() {s.info.id.address.street := "123 Nguyen";};
+func main(){
+            woo := !!foo || !bar && !baz;
+        };

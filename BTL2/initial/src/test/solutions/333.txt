@@ -1,0 +1,1 @@
+Program([StructType(PPL,[(requisite,StringType)],[]),MethodDecl(p,Id(PPL),FuncDecl(getRequisite,[],StringType,Block([Return(FieldAccess(Id(p),requisite))]))),FuncDecl(main,[],VoidType,Block([VarDecl(a,Id(PPL),StructLiteral(PPL,[(requisite,StringLiteral("Math"))])),MethodCall(Id(a),getRequisite,[])]))])

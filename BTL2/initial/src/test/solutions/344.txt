@@ -1,0 +1,1 @@
+Program([FuncDecl(J97,[ParDecl(x,IntType),ParDecl(y,FloatType),ParDecl(z,StringType)],VoidType,Block([]))])

@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(FieldAccess(ArrayCell(Id(car),[IntLiteral(0),Id(f)]),brand),StringLiteral("Milkita"))]))])

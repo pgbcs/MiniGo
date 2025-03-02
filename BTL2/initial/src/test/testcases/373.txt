@@ -1,1 +1,2 @@
-func main() {s.info.id[2+3] := 3;};
+func main(){
+            arr[a+2]:=3;};

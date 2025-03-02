@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(Id(a),>,Id(b)),Block([FuncCall(print,[StringLiteral("a>b")])]),If(BinaryOp(Id(a),<,Id(b)),Block([FuncCall(print,[StringLiteral("a<b")])]),Block([FuncCall(print,[StringLiteral("a=b")])])))]))])

@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(FieldAccess(FieldAccess(FieldAccess(Id(student),classroom),teacher),name),StringLiteral("Mr. Bean"))]))])

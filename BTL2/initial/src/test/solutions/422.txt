@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(FieldAccess(Id(your),feeling),==,StringLiteral("happy")),Block([FuncCall(print,[StringLiteral("Good for you")])]),Block([FuncCall(print,[StringLiteral("Cheer up")])]))]))])

@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(FieldAccess(ArrayCell(Id(a),[IntLiteral(1),IntLiteral(2)]),c),Cal,[IntLiteral(1),IntLiteral(2),IntLiteral(3)])]))])

@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(bruh),okevjp,[Id(a),Id(b),Id(c)])]))])

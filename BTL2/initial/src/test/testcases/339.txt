@@ -1,2 +1,5 @@
-func main() int {
+type Cool interface {
+            a(b,c,d,e boolean) complex128;
+            z(x float32, y float64) complex64;
+            m();
         };

@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([VarDecl(a,ArrayType(IntType,[Id(MAXINT)]))]))])

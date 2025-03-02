@@ -1,1 +1,3 @@
-func huhu() {a %= bts;};
+func main(){
+            a+=a+1;
+        };

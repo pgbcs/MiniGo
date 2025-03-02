@@ -1,1 +1,3 @@
-var cond = (totalSpent > 5000000 && lastPurchaseDate <= 30) || (isVIP == true && referralCount >= 5);
+func main(){
+            a:=(1+2)*3;
+        };

@@ -1,0 +1,1 @@
+Program([StructType(PPL,[(requisite,StringType),(min,ArrayType(IntType,[IntLiteral(5)])),(max,ArrayType(FloatType,[IntLiteral(5),IntLiteral(5)])),(passed,BoolType),(student,Id(Student))],[]),StructType(Student,[(name,StringType),(age,IntType),(gpa,FloatType)],[])])

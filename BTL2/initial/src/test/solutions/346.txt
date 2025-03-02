@@ -1,0 +1,1 @@
+Program([FuncDecl(vitinhtu,[ParDecl(x,ArrayType(IntType,[IntLiteral(5)])),ParDecl(y,ArrayType(FloatType,[IntLiteral(5)])),ParDecl(z,ArrayType(StringType,[IntLiteral(5)]))],VoidType,Block([]))])

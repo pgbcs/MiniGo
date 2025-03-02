@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(FieldAccess(ArrayCell(FieldAccess(ArrayCell(Id(a),[IntLiteral(1),IntLiteral(2)]),b),[IntLiteral(3)]),c),BinaryOp(FieldAccess(ArrayCell(FieldAccess(ArrayCell(Id(a),[IntLiteral(1),IntLiteral(2)]),b),[IntLiteral(3)]),c),+=,IntLiteral(1)))]))])

@@ -1,0 +1,1 @@
+Program([StructType(student,[(name,StringType),(age,IntType),(scores,ArrayType(FloatType,[IntLiteral(5)]))],[])])
