@@ -149,10 +149,10 @@ returnstmt: RETURN expr? SEMICO;
 
 callstmt: (funccall| methodcall) SEMICO;
 
-ifstmt: firstifstmt elseifstmtlist elsestmt? SEMICO;
+ifstmt: firstifstmt elseifstmtlist? SEMICO;
 firstifstmt: IF LPAREN expr RPAREN ifstmtbody;
 ifstmtbody: LBRACE stmtlist RBRACE;
-elseifstmtlist: elseifstmt elseifstmtlist | ;
+elseifstmtlist: elseifstmt elseifstmtlist | elsestmt | elseifstmt;
 elseifstmt: ELSE IF LPAREN expr RPAREN ifstmtbody;
 elsestmt: ELSE ifstmtbody;
 

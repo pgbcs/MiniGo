@@ -2513,28 +2513,6 @@ SayHello(name string)
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,422))
 
-
-    def test_array_declare_with_other_int_lit(self):
-        input ="""var arr [1][0b1010][0O777][0xFFF] string;"""
-        expect = str(Program(
-            [
-                VarDecl(
-                    "arr",
-                    ArrayType(
-                        [
-                            IntLiteral(1),
-                            IntLiteral(10),
-                            IntLiteral(511),
-                            IntLiteral(4095)
-                        ],
-                        StringType()
-                    ),
-                    None
-                )
-            ]
-        ))
-        self.assertTrue(TestAST.checkASTGen(input,expect,500))
-
     def test_if_else_if_else_statement(self):
         input = """func main(){
             if(a>b){
@@ -2613,8 +2591,572 @@ SayHello(name string)
                 )
             ]
         ))
-        print(expect)
         self.assertTrue(TestAST.checkASTGen(input,expect,424))
+
+    def test_nested_if_statement1(self):
+        input = """func main(){
+            if(!warZone){
+                if(!pandemic){
+                    print("Peaceful");
+                }else{
+                    print("Stay home");
+                }
+            }
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            If(
+                                UnaryOp("!",Id("warZone")),
+                                Block(
+                                    [
+                                        If(
+                                            UnaryOp("!",Id("pandemic")),
+                                            Block([FuncCall("print",[StringLiteral("\"Peaceful\"")])]),
+                                            Block([FuncCall("print",[StringLiteral("\"Stay home\"")])])
+                                        )
+                                    ]
+                                ),
+                                None
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,425))
+
+    def test_nested_if_statement2(self):
+        input = """func main(){
+            if(!warZone){
+                if(!pandemic){
+                    print("Peaceful");
+                }else if(!hunger){
+                    if(!lockdown){
+                        print("Stay home");
+                    }else{
+                        print("Stay safe");
+                    }
+                }
+            }
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            If(
+                                UnaryOp("!",Id("warZone")),
+                                Block(
+                                    [
+                                        If(
+                                            UnaryOp("!",Id("pandemic")),
+                                            Block([FuncCall("print",[StringLiteral("\"Peaceful\"")])]),
+                                            If(
+                                                UnaryOp("!",Id("hunger")),
+                                                Block(
+                                                    [
+                                                        If(
+                                                            UnaryOp("!",Id("lockdown")),
+                                                            Block([FuncCall("print",[StringLiteral("\"Stay home\"")])]),
+                                                            Block([FuncCall("print",[StringLiteral("\"Stay safe\"")])])
+                                                        )
+                                                    ]
+                                                ),
+                                                None
+                                            )
+                                        )
+                                    ]
+                                ),
+                                None
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,426))
+
+    def test_if_empty_statement(self):
+        input = """func main(){
+            if(a>b){};
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            If(BinaryOp(">",Id("a"),Id("b")),Block([]),None)
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,427))
+
+    def test_basic_for_statement(self):
+        input = """func testfor() {for i < 10 {
+i+=1;
+PutStringLn(i);
+};};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testfor",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForBasic(
+                                BinaryOp("<",Id("i"),IntLiteral(10)),
+                                Block(
+                                    [
+                                        Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                        FuncCall("PutStringLn",[Id("i")])
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,428))
+
+    def test_init_for_statement(self):
+        input = """func testfor() {
+        for i := 0; a > 10; i += 1 {
+                        PutStringLn(i);
+                        i+=1;
+                        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testfor",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForStep(
+                                Assign(Id("i"),IntLiteral(0)),
+                                BinaryOp(">",Id("a"),IntLiteral(10)),
+                                Assign(Id("i"), BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Block(
+                                    [
+                                        FuncCall("PutStringLn",[Id("i")]),
+                                        Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1)))
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,429))
+
+    def test_empty_for_statement(self):
+        input = """func testfor() {
+            for var i int=2;i<2;i-=1 {
+            };
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testfor",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForStep(
+                                VarDecl("i",IntType(),IntLiteral(2)),
+                                BinaryOp("<",Id("i"),IntLiteral(2)),
+                                Assign(Id("i"),BinaryOp("-=",Id("i"),IntLiteral(1))),
+                                Block([])
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,430))
+
+    def test_for_range_loop_with_array_literal(self):
+        input = """func testForLoop() {for index, value := range [5]int{1, 2, 3, 4, 5} {
+        // statements
+        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForEach(
+                                Id("index"),
+                                Id("value"),
+                                ArrayLiteral(
+                                    [IntLiteral(5)],
+                                    IntType(),
+                                    [IntLiteral(1), IntLiteral(2), IntLiteral(3), IntLiteral(4), IntLiteral(5)]
+                                ),
+                                Block([])
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,431))
+
+    def test_for_range_with_array_variable(self):
+        input = """func testForLoop() {for index, value := range a {
+        // statements
+        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForEach(
+                                Id("index"),
+                                Id("value"),
+                                Id("a"),
+                                Block([])
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect, 432))
+
+    def test_for_range_with_array_cell(self):
+        input = """func testForLoop(){
+            for index,value := range a[1][2].b[3]{
+                // statements
+            }
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForEach(
+                                Id("index"),
+                                Id("value"),
+                                ArrayCell(
+                                    FieldAccess(
+                                        ArrayCell(Id("a"),[IntLiteral(1),IntLiteral(2)]),
+                                        "b"),
+                                    [IntLiteral(3)]),
+                                Block([])
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,433))
+
+    def test_for_range_without_index(self):
+        input = """func testForLoop(){
+            for _,value := range a{
+                // statements
+            }
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForEach(
+                                Id("_"),
+                                Id("value"),
+                                Id("a"),
+                                Block([])
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,434))
+
+    def test_for_loop_with_break(self):
+        input = """func testForLoop() {for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                break;
+            }
+        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForStep(
+                                Assign(Id("i"),IntLiteral(0)),
+                                BinaryOp("<",Id("i"),IntLiteral(10)),
+                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Block(
+                                    [
+                                        If(
+                                            BinaryOp("==",Id("i"),IntLiteral(5)),
+                                            Block([Break()]),
+                                            None
+                                        )
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,435))
+
+    def test_for_loop_with_continue(self):
+        input = """func testForLoop() {for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                continue;
+            }
+        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForStep(
+                                Assign(Id("i"),IntLiteral(0)),
+                                BinaryOp("<",Id("i"),IntLiteral(10)),
+                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Block(
+                                    [
+                                        If(
+                                            BinaryOp("==",Id("i"),IntLiteral(5)),
+                                            Block([Continue()]),
+                                            None
+                                        )
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,436))
+
+    def test_for_loop_with_break_and_continue(self):
+        input = """func testForLoop() {for i := 0; i < 10; i += 1 {
+            if (i == 5) {
+                break;
+            } else {
+                continue;
+            }
+        };};"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "testForLoop",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            ForStep(
+                                Assign(Id("i"),IntLiteral(0)),
+                                BinaryOp("<",Id("i"),IntLiteral(10)),
+                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Block(
+                                    [
+                                        If(
+                                            BinaryOp("==",Id("i"),IntLiteral(5)),
+                                            Block([Break()]),
+                                            Block([Continue()])
+                                        )
+                                    ]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,437))  
+
+    def test_return_statement(self):
+        input = """func main(){
+            return;
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            Return(None)
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,438))
+
+    def test_return_with_expression(self):
+        input = """func main(){
+            return a[1][2].b[3].c;
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            Return(
+                                FieldAccess(
+                                    ArrayCell(
+                                        FieldAccess(
+                                            ArrayCell(
+                                                Id("a"),
+                                                [IntLiteral(1), IntLiteral(2)])
+                                                ,"b"
+                                            )
+                                            
+                                        ,[IntLiteral(3)]),"c"
+                                    )
+                                )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,439))
+
+    def test_return_with_array_literal(self):
+        input = """func main(){
+            return [5]num{1,2,3,4,5};
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            Return(
+                                ArrayLiteral(
+                                    [IntLiteral(5)],
+                                    Id("num"),
+                                    [IntLiteral(1), IntLiteral(2), IntLiteral(3), IntLiteral(4), IntLiteral(5)]
+                                )
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,440))
+
+    def test_return_with_struct_literal(self):
+        input = """func main(){
+            return student{name:"John",age:20};
+        };"""
+        expect = str(Program(
+            [
+                FuncDecl(
+                    "main",
+                    [],
+                    VoidType(),
+                    Block(
+                        [
+                            Return(
+                                StructLiteral(
+                                    "student",
+                                    [
+                                        ("name",StringLiteral("\"John\"")),
+                                        ("age",IntLiteral(20))
+                                    ]
+                                    )
+                                )
+                        ])
+                    )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,441))
+
+    def test_array_var_with_init_contain_const(self):
+        input = """var a = [5] int{a,b,c,d,e};"""
+        expect = str(Program(
+            [
+                VarDecl(
+                    "a",
+                    None,
+                    ArrayLiteral(
+                        [IntLiteral(5)],
+                        IntType(),
+                        [Id("a"), Id("b"), Id("c"), Id("d"), Id("e")]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect, 442))
+
+
+    def test_array_declare_with_other_int_lit(self):
+        input ="""var arr [1][0b1010][0O777][0xFFF] string;"""
+        expect = str(Program(
+            [
+                VarDecl(
+                    "arr",
+                    ArrayType(
+                        [
+                            IntLiteral(1),
+                            IntLiteral(10),
+                            IntLiteral(511),
+                            IntLiteral(4095)
+                        ],
+                        StringType()
+                    ),
+                    None
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,443))
+
+    
+
 
     # def test_array_and_struct_access(self):
     #     input = """func main(){

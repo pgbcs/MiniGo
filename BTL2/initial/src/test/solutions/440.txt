@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Return(ArrayLiteral([IntLiteral(5)],Id(num),[IntLiteral(1),IntLiteral(2),IntLiteral(3),IntLiteral(4),IntLiteral(5)]))]))])

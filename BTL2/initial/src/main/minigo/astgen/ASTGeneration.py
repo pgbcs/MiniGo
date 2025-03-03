@@ -335,17 +335,11 @@ class ASTGeneration(MiniGoVisitor):
         return self.visit(ctx.getChild(0))
     
     def visitIfstmt(self, ctx:MiniGoParser.IfstmtContext):
-        ifexpr, ifbody = self.visit(ctx.firstifstmt())
-        eliflist =self.visit(ctx.elseifstmtlist())
-        if ctx.elsestmt(): 
-            if eliflist:
-                eliflist.elseStmt = Block(self.visit(ctx.elsestmt()))
-            else:
-                eliflist = Block(self.visit(ctx.elsestmt()))
+        ifexpr, ifbody = self.visit(ctx.firstifstmt()) 
         return If(
             ifexpr,
             Block(ifbody),
-            eliflist
+            self.visit(ctx.elseifstmtlist()) if ctx.elseifstmtlist() else None
         )
 
     def visitFirstifstmt(self, ctx:MiniGoParser.FirstifstmtContext):
@@ -355,8 +349,16 @@ class ASTGeneration(MiniGoVisitor):
         return self.visit(ctx.stmtlist())
 
     def visitElseifstmtlist(self, ctx:MiniGoParser.ElseifstmtlistContext):
-        if ctx.getChildCount() == 0:
-            return None
+        if ctx.getChildCount() == 1:
+            if ctx.elseifstmt():
+                elifstmt_expr, elifstmt_body = self.visit(ctx.elseifstmt())
+                return If(
+                    elifstmt_expr,
+                    Block(elifstmt_body),
+                    None
+                )
+            else:
+                return Block(self.visit(ctx.elsestmt()))
         else:
             elifstmt_expr, elifstmt_body = self.visit(ctx.elseifstmt())
             return If(
@@ -366,7 +368,7 @@ class ASTGeneration(MiniGoVisitor):
             )
 
     def visitElseifstmt(self, ctx:MiniGoParser.ElseifstmtContext):
-        return [self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())]
+        return self.visit(ctx.expr()), self.visit(ctx.ifstmtbody())
     
     def visitElsestmt(self, ctx:MiniGoParser.ElsestmtContext):
         return self.visit(ctx.ifstmtbody())
@@ -377,7 +379,7 @@ class ASTGeneration(MiniGoVisitor):
     def visitBasicforstmt(self, ctx:MiniGoParser.BasicforstmtContext):
         return ForBasic(
             self.visit(ctx.expr()),
-            Block(self.visit(ctx.forstmtbody()))
+            self.visit(ctx.forstmtbody())
         )
 
     def visitForstmtbody(self, ctx:MiniGoParser.ForstmtbodyContext):
@@ -426,7 +428,7 @@ class ASTGeneration(MiniGoVisitor):
             Id(ctx.ID(0).getText()),
             Id(ctx.ID(1).getText()),
             self.visit(ctx.expr()),
-            Block(self.visit(ctx.forstmtbody()))
+            self.visit(ctx.forstmtbody())
         )
     
     def visitBreakstmt(self, ctx:MiniGoParser.BreakstmtContext):
@@ -436,21 +438,10 @@ class ASTGeneration(MiniGoVisitor):
         return Continue()
     
 
-
-
-    # def visitExpr5(self, ctx:MiniGoParser.Expr5Context):
-    #     if ctx.getChildCount() == 1:
-    #         return self.visit(ctx.getChild(0))
-    #     else:
-    #         return BinaryOp(ctx.getChild(1).getText(), self.visit(ctx.expr5()), self.visit(ctx.expr6()))
-
-
-
-
 #need check:
-# method in struct???
+# method in struct???*
 #need check interface decl 
 #recType???
-#method call and field access and array cell nested
-#change grammar rule of expr5
+#method call and field access and array cell nested*
+#change grammar rule of expr5*
 #change methodcall rule

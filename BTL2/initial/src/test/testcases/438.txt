@@ -1,1 +1,3 @@
-break;break;break;continue;continue;continue;
+func main(){
+            return;
+        };

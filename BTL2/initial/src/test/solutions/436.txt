@@ -1,0 +1,1 @@
+Program([FuncDecl(testForLoop,[],VoidType,Block([For(Assign(Id(i),IntLiteral(0)),BinaryOp(Id(i),<,IntLiteral(10)),Assign(Id(i),BinaryOp(Id(i),+=,IntLiteral(1))),Block([If(BinaryOp(Id(i),==,IntLiteral(5)),Block([Continue()]))]))]))])

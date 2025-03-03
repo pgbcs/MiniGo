@@ -1,4 +1,9 @@
-func testfor() {for i := 0; a > 10; i += 1 {
-PutStringLn(i);
-i+=1;
-};};
+func main(){
+            if(!warZone){
+                if(!pandemic){
+                    print("Peaceful");
+                }else{
+                    print("Stay home");
+                }
+            }
+        };

@@ -1,1 +1,1 @@
-return;
+var arr [1][0b1010][0O777][0xFFF] string;

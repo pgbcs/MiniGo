@@ -1,0 +1,1 @@
+Program([FuncDecl(testfor,[],VoidType,Block([For(VarDecl(i,IntType,IntLiteral(2)),BinaryOp(Id(i),<,IntLiteral(2)),Assign(Id(i),BinaryOp(Id(i),-=,IntLiteral(1))),Block([]))]))])
