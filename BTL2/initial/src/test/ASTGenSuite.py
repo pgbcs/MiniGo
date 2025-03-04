@@ -2222,7 +2222,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(Id("a"),BinaryOp("+=",Id("a"),BinaryOp("+",Id("a"),IntLiteral(1))))
+                            Assign(Id("a"),BinaryOp("+",Id("a"),BinaryOp("+",Id("a"),IntLiteral(1))))
                         ]
                     )
                 )
@@ -2244,7 +2244,7 @@ SayHello(name string)
                         [
                             Assign(
                                 Id("a"),
-                                BinaryOp("-=",
+                                BinaryOp("-",
                                         Id("a"),
                                         UnaryOp("-",UnaryOp("-",UnaryOp("-",Id("b"))))))
                         ]
@@ -2266,7 +2266,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(Id("a"),BinaryOp("*=",Id("a"),BinaryOp("*",Id("b"),Id("c"))))
+                            Assign(Id("a"),BinaryOp("*",Id("a"),BinaryOp("*",Id("b"),Id("c"))))
                         ]
                     )
                 )
@@ -2286,7 +2286,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(Id("a"),BinaryOp("/=",Id("a"),BinaryOp("/",Id("b"),Id("c"))))
+                            Assign(Id("a"),BinaryOp("/",Id("a"),BinaryOp("/",Id("b"),Id("c"))))
                         ]
                     )
                 )
@@ -2306,7 +2306,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(Id("a"),BinaryOp("%=",Id("a"),BinaryOp("%",Id("b"),Id("c"))))
+                            Assign(Id("a"),BinaryOp("%",Id("a"),BinaryOp("%",Id("b"),Id("c"))))
                         ]
                     )
                 )
@@ -2326,7 +2326,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(FieldAccess(Id("Toyota"),"wheels"),BinaryOp("+=",FieldAccess(Id("Toyota"),"wheels"),IntLiteral(2)))
+                            Assign(FieldAccess(Id("Toyota"),"wheels"),BinaryOp("+",FieldAccess(Id("Toyota"),"wheels"),IntLiteral(2)))
                         ]
                     )
                 )
@@ -2345,7 +2345,7 @@ SayHello(name string)
                     VoidType(),
                     Block(
                         [
-                            Assign(ArrayCell(Id("arr"),[IntLiteral(2),IntLiteral(0)]),BinaryOp("%=",ArrayCell(Id("arr"),[IntLiteral(2),IntLiteral(0)]),IntLiteral(1)))
+                            Assign(ArrayCell(Id("arr"),[IntLiteral(2),IntLiteral(0)]),BinaryOp("%",ArrayCell(Id("arr"),[IntLiteral(2),IntLiteral(0)]),IntLiteral(1)))
                         ]
                     )
                 )
@@ -2375,7 +2375,7 @@ SayHello(name string)
                                             "b"),
                                         [IntLiteral(3)]),
                                     "c"),
-                                BinaryOp("+=",FieldAccess(ArrayCell(FieldAccess(ArrayCell(Id("a"),[IntLiteral(1), IntLiteral(2)]),"b"),[IntLiteral(3)]),"c"),IntLiteral(1)))
+                                BinaryOp("+",FieldAccess(ArrayCell(FieldAccess(ArrayCell(Id("a"),[IntLiteral(1), IntLiteral(2)]),"b"),[IntLiteral(3)]),"c"),IntLiteral(1)))
                         ]
                     )
                 )
@@ -2407,7 +2407,7 @@ SayHello(name string)
                                         ,"b"),
                                     [IntLiteral(3)]
                                 ),
-                                BinaryOp("%=",ArrayCell(
+                                BinaryOp("%",ArrayCell(
                                     FieldAccess(
                                         FieldAccess(
                                             FieldAccess(
@@ -2722,7 +2722,7 @@ PutStringLn(i);
                                 BinaryOp("<",Id("i"),IntLiteral(10)),
                                 Block(
                                     [
-                                        Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                        Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1))),
                                         FuncCall("PutStringLn",[Id("i")])
                                     ]
                                 )
@@ -2751,11 +2751,11 @@ PutStringLn(i);
                             ForStep(
                                 Assign(Id("i"),IntLiteral(0)),
                                 BinaryOp(">",Id("a"),IntLiteral(10)),
-                                Assign(Id("i"), BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Assign(Id("i"), BinaryOp("+",Id("i"),IntLiteral(1))),
                                 Block(
                                     [
                                         FuncCall("PutStringLn",[Id("i")]),
-                                        Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1)))
+                                        Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1)))
                                     ]
                                 )
                             )
@@ -2782,7 +2782,7 @@ PutStringLn(i);
                             ForStep(
                                 VarDecl("i",IntType(),IntLiteral(2)),
                                 BinaryOp("<",Id("i"),IntLiteral(2)),
-                                Assign(Id("i"),BinaryOp("-=",Id("i"),IntLiteral(1))),
+                                Assign(Id("i"),BinaryOp("-",Id("i"),IntLiteral(1))),
                                 Block([])
                             )
                         ]
@@ -2921,7 +2921,7 @@ PutStringLn(i);
                             ForStep(
                                 Assign(Id("i"),IntLiteral(0)),
                                 BinaryOp("<",Id("i"),IntLiteral(10)),
-                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1))),
                                 Block(
                                     [
                                         If(
@@ -2956,7 +2956,7 @@ PutStringLn(i);
                             ForStep(
                                 Assign(Id("i"),IntLiteral(0)),
                                 BinaryOp("<",Id("i"),IntLiteral(10)),
-                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1))),
                                 Block(
                                     [
                                         If(
@@ -2993,7 +2993,7 @@ PutStringLn(i);
                             ForStep(
                                 Assign(Id("i"),IntLiteral(0)),
                                 BinaryOp("<",Id("i"),IntLiteral(10)),
-                                Assign(Id("i"),BinaryOp("+=",Id("i"),IntLiteral(1))),
+                                Assign(Id("i"),BinaryOp("+",Id("i"),IntLiteral(1))),
                                 Block(
                                     [
                                         If(
@@ -3155,8 +3155,46 @@ PutStringLn(i);
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,443))
 
-    
+    def test_bool_literal(self):
+        input = """var a = true;"""
+        expect = str(Program(
+            [
+                VarDecl("a",None,BooleanLiteral("true"))
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,444))
 
+    def test_array_literal_with_struct_literal_element(self):
+        input ="""var arr = [2]student{student{name:"John",age:20},student{name:"Alice",age:21}};"""
+        expect = str(Program(
+            [
+                VarDecl(
+                    "arr",
+                    None,
+                    ArrayLiteral(
+                        [IntLiteral(2)],
+                        Id("student"),
+                        [
+                            StructLiteral(
+                                "student",
+                                [
+                                    ("name",StringLiteral("\"John\"")),
+                                    ("age",IntLiteral(20))
+                                ]
+                            ),
+                            StructLiteral(
+                                "student",
+                                [
+                                    ("name",StringLiteral("\"Alice\"")),
+                                    ("age",IntLiteral(21))
+                                ]
+                            )
+                        ]
+                    )
+                )
+            ]
+        ))
+        self.assertTrue(TestAST.checkASTGen(input,expect,445))
 
     # def test_array_and_struct_access(self):
     #     input = """func main(){

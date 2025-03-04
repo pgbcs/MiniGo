@@ -326,7 +326,7 @@ class ASTGeneration(MiniGoVisitor):
             return ArrayCell(FieldAccess(self.visit(ctx.accesslist()), ctx.ID().getText()), self.visit(ctx.arrdimlist_expr()))
 
     def visitOtherassignop(self, ctx:MiniGoParser.OtherassignopContext):
-        return ctx.getChild(0).getText()
+        return ctx.getChild(0).getText()[:-1]
     
     def visitReturnstmt(self, ctx:MiniGoParser.ReturnstmtContext):
         return Return(self.visit(ctx.expr())) if ctx.expr() else Return(None)
@@ -412,13 +412,12 @@ class ASTGeneration(MiniGoVisitor):
         
     def visitAssign(self, ctx:MiniGoParser.AssignContext):
         if ctx.SHORT_ASSIGN():
-            return Assign(Id(ctx.ID().getText()), self.visit(ctx.expr()))
+            return Assign(self.visit(ctx.accesslist()), self.visit(ctx.expr()))
         else:
-            return Assign(
-                Id(ctx.ID().getText()),
+            return Assign(self.visit(ctx.accesslist()),
                 BinaryOp(
                     self.visit(ctx.otherassignop()),
-                    Id(ctx.ID().getText()),
+                    self.visit(ctx.accesslist()),
                     self.visit(ctx.expr())
                 )
             )

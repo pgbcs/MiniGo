@@ -1,1 +1,0 @@
-Program([FuncDecl(testForLoop,[],VoidType,Block([ForEach(Id(index),Id(value),Id(a),Block([]))]))])

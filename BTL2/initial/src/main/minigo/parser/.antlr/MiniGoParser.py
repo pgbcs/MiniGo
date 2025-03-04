@@ -259,7 +259,7 @@ def serializedATN():
         714,3,156,78,0,706,707,5,17,0,0,707,709,5,56,0,0,708,710,3,14,7,
         0,709,708,1,0,0,0,709,710,1,0,0,0,710,711,1,0,0,0,711,712,5,38,0,
         0,712,714,3,84,42,0,713,705,1,0,0,0,713,706,1,0,0,0,714,155,1,0,
-        0,0,715,718,5,56,0,0,716,719,5,39,0,0,717,719,3,128,64,0,718,716,
+        0,0,715,718,3,126,63,0,716,719,5,39,0,0,717,719,3,128,64,0,718,716,
         1,0,0,0,718,717,1,0,0,0,719,720,1,0,0,0,720,721,3,84,42,0,721,157,
         1,0,0,0,722,723,5,6,0,0,723,724,5,56,0,0,724,725,5,46,0,0,725,726,
         5,56,0,0,726,727,5,39,0,0,727,728,5,20,0,0,728,729,3,84,42,0,729,
@@ -5234,8 +5234,9 @@ class MiniGoParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def ID(self):
-            return self.getToken(MiniGoParser.ID, 0)
+        def accesslist(self):
+            return self.getTypedRuleContext(MiniGoParser.AccesslistContext,0)
+
 
         def expr(self):
             return self.getTypedRuleContext(MiniGoParser.ExprContext,0)
@@ -5261,7 +5262,7 @@ class MiniGoParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 715
-            self.match(MiniGoParser.ID)
+            self.accesslist(0)
             self.state = 718
             self._errHandler.sync(self)
             token = self._input.LA(1)

@@ -162,7 +162,7 @@ forstmtbody: LBRACE stmtlist RBRACE;
 init_cond_update_forstmt: FOR init_for SEMICO expr SEMICO assign forstmtbody SEMICO;
 init_for: assign | VAR ID typedecl? ASSIGN expr;
 // assign: var assignop expr;
-assign: ID (SHORT_ASSIGN|otherassignop) expr;
+assign: accesslist (SHORT_ASSIGN|otherassignop) expr;
 rangeforstmt: FOR ID COMMA ID SHORT_ASSIGN RANGE expr forstmtbody SEMICO;
 
 breakstmt: BREAK SEMICO;

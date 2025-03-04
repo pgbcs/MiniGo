@@ -1,1 +1,0 @@
-Program([VarDecl(arr,ArrayType(StringType,[IntLiteral(1),IntLiteral(10),IntLiteral(511),IntLiteral(4095)]))])
