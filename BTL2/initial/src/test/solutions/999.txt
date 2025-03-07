@@ -1,0 +1,1 @@
+Program([VarDecl(s,Id(student),StructLiteral(student,[(name,StringLiteral("Nguyen Van A")),(age,IntLiteral(20)),(isAvailable,BooleanLiteral(true))]))])

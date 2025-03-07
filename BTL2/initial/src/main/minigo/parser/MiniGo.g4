@@ -45,7 +45,7 @@ normal_vardecl_with_init: VAR ID typedecl? ASSIGN expr SEMICO;
 typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
 
 arr_vardecl: arr_vardecl_without_init | arr_vardecl_with_init;
-arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN arrliteral SEMICO;
+arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN expr SEMICO; //chang from arrliterl to expr
 arr_vardecl_without_init: VAR ID arrdimlist typedecl SEMICO;
 
 arrdimlist: arrdim arrdimlist | arrdim;

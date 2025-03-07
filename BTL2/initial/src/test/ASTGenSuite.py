@@ -75,7 +75,7 @@ class ASTGenSuite(unittest.TestCase):
         input = """var i int = 0b1010;"""
         expect = str(Program(
             [
-                VarDecl("i",IntType(),IntLiteral(10))
+                VarDecl("i",IntType(),IntLiteral("0b1010"))
             ]
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,313))
@@ -84,7 +84,7 @@ class ASTGenSuite(unittest.TestCase):
         input = """var i int = 0o123;"""
         expect = str(Program(
             [
-                VarDecl("i",IntType(),IntLiteral(83))
+                VarDecl("i",IntType(),IntLiteral("0o123"))
             ]
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,314))
@@ -93,7 +93,7 @@ class ASTGenSuite(unittest.TestCase):
         input = """var i int = 0x123;"""
         expect = str(Program(
             [
-                VarDecl("i",IntType(),IntLiteral(291))
+                VarDecl("i",IntType(),IntLiteral("0x123"))
             ]
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,315))
@@ -3143,9 +3143,9 @@ PutStringLn(i);
                     ArrayType(
                         [
                             IntLiteral(1),
-                            IntLiteral(10),
-                            IntLiteral(511),
-                            IntLiteral(4095)
+                            IntLiteral("0b1010"),
+                            IntLiteral("0O777"),
+                            IntLiteral("0xFFF")
                         ],
                         StringType()
                     ),
@@ -3195,6 +3195,7 @@ PutStringLn(i);
             ]
         ))
         self.assertTrue(TestAST.checkASTGen(input,expect,445))
+
 
     # def test_array_and_struct_access(self):
     #     input = """func main(){

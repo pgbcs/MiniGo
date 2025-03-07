@@ -112,7 +112,7 @@ def serializedATN():
         205,1,0,0,0,207,206,1,0,0,0,208,17,1,0,0,0,209,210,5,17,0,0,210,
         214,5,56,0,0,211,212,3,22,11,0,212,213,3,14,7,0,213,215,1,0,0,0,
         214,211,1,0,0,0,214,215,1,0,0,0,215,216,1,0,0,0,216,217,5,38,0,0,
-        217,218,3,26,13,0,218,219,5,47,0,0,219,19,1,0,0,0,220,221,5,17,0,
+        217,218,3,84,42,0,218,219,5,47,0,0,219,19,1,0,0,0,220,221,5,17,0,
         0,221,222,5,56,0,0,222,223,3,22,11,0,223,224,3,14,7,0,224,225,5,
         47,0,0,225,21,1,0,0,0,226,227,3,24,12,0,227,228,3,22,11,0,228,231,
         1,0,0,0,229,231,3,24,12,0,230,226,1,0,0,0,230,229,1,0,0,0,231,23,
@@ -1007,8 +1007,8 @@ class MiniGoParser ( Parser ):
         def ASSIGN(self):
             return self.getToken(MiniGoParser.ASSIGN, 0)
 
-        def arrliteral(self):
-            return self.getTypedRuleContext(MiniGoParser.ArrliteralContext,0)
+        def expr(self):
+            return self.getTypedRuleContext(MiniGoParser.ExprContext,0)
 
 
         def SEMICO(self):
@@ -1052,7 +1052,7 @@ class MiniGoParser ( Parser ):
             self.state = 216
             self.match(MiniGoParser.ASSIGN)
             self.state = 217
-            self.arrliteral()
+            self.expr(0)
             self.state = 218
             self.match(MiniGoParser.SEMICO)
         except RecognitionException as re:

@@ -1,0 +1,1 @@
+var s student = student{name: "Nguyen Van A",age: 20, isAvailable: true};

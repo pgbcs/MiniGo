@@ -1,1 +1,1 @@
-Program([VarDecl(i,IntType,IntLiteral(291))])
+Program([VarDecl(i,IntType,IntLiteral(0x123))])

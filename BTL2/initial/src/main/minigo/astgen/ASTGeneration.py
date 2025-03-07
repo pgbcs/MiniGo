@@ -49,9 +49,9 @@ class ASTGeneration(MiniGoVisitor):
     
     def visitArr_vardecl_with_init(self,ctx:MiniGoParser.Arr_vardecl_with_initContext):
         if(ctx.getChildCount() == 7):
-            return VarDecl(ctx.ID().getText(), ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())), self.visit(ctx.arrliteral()))
+            return VarDecl(ctx.ID().getText(), ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())), self.visit(ctx.expr()))
         else:
-            return VarDecl(ctx.ID().getText(), None, self.visit(ctx.arrliteral()))
+            return VarDecl(ctx.ID().getText(), None, self.visit(ctx.expr()))
     
     def visitArr_vardecl_without_init(self,ctx:MiniGoParser.Arr_vardecl_without_initContext):
         return VarDecl(ctx.ID().getText(),  ArrayType(self.visit(ctx.arrdimlist()), self.visit(ctx.typedecl())), None)
@@ -63,11 +63,14 @@ class ASTGeneration(MiniGoVisitor):
         if ctx.DEC_LIT():
             return IntLiteral(int(ctx.DEC_LIT().getText()))
         elif ctx.BIN_LIT():
-            return IntLiteral(int(ctx.BIN_LIT().getText()[2:],2))
+            # return IntLiteral(int(ctx.BIN_LIT().getText()[2:],2))
+            return IntLiteral(ctx.BIN_LIT().getText())
         elif ctx.OCT_LIT():
-            return IntLiteral(int(ctx.OCT_LIT().getText()[2:],8))
+            # return IntLiteral(int(ctx.OCT_LIT().getText()[2:],8))
+            return IntLiteral(ctx.OCT_LIT().getText())
         elif ctx.HEX_LIT():
-            return IntLiteral(int(ctx.HEX_LIT().getText()[2:],16))
+            # return IntLiteral(int(ctx.HEX_LIT().getText()[2:],16))
+            return IntLiteral(ctx.HEX_LIT().getText())
         else: return Id(ctx.ID().getText())
     
     def visitArrliteral(self, ctx:MiniGoParser.ArrliteralContext):
@@ -84,15 +87,20 @@ class ASTGeneration(MiniGoVisitor):
     
     def visitLiteralvalue_for_arr(self, ctx:MiniGoParser.Literalvalue_for_arrContext):
         if ctx.DEC_LIT():
-            return IntLiteral(int(ctx.DEC_LIT().getText()))
+            # return IntLiteral(int(ctx.DEC_LIT().getText()))
+            return IntLiteral(ctx.DEC_LIT().getText())
         elif ctx.BIN_LIT():
-            return IntLiteral(int(ctx.BIN_LIT().getText()[2:],2))
+            # return IntLiteral(int(ctx.BIN_LIT().getText()[2:],2))
+            return IntLiteral(ctx.BIN_LIT().getText())
         elif ctx.OCT_LIT():
-            return IntLiteral(int(ctx.OCT_LIT().getText()[2:],8))
+            # return IntLiteral(int(ctx.OCT_LIT().getText()[2:],8))
+            return IntLiteral(ctx.OCT_LIT().getText())
         elif ctx.HEX_LIT():
-            return IntLiteral(int(ctx.HEX_LIT().getText()[2:],16))
+            # return IntLiteral(int(ctx.HEX_LIT().getText()[2:],16))
+            return IntLiteral(ctx.HEX_LIT().getText())
         elif ctx.FLOAT_LIT():
-            return FloatLiteral(float(ctx.FLOAT_LIT().getText()))
+            # return FloatLiteral(float(ctx.FLOAT_LIT().getText()))
+            return FloatLiteral(ctx.FLOAT_LIT().getText())
         elif ctx.TRUE():
             return BooleanLiteral(True)
         elif ctx.FALSE():
