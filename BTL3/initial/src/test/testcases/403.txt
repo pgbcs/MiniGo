@@ -1,0 +1,5 @@
+var bruh int;
+            func bruh (){
+                return;
+            }
+        
