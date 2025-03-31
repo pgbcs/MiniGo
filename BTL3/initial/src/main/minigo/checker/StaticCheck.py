@@ -50,13 +50,30 @@ class StaticChecker(BaseVisitor,Utils):
             if not type(ast.varType) is type(initType):
                 raise TypeMismatch(ast)
         return Symbol(ast.varName, ast.varType,None)
-        
 
-    def visitFuncDecl(self,ast, c):
+    def visitConstDecl(self, ast: ConstDecl, c):
+        res = self.lookup(ast.conName, lambda x: x.name)
+        if ast.conType is None:
+            conType = self.visit(ast.contType,c)
+        return Symbol(ast.conName, ast.conType)
+
+    def visitFuncDecl(self,ast: FuncDecl, c):
+        #check funcname in its scope
         res = self.lookup(ast.name, c, lambda x: x.name)
         if not res is None:
             raise Redeclared(Function(), ast.name)
+        local_env = c + [ast.name] + reduce(lambda x,y: x+ [self.visit(y,x)], ast.params, [])#check param scope
+        
+        #should split c to 2 part: current scope, env
+
+
         return Symbol(ast.name, MType([], ast.retType))
+
+    def visitParamDecl(self, ast: ParamDecl, c):
+        res = self.lookup(ast.parName, c, lambda x: x.name)
+        if not res is None:
+            raise Redeclared(ParamDecl(), ast.parName)
+        return Symbol(ast.parName, ast.parType)
 
     def visitIntLiteral(self,ast, c):
         return IntType()
