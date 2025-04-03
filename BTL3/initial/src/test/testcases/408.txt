@@ -1,0 +1,4 @@
+func foo(x int, y int){
+            var x string;
+            var y float;
+        }

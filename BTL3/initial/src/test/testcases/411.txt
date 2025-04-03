@@ -1,0 +1,4 @@
+var b int =4
+            func a(){
+                var b int = b;
+            }

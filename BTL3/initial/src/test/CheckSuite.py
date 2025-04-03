@@ -12,10 +12,12 @@ class CheckSuite(unittest.TestCase):
         input = """const a = 1.5; var a int;"""
         expect = "Redeclared Variable: a\n"
         self.assertTrue(TestChecker.test(input,expect,401))
+
     def test_constant_redeclared(self):
         input = """var a int; const a=5;"""
         expect = "Redeclared Constant: a\n"
         self.assertTrue(TestChecker.test(input,expect,402))
+
     def test_function_redeclared(self):
         input = """var bruh int;
             func bruh (){
@@ -24,6 +26,7 @@ class CheckSuite(unittest.TestCase):
         """
         expect = """Redeclared Function: bruh\n"""
         self.assertTrue(TestChecker.test(input, expect, 403))
+
     def test_param_redeclared(self):
         input = """func bruh(x,x int){
             var a int;
@@ -47,6 +50,84 @@ class CheckSuite(unittest.TestCase):
 """     
         expect = "Redeclared Variable: a\n"
         self.assertTrue(TestChecker.test(input, expect, 404))
+    def test_two_const_redeclared(self):
+        input = """const a = 1.3;
+        const b = 1.3;
+        const a = 1.3;
+"""
+        expect = "Redeclared Constant: a\n"
+        self.assertTrue(TestChecker.test(input, expect, 405))
+
+    def test_func_redeclared_with_constant(self):
+        input = """const baodeptrai = 1.3;
+        func baodeptrai(){
+            const a = 3.13;
+        }
+"""
+        expect = "Redeclared Function: baodeptrai\n"
+        self.assertTrue(TestChecker.test(input, expect, 406))
+
+    def test_use_param_in_funcbody(self):
+        input = """func foo(x int, y int){
+            var a = x+y;
+        }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 407))
+
+    def test_overlap_param_in_func(self):
+        input = """func foo(x int, y int){
+            var x string;
+            var y float;
+        }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 408))
+
+    def test_two_func_redeclared(self):
+        input = """func foo(x int, y int){
+            var x string;
+            var y float;
+        }
+        func foo(){
+            return;
+        }
+"""
+        expect = "Redeclared Function: foo\n"
+        self.assertTrue(TestChecker.test(input, expect, 409))
+
+    def test_overlap_funcname_in_body(self):
+        input = """func foo(x int, y int){
+            var foo int;
+        }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 410))
+
+    def test_overlap_global_var_in_funcbody(self):
+        input = """var b int =4
+            func a(){
+                var b int = b;
+            }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 411))
+    #maybe write more test for func
+
+    def test_global_struct(self):
+        input = """
+        var a PPL;
+        type PPL struct{
+            requisite string;
+            min int;
+            max int;
+            avg float;
+            passed boolean;
+        };
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 412))    
+
 
     def my_test(self):
         input = """func bruh(x,x int){

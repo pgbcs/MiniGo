@@ -37,7 +37,7 @@ class StructTyp(DefType):
 class InterfaceTyp(DefType):
     def __init__(self, name, mtypes=[]):
         self.name: str = name
-        self.mtypes: List[Symbol]=mtypes
+        self.mtypes: List[Symbol] = mtypes
 
 class Props:
     def __init__(self, scope=[], env=[], typ_env=[], turn=1):
@@ -69,7 +69,7 @@ class StaticChecker(BaseVisitor,Utils):
     def checkExist(self, obj, lst, func):
         for x in lst:
             if obj in func(x):
-                return obj
+                return x
         return None
 
 
@@ -160,12 +160,12 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             thisFunc: Symbol = self.lookup(ast.name, c.env, lambda x: x.name) #lấy hàm để truy xuất bộ param thêm vào env
             #ghép type của param với name đã scan ở turn 2 để nhét vào env
-            mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.parType)
+            mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.partype)
             params = reduce(lambda x,y: x + [Symbol(y[0], y[1])], mp, [])
-            local_env = c + params #check param scope
+            local_env = c.env + params #check param scope
             
             #should split c to 2 part: current scope, env
-            reduce(self.reducer, ast.body, Props([], local_env))
+            reduce(self.reducer, ast.body.member, Props([], local_env))
 
             return None#không cần trả về symbol ở turn 3 do đã có ở turn 2 
 
@@ -194,24 +194,20 @@ class StaticChecker(BaseVisitor,Utils):
         #Theo forum thì receiver khác scope với method nên tên còn thể che được
         if c.turn ==2:
             res = self.lookup(ast.recType.name, c.typ_env, lambda x: x.name)
-            if res is None:
+            if res is None or not type(res) is StructTyp:
                 # varcheck = self.lookup(ast.recType, c.env, lambda x: x.name)
                 # if not varcheck is None: raise TypeMismatch(ast)
                 raise Undeclared(Identifier(), ast.recType.name)
-            res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes) 
-            if not res is None:
-                raise Redeclared(Method(), ast.fun.name)
-            #check xem nếu là interface thì method đó có khớp khong
-            if type(ast.recType) is InterfaceType:
-                thisIn: InterfaceTyp = self.lookup(ast)
-
-            method = self.visit(ast.fun,Props([], c.env, 2)) #check method body
+            if type(res) is StructTyp:
+                res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes) 
+                if not res is None:
+                    raise Redeclared(Method(), ast.fun.name)
+            method = self.visit(ast.fun,Props([], c.env, 2))
             return method
-        else: return None
-        #Thêm method này vào danh sách method của kiểu tương ứng
-        # c.typ_env = [x if x.name != ast.recType 
-        #             else DefType(x.name, x.fields, x.mtypes+[method]) 
-        #             for x in c.typ_env]
+        elif c.turn == 3:
+            method = self.visit(ast.fun,Props([], c.env, 3))
+            return None
+
 
     def visitStructType(self, ast: StructType, c: Props):
         #check redeclare name in its scope
@@ -231,7 +227,7 @@ class StaticChecker(BaseVisitor,Utils):
                         # if type(e[1]) in local_scope: raise TypeMismatch(ast)
                         raise Undeclared(Identifier(), e[1].name)
                 local_scope+=e[0]
-                fields += Symbol(e[0], e[1])
+                fields += [Symbol(e[0], e[1])]
             return StructTyp(ast.name, fields)
         else: return None
 
