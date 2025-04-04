@@ -1,0 +1,9 @@
+
+        var a PPL;
+        type PPL struct{
+            requisite string;
+            min int;
+            max int;
+            avg float;
+            passed boolean;
+        };

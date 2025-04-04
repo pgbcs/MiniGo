@@ -82,10 +82,10 @@ class StaticChecker(BaseVisitor,Utils):
         if isinstance(ele, MethodDecl):
             return Props(acc.scope, acc.env, [x if x.name != ele.recType 
                      else DefType(x.name, x.fields, x.mtypes+[visited]) 
-                     for x in acc.typ_env])
-        elif isinstance(ele, StructType):
-            return Props(acc.scope, acc.env, acc.typ_env + [visited])
-        else: return Props(acc.scope+[visited], acc.env+[visited])
+                     for x in acc.typ_env],acc.turn)
+        elif isinstance(ele, StructType) or isinstance(ele, InterfaceType):
+            return Props(acc.scope, acc.env, acc.typ_env + [visited], acc.turn)
+        else: return Props(acc.scope+[visited], acc.env+[visited], acc.typ_env,acc.turn)
 
     def visitProgram(self,ast: Program, c: Props):
         #lambda acc,ele: acc[0] + [self.visit(ele,acc)]
@@ -161,11 +161,17 @@ class StaticChecker(BaseVisitor,Utils):
             thisFunc: Symbol = self.lookup(ast.name, c.env, lambda x: x.name) #lấy hàm để truy xuất bộ param thêm vào env
             #ghép type của param với name đã scan ở turn 2 để nhét vào env
             mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.partype)
+
             params = reduce(lambda x,y: x + [Symbol(y[0], y[1])], mp, [])
             local_env = c.env + params #check param scope
             
+            # for l in local_env:
+            #     print(str(l))
             #should split c to 2 part: current scope, env
-            reduce(self.reducer, ast.body.member, Props([], local_env))
+            # print(str(ast))
+            # for m in ast.body.member:
+            #     print(str(m))
+            reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env))
 
             return None#không cần trả về symbol ở turn 3 do đã có ở turn 2 
 
@@ -215,19 +221,23 @@ class StaticChecker(BaseVisitor,Utils):
         if c.turn==1:
             res = self.lookup(ast.name, c.scope + c.typ_env, lambda x: x.name) #cần check ở cả các type đã khai báo trước đó
             if not res is None:
-                raise Redeclared(Identifier(), ast.name)
+                raise Redeclared(Type(), ast.name)
             #check các field có bị redeclared không
             local_scope = []
             fields = []
+
             for e in ast.elements:
-                if e[0] in local_scope: raise Redeclared(Field(),e[0])
+                print(local_scope)
+                fieldname = ''.join(e[0])
+                print(fieldname)
+                if fieldname in local_scope: raise Redeclared(Field(),e[0])
                 if type(e[1]) not in self.prim_type:
                     res = self.lookup(type(e[1]), c.typ_env, lambda x: x.name)
                     if res is None:
                         # if type(e[1]) in local_scope: raise TypeMismatch(ast)
                         raise Undeclared(Identifier(), e[1].name)
-                local_scope+=e[0]
-                fields += [Symbol(e[0], e[1])]
+                local_scope+=fieldname
+                fields += [Symbol(fieldname, e[1])]
             return StructTyp(ast.name, fields)
         else: return None
 

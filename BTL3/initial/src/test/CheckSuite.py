@@ -112,6 +112,16 @@ class CheckSuite(unittest.TestCase):
 """
         expect = ""
         self.assertTrue(TestChecker.test(input, expect, 411))
+    
+    def test_redeclared_variable_in_funcbody(self):
+        input = """var b int = 4
+            func a(){
+                var b int = b;
+                var b int;
+            }
+"""
+        expect = "Redeclared Variable: b\n"
+        self.assertTrue(TestChecker.test(input, expect, 412))
     #maybe write more test for func
 
     def test_global_struct(self):
@@ -126,9 +136,50 @@ class CheckSuite(unittest.TestCase):
         };
 """
         expect = ""
-        self.assertTrue(TestChecker.test(input, expect, 412))    
+        self.assertTrue(TestChecker.test(input, expect, 413))    
 
+    def test_redeclared_struct_with_variable(self):
+        input = """var b int =4
+            type b struct{
+                test int;
+            }
+"""
+        expect = "Redeclared Type: b\n"
+        self.assertTrue(TestChecker.test(input, expect, 414))
 
+    def test_redeclared_struct_with_func(self):
+        input = """func b(){
+            var a int;
+        }
+    type b struct{
+        test int;
+    }
+"""
+        expect = "Redeclared Type: b\n"
+        self.assertTrue(TestChecker.test(input, expect, 415))
+
+    def test_redeclared_2_struct(self):
+        input = """    type b struct{
+        test float;
+    }
+    type b struct{
+        test int;
+    }
+"""
+        expect = "Redeclared Type: b\n"
+        self.assertTrue(TestChecker.test(input, expect, 416))
+
+    def test_redeclared_field_in_struct(self):
+        print("test 17")
+        input = """
+    type b struct{
+        test int;
+        a float;
+        test string;
+    }
+"""
+        expect = "Redeclared Field: test\n"
+        self.assertTrue(TestChecker.test(input, expect, 417)) 
     def my_test(self):
         input = """func bruh(x,x int){
             var a int;

@@ -1,0 +1,6 @@
+
+    type b struct{
+        test int;
+        a float;
+        test string;
+    }

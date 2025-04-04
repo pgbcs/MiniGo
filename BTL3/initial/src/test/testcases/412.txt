@@ -1,9 +1,5 @@
-
-        var a PPL;
-        type PPL struct{
-            requisite string;
-            min int;
-            max int;
-            avg float;
-            passed boolean;
-        };
+var b int = 4
+            func a(){
+                var b int = b;
+                var b int;
+            }

@@ -1,0 +1,6 @@
+    type b struct{
+        test float;
+    }
+    type b struct{
+        test int;
+    }
