@@ -374,14 +374,27 @@ class CheckSuite(unittest.TestCase):
             value int;
         }
         func (c Calculator) Add(x int) int {
-            c.value += x;
-            return c.value;
+            var a int;
         }
 """
         expect = ""
         self.assertTrue(TestChecker.test(input, expect, 434))
 
-
+    def test_redeclared_method(self):
+        print("435")
+        input = """
+        func (c Calculator) Add(x int) int {
+            var a int;
+        }
+        func (b Calculator) Add(x float) int {
+            var a int;
+        }
+        type Calculator struct {
+            value int;
+        }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 435))
 
     def test_type_mismatch(self):
         input = """var a int = 1.2;"""

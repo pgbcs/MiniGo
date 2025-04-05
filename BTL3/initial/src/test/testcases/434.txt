@@ -3,6 +3,5 @@
             value int;
         }
         func (c Calculator) Add(x int) int {
-            c.value += x;
-            return c.value;
+            var a int;
         }

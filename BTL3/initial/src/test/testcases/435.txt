@@ -1,0 +1,10 @@
+
+        func (c Calculator) Add(x int) int {
+            var a int;
+        }
+        func (b Calculator) Add(x float) int {
+            var a int;
+        }
+        type Calculator struct {
+            value int;
+        }

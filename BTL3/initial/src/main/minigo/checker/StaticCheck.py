@@ -40,11 +40,12 @@ class InterfaceTyp(DefType):
         self.mtypes: List[Symbol] = mtypes
 
 class Props:
-    def __init__(self, scope=[], env=[], typ_env=[], turn=1):
+    def __init__(self, scope=[], env=[], typ_env=[], turn=1, isMethod=False):
         self.scope: List[Symbol] = scope
         self.env: List[Symbol]= env
         self.typ_env: List[DefType] = typ_env
         self.turn: int= turn
+        self.isMethod: bool = isMethod
 
 class StaticChecker(BaseVisitor,Utils):
     
@@ -158,11 +159,16 @@ class StaticChecker(BaseVisitor,Utils):
             parType = [x.mtype for x in params.env]
             return Symbol(ast.name, MType(parType, ast.retType))
         else:
-            thisFunc: Symbol = self.lookup(ast.name, c.env, lambda x: x.name) #lấy hàm để truy xuất bộ param thêm vào env
-            #ghép type của param với name đã scan ở turn 2 để nhét vào env
-            mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.partype)
+            params = []
+            if not c.isMethod: 
+                thisFunc: Symbol = self.lookup(ast.name, c.env, lambda x: x.name) #lấy hàm để truy xuất bộ param thêm vào env
+                #ghép type của param với name đã scan ở turn 2 để nhét vào env
+                mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.partype)
 
-            params = reduce(lambda x,y: x + [Symbol(y[0], y[1])], mp, [])
+                params = reduce(lambda x,y: x + [Symbol(y[0], y[1])], mp, [])
+            else:
+                p: Props = reduce(self.reducer, ast.params, Props([],[],c.typ_env))
+                params = p.scope
             local_env = c.env + params #check param scope
             
             # for l in local_env:
@@ -199,19 +205,22 @@ class StaticChecker(BaseVisitor,Utils):
         #Về Redeclared, cần check xem method này đã được thực hiện chưa, không check trùng tên với những cái khác
         #Theo forum thì receiver khác scope với method nên tên còn thể che được
         if c.turn ==2:
+            print("recType: ", ast.recType.name)
             res = self.lookup(ast.recType.name, c.typ_env, lambda x: x.name)
             if res is None or not type(res) is StructTyp:
                 # varcheck = self.lookup(ast.recType, c.env, lambda x: x.name)
                 # if not varcheck is None: raise TypeMismatch(ast)
                 raise Undeclared(Identifier(), ast.recType.name)
             if type(res) is StructTyp:
-                res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes) 
+                #TODO: cần sửa chỗ này, check chưa đúng
+                res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes)
                 if not res is None:
                     raise Redeclared(Method(), ast.fun.name)
             method = self.visit(ast.fun,Props([], c.env, c.typ_env, 2))
             return method
         elif c.turn == 3:
-            method = self.visit(ast.fun,Props([], c.env, c.typ_env,3))
+            #TODO: ở chỗ env cần thêm receiver vào
+            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)], c.typ_env,3, True))
             return None
 
 
