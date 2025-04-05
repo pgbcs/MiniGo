@@ -1,5 +1,6 @@
-func main(){
-            if(student.age>18){
-                print("Adult");
+func main () {
+            if (a+b) {
+                return 1
             }
         };
+        

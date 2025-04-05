@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([Return(StructLiteral(student,[(name,StringLiteral("John")),(age,IntLiteral(20))]))]))])
+Program([VarDecl(x,FloatLiteral(100000000000000000.))])

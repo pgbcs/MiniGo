@@ -1,4 +1,3 @@
-var car = Car{                    brand = "Toyota",
-                    model = "Corolla",
-                    year = 2023
-                };
+func func() {
+            return;
+        };

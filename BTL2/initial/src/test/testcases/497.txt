@@ -1,0 +1,6 @@
+func main() {
+            for index, value := range (nic{}).say([1]int{1}, [1]int{2}) {
+                fmt.println(index, value)
+            }
+        }
+        

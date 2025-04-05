@@ -1,5 +1,2 @@
-func main() {
-            for a[2] := 1; a < 10; a += 1 {
-                break;
-            }
-        };
+func main() {x := y;}
+        

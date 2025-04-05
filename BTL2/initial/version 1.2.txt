@@ -1,0 +1,8 @@
+Change from 1.0
+- AST.py: Change the type of field dimens in ArrayType to List[Expr]
+Change from 1.1
+- AST.py
+   - Change the type of fielf dimens in ArrayLiteral to List[Expr]
+   - Change the type of fiels params in FuncDecl to List[ParamDecl]
+   - Change the type of thenStmt and elseStmt in IfStmt to Stmt
+

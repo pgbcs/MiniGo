@@ -1,3 +1,6 @@
-func main() {
-            var s = [1]int{ {1, 0x1}, 123, ID{}, {{ID{}}}}         
+type Person struct {
+            name string
+            age int
+            address Address
+            phone [5][constant]string
         };

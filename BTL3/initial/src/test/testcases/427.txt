@@ -1,0 +1,10 @@
+
+    type Calculator interface {
+    Add(x, y int) int;
+    Subtract(a, b float, c int) float;
+    Reset()
+    SayHello(name string)
+}
+    func Calculator(){
+    return 1;
+    }

@@ -1,3 +1,5 @@
-func main(){
-            a:= !(c.findMax(university.students[2].subject.score)[2] > highestScore);
+func (x Person) main () {
+            var x int
         };
+        var x int;
+        

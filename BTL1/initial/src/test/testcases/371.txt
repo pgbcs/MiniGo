@@ -1,1 +1,1 @@
-s.info.id.address.street := "123 Nguyen";
+func main() {s.info.id.address.street := "123 Nguyen";};

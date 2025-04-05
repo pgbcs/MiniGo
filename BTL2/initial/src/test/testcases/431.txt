@@ -1,3 +1,5 @@
-func testForLoop() {for index, value := range [5]int{1, 2, 3, 4, 5} {
-        // statements
-        };};
+var x = 0b100
+        var x = 0B1101
+        var x float = 0b0
+        // in binary form
+        

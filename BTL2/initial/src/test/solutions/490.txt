@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([For(FieldAccess(ArrayCell(MethodCall(BinaryOp(IntLiteral(1),+,BinaryOp(IntLiteral(2),*,IntLiteral(3))),nice,[]),[Id(s)]),damn),Block([MethodCall(Id(fmt),Println,[StringLiteral("Hello")])]))]))])

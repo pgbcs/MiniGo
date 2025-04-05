@@ -1,3 +1,5 @@
-func main(){
-            wth().c()[2][3].a().b()
-        };
+type Person interface {
+            getName(x int, nice Person) string
+            getAge() int
+        }
+        

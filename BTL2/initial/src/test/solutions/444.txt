@@ -1,1 +1,1 @@
-Program([VarDecl(a,BooleanLiteral(true))])
+Program([VarDecl(x,StringLiteral("Hello\n"))])

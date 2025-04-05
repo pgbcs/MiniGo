@@ -1,6 +1,6 @@
-
+func b(){
+            var a int;
+        }
     type b struct{
         test int;
-        a float;
-        test string;
     }

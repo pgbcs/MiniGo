@@ -1,1 +1,1 @@
-Program([VarDecl(arr,ArrayLiteral([IntLiteral(2)],Id(student),[StructLiteral(student,[(name,StringLiteral("John")),(age,IntLiteral(20))]),StructLiteral(student,[(name,StringLiteral("Alice")),(age,IntLiteral(21))])]))])
+Program([VarDecl(x,StringLiteral("Hello\t"))])

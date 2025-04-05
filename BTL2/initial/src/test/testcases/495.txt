@@ -1,0 +1,15 @@
+func main() {
+            for _, val := range arr {
+            }
+
+            for key, _ := range map {
+            }
+
+            for key, val := range map {
+            }
+
+            for key, val := range map {
+                fmt.Println(key, val)
+            }
+        }
+        

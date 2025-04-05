@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(fmt),Printf,[StringLiteral("Value: %d"),IntLiteral(42)])]))])

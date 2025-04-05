@@ -1,0 +1,1 @@
+Program([MethodDecl(x,Id(Person),FuncDecl(main,[],VoidType,Block([])))])

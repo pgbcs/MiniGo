@@ -208,10 +208,10 @@ class StaticChecker(BaseVisitor,Utils):
                 res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes) 
                 if not res is None:
                     raise Redeclared(Method(), ast.fun.name)
-            method = self.visit(ast.fun,Props([], c.env, 2))
+            method = self.visit(ast.fun,Props([], c.env, c.typ_env, 2))
             return method
         elif c.turn == 3:
-            method = self.visit(ast.fun,Props([], c.env, 3))
+            method = self.visit(ast.fun,Props([], c.env, c.typ_env,3))
             return None
 
 
@@ -227,16 +227,15 @@ class StaticChecker(BaseVisitor,Utils):
             fields = []
 
             for e in ast.elements:
-                print(local_scope)
-                fieldname = ''.join(e[0])
-                print(fieldname)
+                fieldname = e[0]
                 if fieldname in local_scope: raise Redeclared(Field(),e[0])
                 if type(e[1]) not in self.prim_type:
                     res = self.lookup(type(e[1]), c.typ_env, lambda x: x.name)
                     if res is None:
                         # if type(e[1]) in local_scope: raise TypeMismatch(ast)
                         raise Undeclared(Identifier(), e[1].name)
-                local_scope+=fieldname
+                local_scope+=[fieldname]
+
                 fields += [Symbol(fieldname, e[1])]
             return StructTyp(ast.name, fields)
         else: return None
@@ -246,7 +245,7 @@ class StaticChecker(BaseVisitor,Utils):
         if c.turn==1:
             res = self.lookup(ast.name, c.scope + c.typ_env, lambda x: x.name) #cần check ở cả các type đã khai báo trước đó
             if not res is None:
-                raise Redeclared(Identifier(), ast.name)
+                raise Redeclared(Type(), ast.name)
             prototypes = reduce(self.reducer, ast.methods, Props([],[],c.typ_env))
             return InterfaceTyp(ast.name, prototypes.scope)
         else: return None
@@ -254,7 +253,7 @@ class StaticChecker(BaseVisitor,Utils):
     def visitPrototype(self, ast: Prototype, c: Props):
         res = self.lookup(ast.name, c.scope, lambda x: x.name)
         if not res is None:
-            raise Redeclared(Method(), ast.name)
+            raise Redeclared(Prototype(), ast.name)
         
         #kiểm tra kiểu param hợp lý chưa
         for p in ast.params:

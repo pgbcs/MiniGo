@@ -1,7 +1,7 @@
-func main(){
-            if(your.feeling == "happy"){
-                print("Good for you");
-            }else{
-                print("Cheer up");
-            }
-        };
+
+                func main() {
+                    if(!!a == 1[0].nice([0]Person{1,2,3}.lol() + icecream)) {
+                    } else {
+                    }
+                }
+            

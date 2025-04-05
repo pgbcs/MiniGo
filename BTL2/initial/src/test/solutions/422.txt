@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(FieldAccess(Id(your),feeling),==,StringLiteral("happy")),Block([FuncCall(print,[StringLiteral("Good for you")])]),Block([FuncCall(print,[StringLiteral("Cheer up")])]))]))])
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(UnaryOp(!,UnaryOp(!,Id(a))),==,MethodCall(ArrayCell(IntLiteral(1),[IntLiteral(0)]),nice,[BinaryOp(MethodCall(ArrayLiteral([IntLiteral(0)],Id(Person),[IntLiteral(1),IntLiteral(2),IntLiteral(3)]),lol,[]),+,Id(icecream))])),Block([]),Block([]))]))])

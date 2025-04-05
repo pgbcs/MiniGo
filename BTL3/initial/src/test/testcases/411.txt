@@ -1,4 +1,7 @@
-var b int =4
-            func a(){
-                var b int = b;
-            }
+func foo(x int, y int){
+            var x string;
+            var y float;
+        }
+        func foo(){
+            return;
+        }

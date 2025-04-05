@@ -1,1 +1,1 @@
-s.name := "Nguyen Van A";
+func main() {s.name := "Nguyen Van A";};

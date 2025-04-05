@@ -1,2 +1,2 @@
-for _, value := range a {
-        value += 1;};
+func testForLoop() {for _, value := range a {
+        value += 1;};};

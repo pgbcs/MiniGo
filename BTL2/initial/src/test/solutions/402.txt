@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(bruh),okevjp,[MethodCall(Id(b),a,[]),FieldAccess(FuncCall(c,[]),d)])]))])
+Program([FuncDecl(main,[],VoidType,Block([])),VarDecl(x,IntType)])

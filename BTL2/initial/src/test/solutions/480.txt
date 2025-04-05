@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(Id(x),BinaryOp(BinaryOp(UnaryOp(!,Id(a)),-,UnaryOp(-,Id(b))),+,BinaryOp(ArrayCell(FieldAccess(ArrayCell(Id(c),[BinaryOp(Id(expr1),+,BinaryOp(BinaryOp(Id(d),||,Id(e)),%,Id(f)))]),g),[BinaryOp(BinaryOp(BinaryOp(Id(h),==,Id(i)),&&,BinaryOp(Id(j),<,Id(k))),||,BinaryOp(Id(l),>,Id(m)))]),*,FieldAccess(Id(n),o))))]))])

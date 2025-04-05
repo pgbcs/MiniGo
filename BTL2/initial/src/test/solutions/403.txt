@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([Assign(Id(a),BinaryOp(BinaryOp(Id(b),==,Id(c)),||,BinaryOp(BinaryOp(BinaryOp(BinaryOp(IntLiteral(1),+,BinaryOp(IntLiteral(2),*,IntLiteral(3))),-,BinaryOp(IntLiteral(4),/,IntLiteral(5))),>,Id(d)),&&,BinaryOp(Id(e),<=,Id(f)))))]))])
+Program([FuncDecl(main,[],VoidType,Block([VarDecl(x,IntType)]))])

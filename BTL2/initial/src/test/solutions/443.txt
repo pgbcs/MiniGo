@@ -1,1 +1,1 @@
-Program([VarDecl(arr,ArrayType(StringType,[IntLiteral(1),IntLiteral(0b1010),IntLiteral(0O777),IntLiteral(0xFFF)]))])
+Program([VarDecl(x,StringLiteral("Hello"))])

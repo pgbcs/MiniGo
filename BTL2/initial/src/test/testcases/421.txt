@@ -1,9 +1,6 @@
-func sleepy(){
-            if(a>b){
-                print("hj");
-                print("a>b");
-            }else if(a<b){
-                print("jh");
-                print("a<b");}
-        };    
+            func main() {
+  fmt.Println("Try programiz.pro")
+  var a nice = nice{ a: 10}
+  if (!!(a.a == 1) ) {} else {}
+}    
         

@@ -1,3 +1,2 @@
-func main() [5] int {
-            return [5]int{1,2,3,4,5};
+func main(x, y boolean, arr [0][constant]Child ) int {
         };

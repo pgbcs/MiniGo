@@ -1,3 +1,1 @@
-func main(){
-            return;
-        };
+var x = 0.123E123;

@@ -1,13 +1,1 @@
-func main(){
-            if(yourGirlfriend == "single"){
-                print("Good for you");
-            }else if(yourGirlfriend == "taken"){
-                print("Cheer up");
-            }else if(yourGirlfriend == "complicated"){
-                print("Good luck");
-            }else if(yourGirlfriend == "married"){
-                print("Good bye");
-            }else{
-                print("Still available");
-            }
-        };
+var x int;

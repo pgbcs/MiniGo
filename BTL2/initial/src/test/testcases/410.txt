@@ -1,2 +1,5 @@
-func main(){
-            a:=1%1;};
+type Person interface {
+            getName(x [5]int, nice Person) [0][nice] boolean
+            getAge( array [consta][noice] Fourier ) Person
+        }
+        

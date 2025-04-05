@@ -1,3 +1,13 @@
-func main(){
-            a -= ---b;
+func main () {
+            if (true) {
+                return 1
+            } else if (false) {
+                continue
+            } else {
+                return 0
+            }
+            return 0
         };
+        var x int;
+        /* fix expression for this to work */
+        

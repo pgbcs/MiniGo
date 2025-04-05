@@ -1,0 +1,10 @@
+Lưu ý check Nếu bên phải của const là biến chứ không phải hằng khác thì sao
+var b int =4
+func a(){
+	var b int = b;
+}
+Tên của struct có giống tên của biến được không
+Đệ quy bên trong method
+Check lỗi kiểu biến ko có trong danh sách type đã khai báo không
+Trước khi báo lỗi undeclared thì nên check name đó đã có trước đó chưa để văng mismatch(hiện tại là có khai báo struct, cần check thêm)
+Cần tạo danh sách chứa các primitive type để check

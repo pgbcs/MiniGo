@@ -1,0 +1,6 @@
+func main() {
+            for var j int = 0; j < 5; j+=1 {
+                fmt.Println(j)
+            }
+        }
+        

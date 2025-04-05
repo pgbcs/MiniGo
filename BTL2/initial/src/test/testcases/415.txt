@@ -1,3 +1,7 @@
-func main(){
-            a %= b%c;
+func main () {
+            for _, i := range arr {
+                const x = 1
+            }
         };
+        /* fix expression for this to work */
+        

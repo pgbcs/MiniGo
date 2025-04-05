@@ -1,0 +1,2 @@
+func main() {x := y.abc[0][1][expr + 1 * bistro].name;}
+        

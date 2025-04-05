@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(Id(a),>,Id(b)),Block([FuncCall(print,[StringLiteral("a>b")])]),If(BinaryOp(Id(a),<,Id(b)),Block([FuncCall(print,[StringLiteral("a<b")])]),Block([FuncCall(print,[StringLiteral("a=b")])])))]))])
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(FuncCall(isLoggedIn,[]),&&,MethodCall(MethodCall(Id(user),permissions,[]),canEdit,[])),Block([FuncCall(saveChanges,[])]),If(UnaryOp(!,FuncCall(hasAccess,[])),Block([FuncCall(denyRequest,[])]),Block([FuncCall(errorLog,[StringLiteral("Unexpected condition met")])])))]))])

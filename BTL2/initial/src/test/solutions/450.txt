@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[ParDecl(x,IntType),ParDecl(y,IntType),ParDecl(z,IntType)],IntType,Block([]))])

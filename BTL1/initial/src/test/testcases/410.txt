@@ -1,1 +1,1 @@
-a /= bnf;
+func apt() {a /= bnf;};

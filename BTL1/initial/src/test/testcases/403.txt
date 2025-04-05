@@ -1,3 +1,3 @@
 func (s student) hello(x ,y int, z int){
         }
-        s.hello(, a, b );
+        func okela() {s.hello(, a, b );};

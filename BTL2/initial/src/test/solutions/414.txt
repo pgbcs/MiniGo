@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([Assign(Id(a),BinaryOp(Id(a),/,BinaryOp(Id(b),/,Id(c))))]))])
+Program([FuncDecl(main,[],VoidType,Block([Assign(ArrayCell(FieldAccess(ArrayCell(Id(x),[IntLiteral(1)]),name),[IntLiteral(0),IntLiteral(12),Id(consy)]),IntLiteral(1)),Assign(FieldAccess(Id(y),name),StringLiteral("John")),Assign(FieldAccess(Id(z),age),IntLiteral(20))])),VarDecl(x,ArrayType(IntType,[IntLiteral(5)])),VarDecl(y,Id(Person)),VarDecl(z,Id(Person))])

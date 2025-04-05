@@ -1,5 +1,4 @@
-func main() {
-	for j, value := range c() {
-		fmt.Printf("createArray()[%d] = %d\n", j, value)
-	}
-};
+type Person struct {
+            name string
+            age int
+        };

@@ -1,1 +1,1 @@
-Redeclared Type: b
+Redeclared Variable: b

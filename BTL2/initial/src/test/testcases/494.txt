@@ -1,0 +1,6 @@
+func main() {
+            for val := 5; lol < 10; noice[0].nic[0][9].nibba += Person{ name: "wtf" } {
+                println(i, val)
+            }
+        }
+        

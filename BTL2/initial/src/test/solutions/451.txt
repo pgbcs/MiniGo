@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[ParDecl(x,BoolType),ParDecl(y,BoolType),ParDecl(arr,ArrayType(Id(Child),[IntLiteral(0),Id(constant)]))],IntType,Block([]))])

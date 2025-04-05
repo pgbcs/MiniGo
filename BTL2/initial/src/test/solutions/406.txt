@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([Assign(Id(a),UnaryOp(!,BinaryOp(ArrayCell(MethodCall(Id(c),findMax,[FieldAccess(FieldAccess(ArrayCell(FieldAccess(Id(university),students),[IntLiteral(2)]),subject),score)]),[IntLiteral(2)]),>,Id(highestScore))))]))])
+Program([MethodDecl(x,Id(Person),FuncDecl(main,[],VoidType,Block([VarDecl(x,IntType)]))),VarDecl(x,IntType)])

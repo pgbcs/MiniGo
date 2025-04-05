@@ -1,0 +1,5 @@
+func main() {
+            for index, value := range ((1+1) - 4) * 9 {}
+            for key, val := range [0]int{1,2,4} + [1][2]float{0.2, "nice"}.chelonia[0] { fmt.Println(key, val); }
+        }
+        

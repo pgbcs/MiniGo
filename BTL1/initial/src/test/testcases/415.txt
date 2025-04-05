@@ -1,5 +1,5 @@
-if (yourAge >= 18){
+func oof() {if (yourAge >= 18){
             PutStringLn("You are an adult");
         } else {
             PutStringLn("You are a child");
-        };
+        };};

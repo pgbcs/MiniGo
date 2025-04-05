@@ -1,3 +1,14 @@
 func main() {
-            a[1].method(1);
-        };
+            var x int = 100
+            const y = 100
+            }
+            type Person struct {
+                name string
+                age Pearson
+            }
+            type Noice interface {
+                foo() int
+                bar() string
+                zoo(a,y int, x,y [1][9][lol]Person) [1][8] Paramiz
+            }
+        

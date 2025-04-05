@@ -1,0 +1,3 @@
+func main() {
+            fmt.Printf("Value: %d", 42)
+        };

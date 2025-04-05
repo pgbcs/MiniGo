@@ -1,3 +1,5 @@
-func main(){
-            a[1][2].c.Cal(1,2,3);
-        };
+type Person struct {
+            name string
+            age int
+        }
+        

@@ -1,3 +1,8 @@
-func main(){
-            a *= b*c;
+func main () {
+            x := 1
+            y := x
+            x := y
         };
+        var x int;
+        var y int;
+        

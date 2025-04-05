@@ -1,2 +1,2 @@
-if ()
-            PutStringLn("You are an adult");
+func ohnophake() {if ()
+            PutStringLn("You are an adult");};

@@ -1,3 +1,1 @@
-func what(){
-            a := s.a.a[2].c();
-        };
+func (x Person) main(x int, y,z [a][b][2]float) Person {};

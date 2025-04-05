@@ -1,3 +1,4 @@
-func testForLoop() {for index, value := range a[1][2][3] {
-        // statements
-        };};
+type Person interface {
+            getName() string
+            getAge() int
+        };

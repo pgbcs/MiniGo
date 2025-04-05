@@ -1,1 +1,1 @@
-var arr = [2]student{student{name:"John",age:20},student{name:"Alice",age:21}};
+var x = "Hello\t";

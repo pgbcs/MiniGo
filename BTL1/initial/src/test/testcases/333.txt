@@ -1,1 +1,1 @@
-PutStringLn(s.getAge());
+func testStruct(){PutStringLn(s.getAge());};

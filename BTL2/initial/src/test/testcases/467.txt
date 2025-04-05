@@ -1,3 +1,2 @@
-func main() {
-            a := [5] int{1+2, 3*4, 5/6, 7%8, 9};
-        };
+func (x ReceiverType) nestedParams( a, b [1]Random, weird int ) [1][12]float64 { no_empty := "noice"; }; 
+            

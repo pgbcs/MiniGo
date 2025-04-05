@@ -1,5 +1,4 @@
 func main() {
-            for index, value := range [5]int{1, 2, 3, 4, 5}[1][2][3] {
-                break;
-            }
+            var x int = 100
+            const y = 100
         };

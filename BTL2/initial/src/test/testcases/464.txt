@@ -1,1 +1,12 @@
-a := 1;
+
+        type Person struct {
+            name string
+            age int
+        }
+
+        type Noice interface {
+            foo() int
+            bar() string
+            zoo() [1][8] Paramiz
+        }
+        

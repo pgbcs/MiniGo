@@ -1,0 +1,8 @@
+func main() {
+            if (x > 100) {
+                return 1
+            } else {
+                return 0
+            }
+        }
+        

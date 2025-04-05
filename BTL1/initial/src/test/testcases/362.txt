@@ -1,1 +1,1 @@
-cond := (age >= 18 && age <= 65) && (healthCondition == "good" || hasMedicalApproval == true);
+var cond = (age >= 18 && age <= 65) && (healthCondition == "good" || hasMedicalApproval == true);

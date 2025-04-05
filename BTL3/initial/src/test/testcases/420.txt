@@ -1,0 +1,6 @@
+
+    type Bao struct{
+        Bao int;
+        a float;
+        test string;
+    }

@@ -1,0 +1,6 @@
+
+        var test int;
+    type b struct{
+        test int;
+        a float;
+    }

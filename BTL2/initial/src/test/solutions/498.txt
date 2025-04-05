@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([ForEach(Id(i),Id(val),BinaryOp(ArrayCell(ArrayLiteral([IntLiteral(2)],StringType,[StringLiteral("a"),StringLiteral("b")]),[IntLiteral(1)]),+,StringLiteral("test")),Block([FuncCall(println,[Id(i),Id(val)])]))]))])

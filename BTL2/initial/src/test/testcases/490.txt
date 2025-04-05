@@ -1,0 +1,6 @@
+func main() {
+            for (1 + 2 * 3).nice()[s].damn {
+                fmt.Println("Hello")
+            }
+        }
+        

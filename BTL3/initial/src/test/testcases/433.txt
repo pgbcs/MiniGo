@@ -1,0 +1,6 @@
+
+    type Greeting interface {
+        Hello()
+        Hi()
+        Hi()
+    }

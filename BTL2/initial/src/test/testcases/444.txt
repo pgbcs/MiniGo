@@ -1,1 +1,1 @@
-var a = true;
+var x = "Hello\n";

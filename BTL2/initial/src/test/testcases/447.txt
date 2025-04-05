@@ -1,3 +1,1 @@
-func main(a [5] int) int {
-            return 1;
-        };
+var x = false;

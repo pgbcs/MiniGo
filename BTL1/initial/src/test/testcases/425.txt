@@ -1,4 +1,4 @@
-for i := 0; a > 10; i += 1 {
+func testfor() {for i := 0; a > 10; i += 1 {
 PutStringLn(i);
 i+=1;
-};
+};};

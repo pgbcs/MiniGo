@@ -1,0 +1,1 @@
+Program([MethodDecl(x,Id(ReceiverType),FuncDecl(nestedParams,[ParDecl(a,ArrayType(Id(Random),[IntLiteral(1)])),ParDecl(b,ArrayType(Id(Random),[IntLiteral(1)])),ParDecl(weird,IntType)],ArrayType(Id(float64),[IntLiteral(1),IntLiteral(12)]),Block([Assign(Id(no_empty),StringLiteral("noice"))])))])

@@ -1,0 +1,6 @@
+func main() {
+            for i, val := range [2]string{"a", "b"}[1] + "test" {
+                println(i, val)
+            }
+        }
+        

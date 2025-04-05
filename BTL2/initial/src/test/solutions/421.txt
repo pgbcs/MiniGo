@@ -1,1 +1,1 @@
-Program([FuncDecl(sleepy,[],VoidType,Block([If(BinaryOp(Id(a),>,Id(b)),Block([FuncCall(print,[StringLiteral("hj")]),FuncCall(print,[StringLiteral("a>b")])]),If(BinaryOp(Id(a),<,Id(b)),Block([FuncCall(print,[StringLiteral("jh")]),FuncCall(print,[StringLiteral("a<b")])])))]))])
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(fmt),Println,[StringLiteral("Try programiz.pro")]),VarDecl(a,Id(nice),StructLiteral(nice,[(a,IntLiteral(10))])),If(UnaryOp(!,UnaryOp(!,BinaryOp(FieldAccess(Id(a),a),==,IntLiteral(1)))),Block([]),Block([]))]))])

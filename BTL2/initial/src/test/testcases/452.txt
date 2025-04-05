@@ -1,3 +1,2 @@
-func func() {
-            return;
+func main(x, y boolean, arr [0][constant]Child, c, z Person) int {
         };

@@ -1,1 +1,1 @@
-s.name := "Nguyen Van A";
+func ohh() {s.name := "Nguyen Van A";};

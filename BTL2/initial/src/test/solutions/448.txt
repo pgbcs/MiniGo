@@ -1,0 +1,1 @@
+Program([VarDecl(x,ArrayLiteral([IntLiteral(1),IntLiteral(2)],IntType,[IntLiteral(1),IntLiteral(2),IntLiteral(3)]))])

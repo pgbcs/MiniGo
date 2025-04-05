@@ -1,0 +1,1 @@
+Program([StructType(Person,[(name,StringType),(age,IntType)],[]),InterfaceType(Noice,[Prototype(foo,[],IntType),Prototype(bar,[],StringType),Prototype(zoo,[],ArrayType(Id(Paramiz),[IntLiteral(1),IntLiteral(8)]))])])

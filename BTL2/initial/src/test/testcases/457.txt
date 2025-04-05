@@ -1,3 +1,5 @@
-func main() {
-            var s = Student{};
+type Person struct {
+            name string
+            age int
+            address Address
         };

@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([Assign(Id(a),BinaryOp(Id(a),*,BinaryOp(Id(b),*,Id(c))))]))])
+Program([FuncDecl(main,[],VoidType,Block([Assign(Id(x),IntLiteral(1)),Assign(Id(y),Id(x)),Assign(Id(x),Id(y))])),VarDecl(x,IntType),VarDecl(y,IntType)])

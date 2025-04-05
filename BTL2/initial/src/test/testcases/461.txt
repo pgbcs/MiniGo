@@ -1,3 +1,6 @@
-func main() {
-            s.method1().method2().method3();
-        };
+        type lol interface {
+            foo() int
+            bar() string
+            zoo() [1][8] Paramiz
+        }
+        

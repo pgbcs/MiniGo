@@ -1,0 +1,6 @@
+func main() {
+            if (check(a) && compute(1, 2) < getValue() || validate("input")) {
+                process(x, y)
+            }
+        }
+        

@@ -1,3 +1,7 @@
-func main(){
-            Toyota.wheels += 2;
+func main () {
+            for i == 0 {
+                const x = 1
+            }
         };
+        /* fix expression for this to work */
+        

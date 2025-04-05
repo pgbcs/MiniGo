@@ -1,0 +1,6 @@
+func main() {
+            for porsche[0][Nitz].nice()[s].damn {
+                fmt.Println("Hello")
+            }
+        }
+        

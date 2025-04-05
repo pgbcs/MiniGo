@@ -1,3 +1,5 @@
-func main(){
-            wth().a[1][2].c.Cal(1+2,3*4,5/6);
-        };
+type Person interface {
+            getName() string
+            getAge() int
+        }
+        

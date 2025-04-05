@@ -1,9 +1,1 @@
-func main(){
-            if(!warZone){
-                if(!pandemic){
-                    print("Peaceful");
-                }else{
-                    print("Stay home");
-                }
-            }
-        };
+var x int = 100;

@@ -1,1 +1,1 @@
-a %= bts;
+func huhu() {a %= bts;};

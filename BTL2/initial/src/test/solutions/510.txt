@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([MethodCall(Id(fmt),Println,[FuncCall(getValue,[])])]))])

@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([If(UnaryOp(!,Id(warZone)),Block([If(UnaryOp(!,Id(pandemic)),Block([FuncCall(print,[StringLiteral("Peaceful")])]),Block([FuncCall(print,[StringLiteral("Stay home")])]))]))]))])
+Program([VarDecl(x,IntType,IntLiteral(100))])

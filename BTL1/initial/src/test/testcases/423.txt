@@ -1,2 +1,1 @@
-if (yourAge >= 18){}
-        ;
+func mian () {if (yourAge >= 18){};};

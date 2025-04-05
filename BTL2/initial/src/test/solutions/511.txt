@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([Assign(Id(x),BinaryOp(BinaryOp(FuncCall(compute,[Id(a),Id(b)]),*,IntLiteral(2)),+,FuncCall(getValue,[])))]))])

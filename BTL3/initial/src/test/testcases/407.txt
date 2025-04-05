@@ -1,3 +1,3 @@
-func foo(x int, y int){
-            var a = x+y;
-        }
+const a = 1.3;
+        const b = 1.3;
+        const a = 1.3;

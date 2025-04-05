@@ -1,4 +1,4 @@
-for i < 10 {
+func testfor() {for i < 10 {
 i+=1;
 PutStringLn(i);
-};
+};};

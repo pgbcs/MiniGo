@@ -993,6 +993,22 @@ PutStringLn(i);};"""
         };"""
         expect = "Error on line 2 col 27: +"
         self.assertTrue(TestParser.checkParser(input, expect, 467))
+    
+    def test_complex_struct(self):
+        input = """type PPL struct{
+            requisite string;
+            min int;
+            max int;
+            avg float;
+            passed boolean;
+        };"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 468))
+
+    def test_array_literal_with_struct_literal_element(self):
+        input ="""var arr[2]int = a;"""
+        expect = "successful"
+        self.assertTrue(TestParser.checkParser(input, expect, 469))
     # def test_assign_
     # def test_test(self):
     #     input ="""var car = Car{                    brand = "Toyota",

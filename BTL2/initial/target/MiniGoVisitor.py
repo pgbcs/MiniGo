@@ -259,6 +259,16 @@ class MiniGoVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by MiniGoParser#arrdimlist_expr.
+    def visitArrdimlist_expr(self, ctx:MiniGoParser.Arrdimlist_exprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MiniGoParser#arrdim_expr.
+    def visitArrdim_expr(self, ctx:MiniGoParser.Arrdim_exprContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by MiniGoParser#value.
     def visitValue(self, ctx:MiniGoParser.ValueContext):
         return self.visitChildren(ctx)
@@ -294,6 +304,16 @@ class MiniGoVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by MiniGoParser#methodcallbody.
+    def visitMethodcallbody(self, ctx:MiniGoParser.MethodcallbodyContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by MiniGoParser#methodcalltail.
+    def visitMethodcalltail(self, ctx:MiniGoParser.MethodcalltailContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by MiniGoParser#stmt.
     def visitStmt(self, ctx:MiniGoParser.StmtContext):
         return self.visitChildren(ctx)
@@ -304,33 +324,13 @@ class MiniGoVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by MiniGoParser#var.
-    def visitVar(self, ctx:MiniGoParser.VarContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by MiniGoParser#accesslist.
     def visitAccesslist(self, ctx:MiniGoParser.AccesslistContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by MiniGoParser#access.
-    def visitAccess(self, ctx:MiniGoParser.AccessContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by MiniGoParser#arrayaccess.
-    def visitArrayaccess(self, ctx:MiniGoParser.ArrayaccessContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by MiniGoParser#structaccess.
-    def visitStructaccess(self, ctx:MiniGoParser.StructaccessContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by MiniGoParser#assignop.
-    def visitAssignop(self, ctx:MiniGoParser.AssignopContext):
+    # Visit a parse tree produced by MiniGoParser#otherassignop.
+    def visitOtherassignop(self, ctx:MiniGoParser.OtherassignopContext):
         return self.visitChildren(ctx)
 
 

@@ -1,0 +1,3 @@
+func main() {
+            x := compute(a, b) * 2 + getValue()
+        };

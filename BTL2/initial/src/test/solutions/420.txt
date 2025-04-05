@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(FieldAccess(Id(student),age),>,IntLiteral(18)),Block([FuncCall(print,[StringLiteral("Adult")])]))]))])
+Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(Id(a),+,Id(b)),Block([Return(IntLiteral(1))]))]))])

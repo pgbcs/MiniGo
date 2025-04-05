@@ -1,0 +1,1 @@
+Program([StructType(Person,[(name,StringType),(age,IntType),(address,Id(Address))],[])])

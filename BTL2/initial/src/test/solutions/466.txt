@@ -1,0 +1,1 @@
+Program([MethodDecl(Bordeux,Id(Nirvana),FuncDecl(main,[],VoidType,Block([VarDecl(x,IntType,IntLiteral(100)),ConstDecl(y,IntLiteral(100))])))])

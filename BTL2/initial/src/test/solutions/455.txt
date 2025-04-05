@@ -1,0 +1,1 @@
+Program([MethodDecl(x,Id(Person),FuncDecl(main,[ParDecl(x,IntType),ParDecl(y,Id(Peerson)),ParDecl(s,Id(Peerson))],VoidType,Block([Return(Id(x))])))])

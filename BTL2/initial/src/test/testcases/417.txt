@@ -1,2 +1,7 @@
-func main(){
-            arr[2][0] %= 1;};
+func main () {
+            for i := 0; i < 10; i+= 1 {
+                const x = 1
+            }
+        };
+        /* fix expression for this to work */
+        

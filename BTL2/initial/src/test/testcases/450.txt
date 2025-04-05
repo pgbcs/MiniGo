@@ -1,5 +1,1 @@
-func who() {
-            func what() {
-                return;
-            }
-        };
+func main(x, y, z int) int {};

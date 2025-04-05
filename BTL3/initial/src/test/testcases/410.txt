@@ -1,3 +1,4 @@
 func foo(x int, y int){
-            var foo int;
+            var x string;
+            var y float;
         }

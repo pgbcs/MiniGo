@@ -1,1 +1,1 @@
-s.info.id[2+3] := 3;
+func main() {s.info.id[2+3] := 3;};

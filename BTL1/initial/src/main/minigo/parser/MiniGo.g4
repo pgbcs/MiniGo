@@ -45,11 +45,11 @@ normal_vardecl_with_init: VAR ID typedecl? ASSIGN expr SEMICO;
 typedecl: INT | FLOAT | STRING | BOOLEAN | ID;
 
 arr_vardecl: arr_vardecl_without_init | arr_vardecl_with_init;
-arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN arrliteral SEMICO;
+arr_vardecl_with_init: VAR ID (arrdimlist typedecl)? ASSIGN expr SEMICO; //chang from arrliterl to expr
 arr_vardecl_without_init: VAR ID arrdimlist typedecl SEMICO;
 
 arrdimlist: arrdim arrdimlist | arrdim;
-arrdim: LBRACK (DEC_LIT|ID) RBRACK;
+arrdim: LBRACK (DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | ID) RBRACK;
 arrliteral: arrdimlist typedecl arrlistvalue;
 arrlistvalue: LBRACE listvalue RBRACE;
 listvalue: value_for_arr COMMA listvalue | value_for_arr;
@@ -59,7 +59,7 @@ literalvalue_for_arr: DEC_LIT | BIN_LIT | OCT_LIT | HEX_LIT | FLOAT_LIT | STRING
 constdecl: CONST ID ASSIGN expr SEMICO;
 
 //struct declare, empty struct is allowed
-structdecl: TYPE ID STRUCT structbody SEMICO; 
+structdecl: TYPE ID STRUCT structbody SEMICO;
 structbody: LBRACE fieldlist RBRACE;
 fieldlist: field fieldlist | ;
 field: ID arrdimlist? typedecl SEMICO;
@@ -99,10 +99,20 @@ expr1: expr1 (EQUAL | NOT_EQUAL | LESS | GREATER | LESS_OR_EQUAL | GREATER_OR_EQ
 expr2: expr2 (PLUS | MINUS) expr3 | expr3;
 expr3: expr3 (MUL | DIV | MOD) expr4 | expr4;
 expr4: (MINUS | NOT) expr4 | expr5;
-expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
+// expr5: expr5 SELECTOR ID | expr5 LBRACK expr RBRACK | expr5 SELECTOR ID LPAREN arglist RPAREN | expr6;
+expr5: expr5 SELECTOR ID 
+    | expr5 SELECTOR ID LPAREN arglist RPAREN 
+    | expr5 SELECTOR ID LPAREN arglist RPAREN arrdimlist_expr
+    | expr5 SELECTOR ID arrdimlist_expr
+    | expr6 arrdimlist_expr 
+    | expr6;
 expr6: subexpr | value;
 
-value: literalvalue | ID | funccall;//remove methodcall here
+arrdimlist_expr: arrdimlist_expr arrdim_expr | arrdim_expr;
+arrdim_expr: LBRACK expr RBRACK;
+// access_expr: SELECTOR ID | SELECTOR ID LPAREN arglist RPAREN;
+
+value: literalvalue | funccall;//remove methodcall here
 subexpr: LPAREN expr RPAREN;
 literalvalue: literalvalue_for_arr | arrliteral;
 
@@ -110,26 +120,39 @@ funccall: ID LPAREN arglist RPAREN;
 arglist: argprime | ;
 argprime: expr COMMA argprime | expr;
 
-methodcall: expr accesslist LPAREN arglist RPAREN;
-
+// methodcall: expr accesslist LPAREN arglist RPAREN;
+methodcall: methodcallbody methodcalltail;
+methodcallbody: methodcallbody SELECTOR ID
+    | methodcallbody SELECTOR ID LPAREN arglist RPAREN
+    | methodcallbody SELECTOR ID LPAREN arglist RPAREN arrdimlist_expr
+    | methodcallbody SELECTOR ID arrdimlist_expr
+    | funccall arrdimlist_expr
+    | ID arrdimlist_expr
+    | funccall
+    | ID;
+methodcalltail: SELECTOR ID LPAREN arglist RPAREN;
 
 stmt: vardecl | constdecl | assignstmt | returnstmt | ifstmt | forstmt | breakstmt | continuestmt | callstmt;
-assignstmt: var assignop expr SEMICO;
-var: ID accesslist?;
-accesslist:  access accesslist | access;
-access: arrayaccess | structaccess;
-arrayaccess: LBRACK expr RBRACK;
-structaccess: SELECTOR ID;
-assignop: SHORT_ASSIGN | PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
+assignstmt: accesslist (SHORT_ASSIGN | otherassignop ) expr SEMICO;
+accesslist: ID arrdimlist_expr
+    | accesslist SELECTOR ID
+    | accesslist SELECTOR ID arrdimlist_expr
+    | ID;
+// var: ID accesslist?;
+// accesslist: accesslist  access | access;
+// access: arrayaccess | structaccess;
+// arrayaccess: LBRACK expr RBRACK;
+// structaccess: SELECTOR ID;
+otherassignop: PLUS_ASSIGN | MINUS_ASSIGN | MUL_ASSIGN | DIV_ASSIGN | MOD_ASSIGN;
 
 returnstmt: RETURN expr? SEMICO;
 
 callstmt: (funccall| methodcall) SEMICO;
 
-ifstmt: firstifstmt elseifstmtlist elsestmt? SEMICO;
+ifstmt: firstifstmt elseifstmtlist? SEMICO;
 firstifstmt: IF LPAREN expr RPAREN ifstmtbody;
 ifstmtbody: LBRACE stmtlist RBRACE;
-elseifstmtlist: elseifstmt elseifstmtlist | ;
+elseifstmtlist: elseifstmt elseifstmtlist | elsestmt | elseifstmt;
 elseifstmt: ELSE IF LPAREN expr RPAREN ifstmtbody;
 elsestmt: ELSE ifstmtbody;
 
@@ -138,7 +161,8 @@ basicforstmt: FOR expr forstmtbody SEMICO;
 forstmtbody: LBRACE stmtlist RBRACE;
 init_cond_update_forstmt: FOR init_for SEMICO expr SEMICO assign forstmtbody SEMICO;
 init_for: assign | VAR ID typedecl? ASSIGN expr;
-assign: var assignop expr;
+// assign: var assignop expr;
+assign: accesslist (SHORT_ASSIGN|otherassignop) expr;
 rangeforstmt: FOR ID COMMA ID SHORT_ASSIGN RANGE expr forstmtbody SEMICO;
 
 breakstmt: BREAK SEMICO;

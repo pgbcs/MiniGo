@@ -1,3 +1,1 @@
-func main(){
-            return [5]num{1,2,3,4,5};
-        };
+var x = 0.123e-123;

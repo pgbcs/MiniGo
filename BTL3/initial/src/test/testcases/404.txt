@@ -1,2 +1,3 @@
-var a int;
-        var a int;
+func bruh(x,x int){
+            var a int;
+        };

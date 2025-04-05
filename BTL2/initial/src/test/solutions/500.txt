@@ -1,0 +1,1 @@
+Program([FuncDecl(main,[],VoidType,Block([For(BooleanLiteral(true),Block([Break()]))]))])

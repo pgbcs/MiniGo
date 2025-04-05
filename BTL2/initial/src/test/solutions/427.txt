@@ -1,1 +1,1 @@
-Program([FuncDecl(main,[],VoidType,Block([If(BinaryOp(Id(a),>,Id(b)),Block([]))]))])
+Program([VarDecl(x,IntType,StringLiteral("1000"))])
