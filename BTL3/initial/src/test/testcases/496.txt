@@ -1,9 +1,5 @@
 
-        var a PPL;
-        type PPL struct{
-            requisite string;
-            min int;
-            max int;
-            avg float;
-            passed boolean;
-        };
+        func WHO(a boolean) int{
+            if(a){ return true;}
+            return 1;
+        }

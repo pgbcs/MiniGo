@@ -1,0 +1,1 @@
+Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],BoolType,Block([If(Id(a),Block([If(BooleanLiteral(true),Block([Return(IntLiteral(1))])),Return(BooleanLiteral(false))])),Return(BooleanLiteral(false))]))

@@ -572,10 +572,37 @@ class CheckSuite(unittest.TestCase):
         expect = "Undeclared Function: b\n"
         self.assertTrue(TestChecker.test(input,expect,448))
 
+
+    def test_function_with_many_return(self):
+        input = """
+        func WHO(a boolean) int{
+            if(a){ return true;}
+            return 1;
+        }
+"""
+        expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],IntType,Block([If(Id(a),Block([Return(BooleanLiteral(true))])),Return(IntLiteral(1))]))\n"
+        self.assertTrue(TestChecker.test(input,expect,496))
+
+    def test_function_with_many_return_in_deepblock(self):
+        input = """
+        func WHO(a boolean) boolean{
+            if(a){
+                if(true){
+                    return 1;
+                }
+                return false
+            }
+            return false;
+        }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,497))
+
 #test gán struct cho interface khi chưa đủ method, khi nhiều hơn
 #cần viết undeclared id trong các expr
 #viết test thể hiện thứ tự sử dụng scope
 #Viết test nếu arraycell lớn hơn số chiều của mảng ?
+#Kiểm tra return nằm sâu bên trong các block khác thì func có check đúng ko
     def test_type_mismatch(self):
         input = """var a int = 1.2;"""
         expect = "Type Mismatch: VarDecl(a,IntType,FloatLiteral(1.2))\n"

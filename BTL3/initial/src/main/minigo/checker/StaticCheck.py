@@ -67,7 +67,16 @@ class StaticChecker(BaseVisitor,Utils):
                         ArrayType, 
                         StructType, 
                         InterfaceType]
-    
+        
+    def flatten(self, lst):
+        flat_list = []
+        for item in lst:
+            if isinstance(item, list):
+                flat_list.extend(self.flatten(item))
+            else:
+                flat_list.append(item)
+        return flat_list    
+
     def lookup(self,name,lst,func):
         for x in lst:
             if name == func(x):
@@ -173,15 +182,24 @@ class StaticChecker(BaseVisitor,Utils):
             #check kiểu dùng trong param hợp lệ không
             params: Props = reduce(self.reducer, ast.params, Props([],[],c.typ_env))
             parType = [x.mtype for x in params.env]
+
+            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
+            #Lấy hết các return ở trong func (bao gồm cả block) khác
+            returnList = ([self.visit(returnStmt, c)] if returnStmt else [])+ [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag) ) for x in ast.body.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+            returnList = self.flatten(returnList)
+            # print(returnList)
+            # for r in returnList:
+            #     print(r)
             
-            #check kiểu trả về của return
-            returnStmt =  next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
-            #TODO: Nếu return trả về nhiều kiểu khác nhau thì sao
-            retType = VoidType() if returnStmt is None else self.visit(returnStmt, c)
-            # print("return Type: ", retType)
-            if not ast.retType is None:
-                if not type(ast.retType) is type(retType):
-                    raise TypeMismatch(ast)
+            if len(returnList) != 0:
+                checkSameType = all(type(x) is type(returnList[0]) for x in returnList)
+                if not checkSameType: raise TypeMismatch(ast)
+                retType = returnList[0]
+            else:
+                retType = VoidType()
+            
+            if  not type(retType) is type(ast.retType):
+                raise TypeMismatch(ast)
             
             return Symbol(ast.name, MType(parType, retType))
         else:
@@ -392,7 +410,7 @@ class StaticChecker(BaseVisitor,Utils):
 
 
     def visitReturn(self, ast: Return, c: Props):
-        return self.visit(ast.expr, Props(
+        if c.turn ==2: return self.visit(ast.expr, Props(
             c.scope,
             c.env,
             c.typ_env,
@@ -400,7 +418,9 @@ class StaticChecker(BaseVisitor,Utils):
             {
                 "isCallStmt": True
         }
-        )) if ast.expr else None
+        )) if ast.expr else VoidType() 
+        else: return None 
+
 
     def visitAssign(self, ast: Assign, c: Props):
         rhsType = self.visit(ast.rhs, Props(
@@ -478,6 +498,19 @@ class StaticChecker(BaseVisitor,Utils):
         )
 
     def visitIf(self, ast: If, c: Props):
+        if c.turn == 2:
+            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.thenStmt.member), None)
+            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.thenStmt.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        elif c.turn == 3:
+            cond = self.visit(ast.expr,c)
+            if(not isinstance(cond,BoolType)):
+                raise TypeMismatch(ast)
+            [self.visit(x,c) for x in ast.thenStmt.member]
+            if ast.elseStmt: self.visit(ast.elseStmt, c)
+
+
+
+    def visitForBasic(self, ast: ForBasic, c: Props):
         pass
 
 
