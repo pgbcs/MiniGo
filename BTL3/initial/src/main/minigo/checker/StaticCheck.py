@@ -33,19 +33,26 @@ class StructTyp(DefType):
         self.name: str=name
         self.fields: List[Symbol]=fields
         self.mtypes: List[Symbol]=mtypes    
-
+    def __str__(self):
+        return f"name: {self.name}  fields: {[str(x) for x in self.fields]} mtypes: {[str(x) for x in self.mtypes]}"
 class InterfaceTyp(DefType):
     def __init__(self, name, mtypes=[]):
         self.name: str = name
         self.mtypes: List[Symbol] = mtypes
 
 class Props:
-    def __init__(self, scope=[], env=[], typ_env=[], turn=1, isMethod=False):
+    def __init__(self, scope=[], env=[], typ_env=[], turn=1, initflag = {
+        "isMethod": False,
+        "isCallStmt": False,
+        "isConst": False
+    }):
+        flag = ["isMethod", "isCallStmt", "isConst", "isArrayDim"]
         self.scope: List[Symbol] = scope
         self.env: List[Symbol]= env
         self.typ_env: List[DefType] = typ_env
         self.turn: int= turn
-        self.isMethod: bool = isMethod
+        self.flag = {x: True if initflag.get(x) == True else False for x in flag}
+        
 
 class StaticChecker(BaseVisitor,Utils):
     
@@ -73,6 +80,11 @@ class StaticChecker(BaseVisitor,Utils):
                 return x
         return None
 
+    def checkEqualFunc(self, sym1: Symbol, sym2: Symbol):
+        if sym1.name != sym2.name:
+            return False
+        parCmp = zip(sym1.mtype.partype, sym2.mtype.partype)
+        return reduce(lambda x,y: x and type(y[0]) is type(y[1]), parCmp, True)
 
     def check(self):
         return self.visit(self.ast,self.global_envi)
@@ -81,12 +93,13 @@ class StaticChecker(BaseVisitor,Utils):
         visited = self.visit(ele, acc)
         if visited is None: return acc #đảm bảo cho các turn không cần giá trị đó
         if isinstance(ele, MethodDecl):
-            return Props(acc.scope, acc.env, [x if x.name != ele.recType 
-                     else DefType(x.name, x.fields, x.mtypes+[visited]) 
+            return Props(acc.scope, acc.env, [x if x.name != ele.recType.name
+                     else StructTyp(x.name, x.fields, x.mtypes+[visited]) 
                      for x in acc.typ_env],acc.turn)
         elif isinstance(ele, StructType) or isinstance(ele, InterfaceType):
             return Props(acc.scope, acc.env, acc.typ_env + [visited], acc.turn)
-        else: return Props(acc.scope+[visited], acc.env+[visited], acc.typ_env,acc.turn)
+        #Đã đảo ngược env để khi duyệt lấy đúng thứ tự từ trong ra ngoài
+        else: return Props([visited]+ acc.scope,[visited]+ acc.env, acc.typ_env,acc.turn)
 
     def visitProgram(self,ast: Program, c: Props):
         #lambda acc,ele: acc[0] + [self.visit(ele,acc)]
@@ -111,7 +124,7 @@ class StaticChecker(BaseVisitor,Utils):
             return Symbol(ast.varName, ast.varType)
         #check kiểu khai báo của biến có tồn tại không
         #cần xảy ra ở cả turn 2 và turn 3 (do turn 3 có thể xảy ra trong block)
-        if type(ast.varType) not in self.prim_type:
+        if type(ast.varType) not in self.prim_type and ast.varType != None:
             res = self.lookup(ast.varType.name, c.typ_env, lambda x: x.name)
             if res is None: 
                 # varcheck = self.lookup(type(ast.varType), c.env, lambda x: x.name)
@@ -123,6 +136,8 @@ class StaticChecker(BaseVisitor,Utils):
             if ast.varInit:
                 initType = self.visit(ast.varInit, c)
                 if ast.varType is None:
+                    if type(initType) is VoidType:
+                        raise TypeMismatch(ast)
                     ast.varType = initType
                 if not type(ast.varType) is type(initType):
                     raise TypeMismatch(ast)
@@ -134,15 +149,16 @@ class StaticChecker(BaseVisitor,Utils):
             raise Redeclared(Constant(), ast.conName)
         if c.turn == 3:
             if ast.conType is None:
-                conType = self.visit(ast.iniExpr,c)
+                conType = self.visit(ast.iniExpr,Props(c.scope, c.env, c.typ_env, c.turn,{"isConst": True}))
             return Symbol(ast.conName, ast.conType)
-        else: return Symbol(ast.conName, ast.conType)
+        else: return Symbol(ast.conName, ast.conType, ast.iniExpr)
 
     def visitFuncDecl(self,ast: FuncDecl, c: Props):
         #check funcname in its scope
-        res = self.lookup(ast.name, c.scope + c.typ_env, lambda x: x.name)
-        if not res is None:
-            raise Redeclared(Function(), ast.name)
+        if c.turn != 3:
+            res = self.lookup(ast.name, c.scope if c.flag["isMethod"] else c.scope + c.typ_env , lambda x: x.name)
+            if not res is None:
+                raise Redeclared(Function(), ast.name)
         if c.turn==1:
             return Symbol(ast.name, MType(None, None))
         #check kiểu trả về của hàm có hợp lệ không (do ko có trường hợp func trong block nên ko check turn 3)
@@ -157,10 +173,20 @@ class StaticChecker(BaseVisitor,Utils):
             #check kiểu dùng trong param hợp lệ không
             params: Props = reduce(self.reducer, ast.params, Props([],[],c.typ_env))
             parType = [x.mtype for x in params.env]
-            return Symbol(ast.name, MType(parType, ast.retType))
+            
+            #check kiểu trả về của return
+            returnStmt =  next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
+            #TODO: Nếu return trả về nhiều kiểu khác nhau thì sao
+            retType = VoidType() if returnStmt is None else self.visit(returnStmt, c)
+            # print("return Type: ", retType)
+            if not ast.retType is None:
+                if not type(ast.retType) is type(retType):
+                    raise TypeMismatch(ast)
+            
+            return Symbol(ast.name, MType(parType, retType))
         else:
             params = []
-            if not c.isMethod: 
+            if not c.flag["isMethod"]: 
                 thisFunc: Symbol = self.lookup(ast.name, c.env, lambda x: x.name) #lấy hàm để truy xuất bộ param thêm vào env
                 #ghép type của param với name đã scan ở turn 2 để nhét vào env
                 mp = zip(map(lambda x: x.parName,ast.params), thisFunc.mtype.partype)
@@ -177,7 +203,8 @@ class StaticChecker(BaseVisitor,Utils):
             # print(str(ast))
             # for m in ast.body.member:
             #     print(str(m))
-            reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env))
+            # print(ast.body.member)
+            reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env, 3))
 
             return None#không cần trả về symbol ở turn 3 do đã có ở turn 2 
 
@@ -205,22 +232,28 @@ class StaticChecker(BaseVisitor,Utils):
         #Về Redeclared, cần check xem method này đã được thực hiện chưa, không check trùng tên với những cái khác
         #Theo forum thì receiver khác scope với method nên tên còn thể che được
         if c.turn ==2:
-            print("recType: ", ast.recType.name)
             res = self.lookup(ast.recType.name, c.typ_env, lambda x: x.name)
             if res is None or not type(res) is StructTyp:
                 # varcheck = self.lookup(ast.recType, c.env, lambda x: x.name)
                 # if not varcheck is None: raise TypeMismatch(ast)
                 raise Undeclared(Identifier(), ast.recType.name)
             if type(res) is StructTyp:
-                #TODO: cần sửa chỗ này, check chưa đúng
-                res = self.checkExist(ast.recType, c.typ_env, lambda x: x.mtypes)
-                if not res is None:
+                preMethod = self.lookup(ast.fun.name, res.mtypes, lambda x: x.name)
+                if not preMethod is None: raise Redeclared(Method(), ast.fun.name)
+
+                checkField = self.lookup(ast.fun.name, res.fields,lambda x: x.name)
+                if not checkField is None:
                     raise Redeclared(Method(), ast.fun.name)
-            method = self.visit(ast.fun,Props([], c.env, c.typ_env, 2))
+
+            method = self.visit(ast.fun,Props([], c.env, c.typ_env, 2, {
+                "isMethod": True
+            }))
             return method
         elif c.turn == 3:
-            #TODO: ở chỗ env cần thêm receiver vào
-            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)], c.typ_env,3, True))
+            #ở chỗ env cần thêm receiver vào
+            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)], c.typ_env,3, {
+                "isMethod": True
+            }))
             return None
 
 
@@ -278,15 +311,182 @@ class StaticChecker(BaseVisitor,Utils):
                 raise Undeclared(Identifier(), ast.retType.name)
         return Symbol(ast.name, ast.params)
 
-
     def visitIntLiteral(self,ast, c):
         return IntType()
     
     def visitFloatLiteral(self,ast, c):
         return FloatType()
     
+    def visitStringLiteral(self, ast, c):
+        return StringType()
+    
+    def visitBooleanLiteral(self, ast, c):
+        return BoolType()
+    
+    # def visitArrayLiteral(self, ast: ArrayLiteral, c:Props):
+    
+    def visitFuncCall(self, ast: FuncCall, c:Props):
+        paramType = reduce(lambda x,y: x + [self.visit(y)], ast.args, [])
+        func:Symbol = self.lookup(ast.funName, c.env, lambda x: x.name if isinstance(x.mtype, MType) else None)
+        if func is None:
+            raise Undeclared(Function(), ast.funName)
+        if len(ast.args)!= len(func.mtype.partype):
+            raise TypeMismatch(ast)
+
+        if not c.flag["isCallStmt"]:
+            if not isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)     
+        else:
+            if isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)
+
+        paramCmp = zip(paramType, func.mtype.partype)
+        if(not reduce(lambda x,y: x and type(y[0]) == type(y[1]) ,paramCmp, True)):
+            raise TypeMismatch(ast)
+        
+        return func.mtype.rettype
+
+    def visitMethodCall(self, ast: MethCall, c: Props):
+        #cần check receiver trả về kiểu đúng là struct ko
+        #rồi sau đó check kiểu struct đó có tồn tại không
+        #rồi check có method dó trong struct đó không
+        receiver = self.visit(ast.receiver)
+        if not (isinstance(receiver, StructType) or isinstance(receiver, InterfaceType)):
+            raise TypeMismatch(ast) 
+        
+        res = self.lookup(receiver.name, c.typ_env, lambda x: x.name)
+        if res is None:
+            raise Undeclared(Identifier(), receiver.name)
+
+        methCheck = self.lookup(ast.metName, res.mtypes, lambda x: x.name)
+        if methCheck is None:
+            raise Undeclared(Method(), ast.metName)
+        if len(methCheck.partype)!= len(ast.args):
+            raise TypeMismatch(ast)
+        
+        if not c.flag["isCallStmt"]:
+            if not isinstance(methCheck.mtype.rettype, VoidType):  raise TypeMismatch(ast)     
+        else:
+            if isinstance(methCheck.mtype.rettype, VoidType):  raise TypeMismatch(ast)
+
+        paramType = reduce(lambda x,y: x + [self.visit(y)], ast.args, [])
+        paramCmp = zip(paramType, methCheck.mtype.partype)
+        if(not reduce(lambda x,y: x and type(y[0]) == type(y[1]) ,paramCmp, True)):
+            raise TypeMismatch(ast)
+        return methCheck.mtype.rettype
+    
+    def visitFieldAccess(self, ast: FieldAccess, c: Props):
+        #check kiểu của receiver
+        receiver = self.visit(ast.receiver)
+        if not isinstance(receiver, StructType):
+            raise TypeMismatch(ast) 
+        
+        res = self.lookup(receiver.name, c.typ_env, lambda x: x.name)
+        if res is None:
+            raise Undeclared(Identifier(), receiver.name)
+        
+        field = self.lookup(ast.field, res.fields, lambda x: x.name)
+
+        if field is None: 
+            raise Undeclared(Field(), ast.field)
+        
+        return field.mtype
+
+
+    def visitReturn(self, ast: Return, c: Props):
+        return self.visit(ast.expr, Props(
+            c.scope,
+            c.env,
+            c.typ_env,
+            c.turn,
+            {
+                "isCallStmt": True
+        }
+        )) if ast.expr else None
+
+    def visitAssign(self, ast: Assign, c: Props):
+        rhsType = self.visit(ast.rhs, Props(
+            c.scope,
+            c.env,
+            c.typ_env,
+            c.turn,
+            {
+                "isCallStmt": True
+        }))
+        if isinstance(ast.lhs, Id):
+            try: 
+                lhsType = self.visit(ast.lhs, c)
+            except Undeclared as e:
+                if not isinstance(ast.rhs, BinaryOp):
+                    return Symbol(ast.lhs.name, rhsType)
+                else: raise e
+        else: lhsType = self.visit(ast.lhs, c)
+
+        if type(lhsType) is MType or type(rhsType) is MType:
+            raise TypeMismatch(ast)
+        
+        if not type(lhsType) is type(rhsType):
+            if (not type(lhsType) is FloatType) and (not type(rhsType) is IntType()):
+                if type(lhsType) is InterfaceType and type(rhsType) is StructType:
+                    thisStruct = self.lookup(rhsType.name, c.typ_env, lambda x: x.name)
+                    thisInterface= self.lookup(lhsType.name, c.typ_env, lambda x: x.name)
+                    #kiểm tra số method đã imple đủ chưa
+                    if len(thisStruct.mtypes) < len(thisInterface.mtypes):
+                        raise TypeMismatch(ast)
+                    methCmp = zip(thisStruct.mtypes, thisInterface.mtypes)
+                    #kiểm tra đã imple đủ method chưa
+                    if not reduce(lambda x,y: x and self.checkEqualFunc(y[0], y[1]), methCmp, True):
+                        raise TypeMismatch(ast)
+                else: raise TypeMismatch(ast)
+            
+        else:
+            if type(lhsType) is ArrayType:
+                if not type(lhsType.eleType) is type(rhsType.eleType): 
+                    if (not type(lhsType) is FloatType) and (not type(rhsType) is IntType()):
+                        raise TypeMismatch(ast)
+                lhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), lhsType.dimens))    
+                rhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), rhsType.dimens))
+                dimCmp = zip(lhsDim, rhsDim)
+                if not (reduce(lambda x,y: x and y[0]==y[1], dimCmp, True)):
+                    raise TypeMismatch(ast)
+            elif type(lhsType) is StructType:
+                if not lhsType.name != rhsType.name:
+                    raise TypeMismatch(ast)
+        return None
+
+
+    def visitArrayCell(self, ast: ArrayCell,c: Props):
+        arrType: ArrayType = self.visit(ast.arr)
+        if not type(arrType) is ArrayType:
+            raise TypeMismatch(ast)
+        idx = [self.visit(i, Props(
+            c.scope,
+            c.env,
+            c.typ_env,
+            c.turn,
+            {
+                "isCallStmt": True
+        })) for i in ast.idx]
+
+        intCheck = reduce(lambda x,y: x and type(y) is IntType(), idx, True)
+        if not intCheck:
+            raise TypeMismatch(ast)
+        
+        if len(ast.idx) == len(arrType.dimens): 
+            return arrType.eleType
+        else: return ArrayType(
+            arrType.dimens[len(arrType.dimens)-len(ast.idx):],
+            arrType.eleType
+        )
+
+    def visitIf(self, ast: If, c: Props):
+        pass
+
+
     def visitId(self,ast: Id,c: Props):
         res = self.lookup(ast.name, c.env, lambda x: x.name)
         if res is None:
+            if c.flag["isConst"]: raise Undeclared(Constant(), ast.name)
             raise Undeclared(Identifier(), ast.name)
+        if c.flag["isConst"]: return res.value
         return res.mtype
+#TODO: khi nào check đến expr thì phải bật meth hay funcall lên
+#TODO: thứ tự dùng env có cần theo thứ tự scope không

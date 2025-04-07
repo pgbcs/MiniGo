@@ -1,0 +1,14 @@
+
+        const Reject = 20;
+        func (c J97Vitinhtu) RejectAdd(x int) {
+            var a int;
+        }
+        func (b Vrus) Reject(x float) {
+            var a int;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  

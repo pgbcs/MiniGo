@@ -1,0 +1,15 @@
+
+        func (c J97Vitinhtu) Reject(x int) int{
+            var a int;
+            return 5;
+        }
+        func (b Vrus) b(x float) int{
+            var a int;
+            return 3;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  

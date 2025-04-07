@@ -1,0 +1,7 @@
+
+    func (a C) greeting(){
+        b();
+    }
+    type C struct{
+        name int
+    }

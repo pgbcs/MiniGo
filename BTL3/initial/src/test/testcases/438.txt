@@ -1,0 +1,13 @@
+
+        func (c J97Vitinhtu) Reject(x int) {
+            var a int;
+        }
+        func RejectAdd(x int ){
+            var x = 5;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  

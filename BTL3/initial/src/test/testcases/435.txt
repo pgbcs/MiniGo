@@ -1,8 +1,8 @@
 
-        func (c Calculator) Add(x int) int {
+        func (c Calculator) Add(x int) {
             var a int;
         }
-        func (b Calculator) Add(x float) int {
+        func (b Calculator) Add(x float) {
             var a int;
         }
         type Calculator struct {

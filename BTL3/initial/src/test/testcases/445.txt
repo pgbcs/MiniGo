@@ -1,0 +1,4 @@
+
+    func levi(){
+        var a int = b;
+    }

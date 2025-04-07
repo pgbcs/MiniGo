@@ -2,6 +2,6 @@
         type Calculator struct {
             value int;
         }
-        func (c Calculator) Add(x int) int {
+        func (c Calculator) Add(x int) {
             var a int;
         }

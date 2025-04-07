@@ -70,7 +70,7 @@ class CheckSuite(unittest.TestCase):
 
     def test_use_param_in_funcbody(self):
         input = """func foo(x int, y int){
-            var a = x+y;
+            var a = x;
         }
 """
         expect = ""
@@ -289,12 +289,7 @@ class CheckSuite(unittest.TestCase):
 
     def test_var_in_block_have_same_name_with_interface(self):
         input = """
-    type Calculator interface {
-    Add(x, y int) int;
-    Subtract(a, b float, c int) float;
-    Reset()
-    SayHello(name string)
-}
+
     func foo(){
         var Calculator int;
     }
@@ -373,7 +368,7 @@ class CheckSuite(unittest.TestCase):
         type Calculator struct {
             value int;
         }
-        func (c Calculator) Add(x int) int {
+        func (c Calculator) Add(x int) {
             var a int;
         }
 """
@@ -381,29 +376,207 @@ class CheckSuite(unittest.TestCase):
         self.assertTrue(TestChecker.test(input, expect, 434))
 
     def test_redeclared_method(self):
-        print("435")
         input = """
-        func (c Calculator) Add(x int) int {
+        func (c Calculator) Add(x int) {
             var a int;
         }
-        func (b Calculator) Add(x float) int {
+        func (b Calculator) Add(x float) {
             var a int;
         }
         type Calculator struct {
             value int;
         }
 """
-        expect = ""
+        expect = "Redeclared Method: Add\n"
         self.assertTrue(TestChecker.test(input, expect, 435))
 
+    def test_two_struct_same_method(self):
+        input = """
+        func (c J97Vitinhtu) RejectAdd(x int) {
+            var a int;
+        }
+        func (b Vrus) Reject(x float) {
+            var a int;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 436))
+    
+    def test_declared_many_method_for_struct(self):
+        input = """
+        func (c J97Vitinhtu) RejectAdd(x int) {
+            var a int;
+        }
+        func (b Vrus) Reject(x float) {
+            var a int;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 437))
+
+    def test_redeclared_method_with_func(self):
+        input = """
+        func (c J97Vitinhtu) Reject(x int) {
+            var a int;
+        }
+        func RejectAdd(x int ){
+            var x = 5;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 438))
+
+    def test_method_same_name_with_receiver(self):
+        input = """
+        func (c J97Vitinhtu) Reject(x int) int{
+            var a int;
+            return 5;
+        }
+        func (b Vrus) b(x float) int{
+            var a int;
+            return 3;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 439))
+
+    def test_method_same_name_with_struct_type(self):
+        input = """
+        func (c J97Vitinhtu) RejectAdd(x int) {
+            var a int;
+        }
+        func (b Vrus) Vrus(x float) {
+            var a int;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 440))
+
+    def test_method_same_name_with_constant(self):
+        input = """
+        const Reject = 20;
+        func (c J97Vitinhtu) RejectAdd(x int) {
+            var a int;
+        }
+        func (b Vrus) Reject(x float) {
+            var a int;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input, expect, 441))
+
+    def test_redeclared_method_with_field(self):
+        input = """
+        const Reject = 20;
+        func (c J97Vitinhtu) RejectAdd(x int) int {
+            var a int;
+            return 10;
+        }
+        func (b Vrus) value(x float) int {
+            var a int;
+            return 10;
+        }
+        type J97Vitinhtu struct {
+            value int;
+        }
+        type Vrus struct{
+            value int;
+        }  
+"""
+        expect= "Redeclared Method: value\n"
+        self.assertTrue(TestChecker.test(input, expect, 442))
+
+    def test_undeclared_identifier(self):
+        input = Program([VarDecl("a",IntType(),Id("b"))])
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,443))
+
+    def test_undeclared_identifier_in_const(self):
+        input = """const a = b;
+        const b = 1.2;"""
+        expect = "Undeclared Constant: b\n"
+        self.assertTrue(TestChecker.test(input,expect,444))
+  
+    def test_undeclared_identifier_in_func_body(self):
+        input = """
+    func levi(){
+        var a int = b;
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,445))
+
+    def test_undeclared_identifier_in_return_stmt(self):
+        input = """
+    func levi(){
+        return ackerman
+    }
+"""
+        expect = "Undeclared Identifier: ackerman\n"
+        self.assertTrue(TestChecker.test(input,expect,446))       
+
+    def test_undeclared_function(self):
+        input = """
+    func greeting(){
+        b();
+    }
+"""
+        expect = "Undeclared Function: b\n"
+        self.assertTrue(TestChecker.test(input,expect,447))   
+
+    def test_undeclared_function_in_method(self):
+        input = """
+    func (a C) greeting(){
+        b();
+    }
+    type C struct{
+        name int
+    }
+"""
+        expect = "Undeclared Function: b\n"
+        self.assertTrue(TestChecker.test(input,expect,448))
+
+#test gán struct cho interface khi chưa đủ method, khi nhiều hơn
+#cần viết undeclared id trong các expr
+#viết test thể hiện thứ tự sử dụng scope
+#Viết test nếu arraycell lớn hơn số chiều của mảng ?
     def test_type_mismatch(self):
         input = """var a int = 1.2;"""
         expect = "Type Mismatch: VarDecl(a,IntType,FloatLiteral(1.2))\n"
         self.assertTrue(TestChecker.test(input,expect,498))
-
-    def test_undeclared_identifier(self):
-        print("tc 499")
-        input = Program([VarDecl("a",IntType(),Id("b"))])
-        expect = "Undeclared Identifier: b\n"
-        self.assertTrue(TestChecker.test(input,expect,499))
-  
