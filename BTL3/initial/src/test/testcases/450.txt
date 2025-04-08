@@ -1,0 +1,8 @@
+
+    type A interface {
+        a() B;
+    }
+
+    type B interface{
+        b() A;
+    }

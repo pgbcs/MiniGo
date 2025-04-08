@@ -572,6 +572,42 @@ class CheckSuite(unittest.TestCase):
         expect = "Undeclared Function: b\n"
         self.assertTrue(TestChecker.test(input,expect,448))
 
+    def test_struct_depend_on_together(self):
+        input = """
+    type A struct {
+        a B;
+    }
+
+    type B struct{
+        b A;
+    }
+"""
+        expect =""
+        self.assertTrue(TestChecker.test(input,expect,449))
+
+    def test_interface_depen_on_together(self):
+        input = """
+    type A interface {
+        a() B;
+    }
+
+    type B interface{
+        b() A;
+    }
+"""
+        expect =""
+        self.assertTrue(TestChecker.test(input,expect,450))
+
+    def test_struct_and_interface_depend_on_together(self):
+        input = """
+    type A struct {
+        a B;
+    }
+
+    type B interface{
+        b() A;
+    }
+"""
 
     def test_function_with_many_return(self):
         input = """
@@ -595,7 +631,7 @@ class CheckSuite(unittest.TestCase):
             return false;
         }
 """
-        expect = ""
+        expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],BoolType,Block([If(Id(a),Block([If(BooleanLiteral(true),Block([Return(IntLiteral(1))])),Return(BooleanLiteral(false))])),Return(BooleanLiteral(false))]))\n"
         self.assertTrue(TestChecker.test(input,expect,497))
 
 #test gán struct cho interface khi chưa đủ method, khi nhiều hơn
@@ -607,3 +643,32 @@ class CheckSuite(unittest.TestCase):
         input = """var a int = 1.2;"""
         expect = "Type Mismatch: VarDecl(a,IntType,FloatLiteral(1.2))\n"
         self.assertTrue(TestChecker.test(input,expect,498))
+
+    def test_undeclared_type_in_structLiteral(self):
+        input = """
+        func main(){
+            var a = Person{name: "Alice", age: 30}
+        }
+"""     
+        expect = "Undeclared Identifier: Person\n"
+        self.assertTrue(TestChecker.test(input,expect,499))
+
+    def test_assign_mismatch(self):
+        input="""
+        func main(){
+        var a int;
+            a:=true;
+        }
+"""
+        expect ="Type Mismatch: Assign(Id(a),BooleanLiteral(true))\n"
+        self.assertTrue(TestChecker.test(input,expect,500))
+
+    def test_create_undeclared_varible(self):
+        input="""
+        func main(){
+            a:=true;
+            var b bool = a;
+        }
+"""
+        expect =""
+        self.assertTrue(TestChecker.test(input,expect,501))

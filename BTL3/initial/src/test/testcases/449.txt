@@ -1,0 +1,8 @@
+
+    type A struct {
+        a B;
+    }
+
+    type B struct{
+        b A;
+    }
