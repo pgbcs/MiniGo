@@ -1,0 +1,9 @@
+
+    func main(){
+        var a int;
+        for index, value := range [5]int{1,2,3,4,5}{
+            var a int;
+            var b int;
+            const b = 7;
+        }
+    }

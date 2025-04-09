@@ -1,0 +1,7 @@
+
+    func main(){
+        const b = Person{name: "bao", name: "abc"}
+    }
+    type Person struct{
+        name string;
+    }

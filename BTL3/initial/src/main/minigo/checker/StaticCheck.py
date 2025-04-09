@@ -94,7 +94,11 @@ class StaticChecker(BaseVisitor,Utils):
             return False
         parCmp = zip(sym1.mtype.partype, sym2.mtype.partype)
         return reduce(lambda x,y: x and type(y[0]) is type(y[1]), parCmp, True)
+    def checkCompatibleArray(self):
+        pass
 
+    def checkCompatibleStructandInterface(self):
+        pass
     def check(self):
         return self.visit(self.ast,self.global_envi)
 
@@ -146,6 +150,10 @@ class StaticChecker(BaseVisitor,Utils):
     
     def visitVarDecl(self, ast: VarDecl, c: Props):
         #turn 1 và turn 2 chỉ quan tâm đến name:
+        # if c.turn == 4:
+        #     print(ast)
+        #     for s in c.scope:
+        #         print(s)
         res = self.lookup(ast.varName,c.scope + c.typ_env if c.turn != 4 else c.scope, lambda x: x.name)
         if not res is None:
             raise Redeclared(Variable(), ast.varName) 
@@ -170,6 +178,7 @@ class StaticChecker(BaseVisitor,Utils):
                     ast.varType = initType
                 if not type(ast.varType) is type(initType):
                     raise TypeMismatch(ast)
+
             return Symbol(ast.varName, ast.varType,None)
 
     def visitConstDecl(self, ast: ConstDecl, c: Props):
@@ -229,19 +238,20 @@ class StaticChecker(BaseVisitor,Utils):
 
             returnStmt = next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
             #Lấy hết các return ở trong func (bao gồm cả block) khác
-            returnList = ([self.visit(returnStmt, c)] if returnStmt else [])+ [self.visit(x, Props([], local_env, c.typ_env, c.turn, c.flag) ) for x in ast.body.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+            returnList = ([self.visit(returnStmt, Props([], local_env, c.typ_env, 3, c.flag))] if returnStmt else [])+ [self.visit(x, Props([], local_env, c.typ_env, 3, c.flag)) for x in ast.body.member if type(x) in [If,ForBasic,ForEach,ForStep]]
             returnList = self.flatten(returnList)
             # print(returnList)
             # for r in returnList:
             #     print(r)
-            
+            returnList = list(filter(lambda x: not x is None, returnList))
             if len(returnList) != 0:
                 checkSameType = all(type(x) is type(returnList[0]) for x in returnList)
                 if not checkSameType: raise TypeMismatch(ast)
+
                 retType = returnList[0]
             else:
                 retType = VoidType()
-            
+
             if  not type(retType) is type(ast.retType):
                 if type(retType) is StructType and ast.retType is InterfaceType:
                     thisStruct = self.lookup(retType.name, c.typ_env, lambda x: x.name)
@@ -262,7 +272,17 @@ class StaticChecker(BaseVisitor,Utils):
                 if type(ast.retType) is ArrayType:
                     if not type(ast.retType.eleType) is type(retType.eleType): 
                         if (not type(ast.retType) is FloatType) and (not type(retType) is IntType()):
-                            raise TypeMismatch(ast)
+                            if type(ast.retType.eleType) is InterfaceType and type(retType.eleType) is StructType:
+                                thisStruct = self.lookup(retType.eleType.name, c.typ_env, lambda x: x.name)
+                                thisInterface= self.lookup(ast.retType.eleType, c.typ_env, lambda x: x.name)
+                                #kiểm tra số method đã imple đủ chưa
+                                if len(thisStruct.mtypes) < len(thisInterface.mtypes):
+                                    raise TypeMismatch(ast)
+                                methCmp = zip(thisStruct.mtypes, thisInterface.mtypes)
+                                #kiểm tra đã imple đủ method chưa
+                                if not reduce(lambda x,y: x and self.checkEqualFunc(y[0], y[1]), methCmp, True):
+                                    raise TypeMismatch(ast)
+                            else: raise TypeMismatch(ast)
                     else:
                         if type(ast.retType.eleType) is StructType:
                             if ast.retType.eleType.name != retType.eleType.name: raise TypeMismatch(ast)
@@ -418,6 +438,11 @@ class StaticChecker(BaseVisitor,Utils):
     def visitStructLiteral(self, ast: StructLiteral, c: Props):
         #check redeclared in field
         fieldnames = list(map(lambda x: x[0], ast.elements))
+        ls = []
+        for i in fieldnames:
+            if i in ls:
+                raise Redeclared(Field(), i)
+            ls+=[i]
         # if len(fieldnames)>0:
         #     checkSameName = all(x != fieldnames[0] for x in fieldnames)
         #     if not checkSameName:
@@ -425,8 +450,10 @@ class StaticChecker(BaseVisitor,Utils):
         thisStruct: StructTyp = self.lookup(ast.name, c.typ_env, lambda x: x.name)
         if thisStruct is None:
             raise Undeclared(Identifier(), ast.name)
-        fieldThisStruct = map(lambda x: x.name, thisStruct.fields)
+        fieldThisStruct = list(map(lambda x: x.name, thisStruct.fields))
         
+        print(fieldnames)
+        print(fieldThisStruct)
         for f in fieldnames:
             if f not in fieldThisStruct:
                 raise TypeMismatch(ast)
@@ -434,12 +461,12 @@ class StaticChecker(BaseVisitor,Utils):
         if c.flag["isConst"]:
             return StructType(
                 ast.name,
-                thisStruct.fields
+                thisStruct.fields,None
             ), ast.elements
 
         return StructType(
             ast.name,
-            thisStruct.fields
+            thisStruct.fields, None
         )
 
     def visitArrayLiteral(self, ast: ArrayLiteral, c: Props):
@@ -522,7 +549,7 @@ class StaticChecker(BaseVisitor,Utils):
 
 
     def visitReturn(self, ast: Return, c: Props):
-        if c.turn ==4: return self.visit(ast.expr, Props(
+        if c.turn ==3: return self.visit(ast.expr, Props(
             c.scope,
             c.env,
             c.typ_env,
@@ -572,8 +599,18 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             if type(lhsType) is ArrayType:
                 if not type(lhsType.eleType) is type(rhsType.eleType): 
-                    if (not type(lhsType) is FloatType) and (not type(rhsType) is IntType()):
-                        raise TypeMismatch(ast)
+                    if (not type(lhsType.eleType) is FloatType) and (not type(rhsType.eleType) is IntType()):
+                        if type(lhsType) is InterfaceType and type(rhsType) is StructType:
+                            thisStruct = self.lookup(rhsType.eleType.name, c.typ_env, lambda x: x.name)
+                            thisInterface= self.lookup(lhsType.eleType, c.typ_env, lambda x: x.name)
+                            #kiểm tra số method đã imple đủ chưa
+                            if len(thisStruct.mtypes) < len(thisInterface.mtypes):
+                                raise TypeMismatch(ast)
+                            methCmp = zip(thisStruct.mtypes, thisInterface.mtypes)
+                            #kiểm tra đã imple đủ method chưa
+                            if not reduce(lambda x,y: x and self.checkEqualFunc(y[0], y[1]), methCmp, True):
+                                raise TypeMismatch(ast)
+                        else: raise TypeMismatch(ast)
                     #TODO: cần check mảng struct gán vào mảng interface
                 else:
                     if type(lhsType.eleType) is StructType:
@@ -722,9 +759,15 @@ class StaticChecker(BaseVisitor,Utils):
             return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.thenStmt.member if type(x) in [If,ForBasic,ForEach,ForStep]]
         elif c.turn == 4:
             cond = self.visit(ast.expr,c)
-            if(not isinstance(cond,BoolType)):
+            if(not type(cond) is BoolType):
                 raise TypeMismatch(ast)
-            [self.visit(x, c) for x in ast.thenStmt.member]
+            reduce(self.reducer,ast.thenStmt.member,Props(
+                [],
+                c.env,
+                c.typ_env,
+                c.turn,
+                c.flag
+            ))
             if ast.elseStmt: self.visit(ast.elseStmt, c)
 
     def visitForBasic(self, ast: ForBasic, c: Props):
@@ -732,23 +775,63 @@ class StaticChecker(BaseVisitor,Utils):
             returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
             return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
         elif c.turn ==4:
-            cond = self.visit(ast.expr,c)
+            cond = self.visit(ast.cond,c)
             if(not isinstance(cond,BoolType)):
                 raise TypeMismatch(ast)
-            [self.visit(x, c) for x in ast.loop.member]
+            reduce(self.reducer, ast.loop.member, Props(
+                [],
+                c.env,
+                c.typ_env,
+                c.turn,
+                c.flag
+            ))
 
     def visitForEach(self, ast: ForEach, c: Props):
-        pass
+        if c.turn == 3:
+            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        elif c.turn == 4:
+            arrType = self.visit(ast.arr, c)
+            if not type(arrType) is ArrayType:
+                raise TypeMismatch(ast)
+            if len(arrType.dimens)==1:
+                valueType = arrType.eleType
+            else:
+                valueType = ArrayType(
+                    arrType.dimens[1:],
+                    arrType.eleType
+                )
+
+            reduce(self.reducer,ast.loop.member,Props(
+                ([Symbol(ast.idx.name, IntType())] if ast.idx.name!="_" else [])
+                + ([Symbol(ast.value.name, valueType)] if ast.value.name != "_" else []),
+                c.env 
+                + ([Symbol(ast.idx.name, IntType())] if ast.idx.name!="_" else [])
+                + ([Symbol(ast.value.name, valueType)] if ast.value.name != "_" else []),
+                c.typ_env,
+                c.turn,
+                c.flag
+            ))
 
     def visitForStep(self, ast: ForStep, c: Props):
-        pass        
-
-
+        if c.turn ==3:
+            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        elif c.turn == 4:
+            #Thêm symbol từ init vào env
+            initVar = self.visit(ast.init, c)
+            newC = Props(([] if initVar is None else [initVar]), c.env+([] if initVar is None else [initVar]), c.typ_env, c.turn, c.flag)
+            cond = self.visit(ast.cond, newC)
+            if(not type(cond) is BoolType):
+                raise TypeMismatch(ast)
+                # pass
+            self.visit(ast.upda, newC)
+            reduce(self.reducer,ast.loop.member, newC)
 
     def visitId(self,ast: Id,c: Props):
         res = self.lookup(ast.name, c.env, lambda x: x.name)
         if res is None:
-            if c.flag["isConst"]: raise Undeclared(Constant(), ast.name)
+            # if c.flag["isConst"]: raise Undeclared(Constant(), ast.name)
             raise Undeclared(Identifier(), ast.name)
         if c.flag["isConst"]: return res.mtype,res.value
         return res.mtype

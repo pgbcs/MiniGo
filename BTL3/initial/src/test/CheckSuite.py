@@ -530,7 +530,7 @@ class CheckSuite(unittest.TestCase):
     def test_undeclared_identifier_in_const(self):
         input = """const a = b;
         const b = 1.2;"""
-        expect = "Undeclared Constant: b\n"
+        expect = "Undeclared Identifier: b\n"
         self.assertTrue(TestChecker.test(input,expect,444))
   
     def test_undeclared_identifier_in_func_body(self):
@@ -597,6 +597,121 @@ class CheckSuite(unittest.TestCase):
 """
         expect =""
         self.assertTrue(TestChecker.test(input,expect,450))
+
+    def test_redeclared_variable_in_if_scope(self):
+        input = """
+    func main(){
+        var a int;
+        if (a<1){
+            var a int;
+            var b int;
+            var b string;
+        }
+    }
+"""
+        expect = "Redeclared Variable: b\n"
+        self.assertTrue(TestChecker.test(input,expect,451))
+
+    def test_redeclared_variable_in_forbasic_scope(self):
+        input = """
+    func main(){
+        var a int;
+        for (a<1){
+            var a int;
+            var b int;
+            var b string;
+        }
+    }
+"""
+        expect = "Redeclared Variable: b\n"
+        self.assertTrue(TestChecker.test(input,expect,452))
+
+    def test_redeclared_variable_in_forstep_scope(self):
+        input = """
+    func main(){
+        var a int;
+        for i := 0; i < 10; i += 1{
+            var a int;
+            var b int;
+            var b string;
+        }
+    }
+"""
+        expect = "Redeclared Variable: b\n"
+        self.assertTrue(TestChecker.test(input,expect,453))
+
+    def test_redeclared_const_in_forEach_scope(self):
+        input = """
+    func main(){
+        var a int;
+        for index, value := range [5]int{1,2,3,4,5}{
+            var a int;
+            var b int;
+            const b = 7;
+        }
+    }
+"""
+        expect = "Redeclared Constant: b\n"
+        self.assertTrue(TestChecker.test(input,expect,454))
+
+    def test_redeclared_init_var_forStep_scope(self):
+        input = """
+    func main(){
+        var a int;
+        for i := 0; i < 10; i += 1{
+            var a int;
+            var b int;
+            var i string;
+        }
+    }
+"""
+        expect = "Redeclared Variable: i\n"
+        self.assertTrue(TestChecker.test(input,expect,455))
+
+    def test_redeclared_index_forEach_scope(self):
+        input = """
+    func main(){
+        for index, value := range [5]int{1,2,3,4,5}{
+            var index int;
+            var b int;
+            const b = 7;
+        }
+    }
+""" 
+        expect = "Redeclared Variable: index\n"
+        self.assertTrue(TestChecker.test(input,expect,456))
+
+    def test_redeclared_value_forEach_scope(self):
+        input = """
+    func main(){
+        for index, value := range [5]int{1,2,3,4,5}{
+            var value int;
+            var b int;
+            const b = 7;
+        }
+    }
+""" 
+        expect = "Redeclared Variable: value\n"
+        self.assertTrue(TestChecker.test(input,expect,457))
+
+    def test_redeclared_field_in_structLiteral(self):
+        input= """
+    func main(){
+        const b = Person{name: "bao", name: "abc"}
+    }
+    type Person struct{
+        name string;
+    }
+"""
+        expect="Redeclared Field: name\n"
+        self.assertTrue(TestChecker.test(input,expect,458))
+
+    def test_undeclared_variable_init_var1(self):
+        input = """
+    var a int = (a+1)/2;
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,459))
 
     def test_struct_and_interface_depend_on_together(self):
         input = """

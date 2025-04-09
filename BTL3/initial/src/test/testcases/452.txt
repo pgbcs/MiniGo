@@ -1,0 +1,9 @@
+
+    func main(){
+        var a int;
+        for (a<1){
+            var a int;
+            var b int;
+            var b string;
+        }
+    }
