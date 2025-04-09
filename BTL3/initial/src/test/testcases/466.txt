@@ -1,0 +1,6 @@
+
+    func J97(a int){
+        if(true){
+            var a int = b;
+        }
+    }

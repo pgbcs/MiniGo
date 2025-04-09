@@ -1,0 +1,7 @@
+
+    func main(){
+        var a int;
+        for i := 0; i < 10; i += 1{
+            oh_no_riel();
+        }
+    }

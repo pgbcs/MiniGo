@@ -1,0 +1,4 @@
+
+    func main(){
+        var a = -b >= -5;
+    }

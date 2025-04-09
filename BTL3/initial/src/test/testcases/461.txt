@@ -1,0 +1,2 @@
+
+    var baodeptrai = (b%2);

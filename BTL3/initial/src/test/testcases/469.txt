@@ -1,0 +1,6 @@
+
+    func chu7gao(a int){
+        for(true){
+            a+=b+1
+        }
+    }

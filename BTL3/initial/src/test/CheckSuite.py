@@ -710,8 +710,152 @@ class CheckSuite(unittest.TestCase):
         input = """
     var a int = (a+1)/2;
 """
-        expect = ""
+        expect = "Undeclared Identifier: a\n"
         self.assertTrue(TestChecker.test(input,expect,459))
+
+    def test_undeclared_varible_init_var2(self):
+        input = """
+    var a int = (a*1)-2;
+"""
+        expect = "Undeclared Identifier: a\n"
+        self.assertTrue(TestChecker.test(input,expect,460))
+
+    def test_undeclared_variable_init_var3(self):
+        input = """
+    var baodeptrai = (b%2);
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,461))
+
+    def test_undeclare_varible_init_var4(self):
+        input = """
+    var baodeptrai = (-2>b)||(-1<2);
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,462))
+
+    def test_undeclared_variable_init_var5(self):
+        input = """
+    var baodeptrai = a.b;
+"""
+        expect = "Undeclared Identifier: a\n"
+        self.assertTrue(TestChecker.test(input,expect,463))
+
+    def test_undeclared_init_const(self):
+        input ="""
+    const a = b<=2;
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,464))
+    def test_undeclared_variable_in_funcbody(self):
+        input ="""
+    func main(){
+        var a = -b >= -5;
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,465))
+
+    def test_undeclare_identifier_in_if(self):
+        input = """
+    func J97(a int){
+        if(true){
+            var a int = b;
+        }
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,466))
+
+    def test_undeclared_identifier_in_for(self):
+        input = """
+    func J97(a int){
+        for(true){
+            var a int = b;
+        }
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,467))
+
+    def test_undeclared_identifier_in_assign(self):
+        input = """
+    func chu7gao(a int){
+        for(true){
+            a:=b+1
+        }
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,468))
+
+    def test_undeclared_identifier_in_assign1(self):
+        input = """
+    func chu7gao(a int){
+        for(true){
+            a+=b+1
+        }
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,469))
+
+    def test_undeclared_funcall_in_if(self):
+        input = """
+    func main(){
+        if(false){
+            if(true){
+                b();
+            }
+        }
+    }
+"""
+        expect = "Undeclared Function: b\n"
+        self.assertTrue(TestChecker.test(input,expect,470))
+
+    def test_undeclared_funcall_in_for(self):
+        input = """
+    func main(){
+        var a int;
+        for i := 0; i < 10; i += 1{
+            oh_no_riel();
+        }
+    }
+"""
+        expect = "Undeclared Function: oh_no_riel\n"
+        self.assertTrue(TestChecker.test(input,expect,471))
+        
+    def test_undeclared_arg_in_funcall(self):
+        input = """
+    func main(){
+        var a int;
+        for index, value := range [5]int{1,2,3,4,5}{
+            b(b);
+        }
+    }
+    func b(a int){
+        return;
+    }
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,472))
+
+
+    def test_const_init_by_other_const_init(self):
+        input = """
+    const a = 1;
+    const b = a;
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,493))
+
+    def test_const_init_by_other_variable(self):
+        input = """
+    var a = 1;
+    const b = a;
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,494))
 
     def test_struct_and_interface_depend_on_together(self):
         input = """
@@ -723,7 +867,11 @@ class CheckSuite(unittest.TestCase):
         b() A;
     }
 """
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,495))
 
+    
+        
     def test_function_with_many_return(self):
         input = """
         func WHO(a boolean) int{
