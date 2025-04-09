@@ -1,5 +1,8 @@
 
-        func WHO(a boolean) int{
-            if(a){ return true;}
-            return 1;
-        }
+    func main(){
+        var a Vjp;
+        var b Vjp =a;
+    }
+    type Vjp interface{
+        a();
+    }

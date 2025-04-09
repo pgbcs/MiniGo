@@ -1,0 +1,7 @@
+
+    func main(){
+        var a float;
+        var b int;
+        a := b
+    }
+

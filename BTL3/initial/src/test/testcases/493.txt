@@ -1,3 +1,7 @@
 
-    const a = 1;
-    const b = a;
+    func main(){
+        a:= Vjp{};
+    }
+    type Vjp struct{
+        a int
+    }

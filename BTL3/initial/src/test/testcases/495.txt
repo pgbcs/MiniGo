@@ -1,8 +1,11 @@
 
-    type A struct {
-        a B;
+    func main(){
+        a:= Vjp{};
+        var b Pro = a;
     }
-
-    type B interface{
-        b() A;
+    type Vjp struct{
+        a int
+    }
+    type Pro struct{
+        a int
     }

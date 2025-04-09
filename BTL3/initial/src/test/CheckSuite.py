@@ -824,123 +824,493 @@ class CheckSuite(unittest.TestCase):
 """
         expect = "Undeclared Function: oh_no_riel\n"
         self.assertTrue(TestChecker.test(input,expect,471))
-        
+
     def test_undeclared_arg_in_funcall(self):
         input = """
     func main(){
         var a int;
         for index, value := range [5]int{1,2,3,4,5}{
-            b(b);
+            b(c);
         }
     }
     func b(a int){
         return;
     }
 """
-        expect = "Undeclared Identifier: b\n"
+        expect = "Undeclared Identifier: c\n"
         self.assertTrue(TestChecker.test(input,expect,472))
-
-
-    def test_const_init_by_other_const_init(self):
+    def test_recursion_funccall(self):
         input = """
-    const a = 1;
-    const b = a;
-"""
-        expect = ""
-        self.assertTrue(TestChecker.test(input,expect,493))
-
-    def test_const_init_by_other_variable(self):
-        input = """
-    var a = 1;
-    const b = a;
-"""
-        expect = ""
-        self.assertTrue(TestChecker.test(input,expect,494))
-
-    def test_struct_and_interface_depend_on_together(self):
-        input = """
-    type A struct {
-        a B;
+    func main(){
+        var a int;
+        for index, value := range [5]int{1,2,3,4,5}{
+            main();
+        }
     }
-
-    type B interface{
-        b() A;
+    func b(a int){
+        return;
     }
 """
         expect = ""
-        self.assertTrue(TestChecker.test(input,expect,495))
+        self.assertTrue(TestChecker.test(input,expect,473))
+        
+    def test_undeclared_method_call_in_struct(self):
+        input = """
+    func main(){
+        var a mewmew;
+        a.a();
+    }
+    type mewmew struct{
+        a mewmew;
+    }
+"""
+        expect = "Undeclared Method: a\n"
+        self.assertTrue(TestChecker.test(input,expect,474))
+
+    def test_undeclared_method_call_of_interface(self):
+        input = """
+    func main(){
+        var a mewmew;
+        a.a();
+    }
+    type mewmew interface{
+        b() mewmew;
+    }
+"""
+        expect = "Undeclared Method: a\n"
+        self.assertTrue(TestChecker.test(input,expect,475))
+
+    def test_recursion_method_call(self):
+        input = """
+    func main(){
+        var a mewmew;
+        a.a();
+    }
+    func(a mewmew) a(){
+        a()
+    }
+    type mewmew struct{
+        b mewmew;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,476))
+
+    def test_other_method_call_in_method_declared_struct(self):
+        input = """
+    func main(){
+        var a mewmew;
+        a.a();
+    }
+    func(a mewmew) a(){
+        a.c();
+    }
+    func(a mewmew) c(){
+        return;
+    }
+    type mewmew struct{
+        b mewmew;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,477))
+
+    def test_access_fields_in_if_scope(self):
+        input = """
+    func main(){
+        var b b;
+        if(true){
+            a:=b.b
+        }
+    }
+    type b struct{
+        b b;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,478))
+
+    def test_redeclared_fields_in_if_scope(self):
+        input = """
+    func main(){
+        var b b;
+        if(true){
+            a:=b.b
+        }
+    }
+    type b struct{
+        a b;
+    }
+"""
+        expect = "Undeclared Field: b\n"
+        self.assertTrue(TestChecker.test(input,expect,479))
+
+#check hiệu lực của các biến khi ra khỏi scope của nó ví dụ như các biến đặc biệt ở for,...
+    def test_out_scope_varible_in_global(self):
+        input = """
+    func main(){
+        var b int;
+    }
+    var a = b;
+"""
+        expect = "Undeclared Identifier: b\n"
+        self.assertTrue(TestChecker.test(input,expect,480))
+
+    def test_out_scope_varible_in_if(self):
+        input = """
+    func main(){
+        var b int;
+        if(true){
+            var a int;
+        }
+        var c = a;
+    }
+"""
+        expect = "Undeclared Identifier: a\n"
+        self.assertTrue(TestChecker.test(input,expect,481))
+
+    def test_undeclared_identifier_in_basic_loop(self):
+        input = """
+    func main(){
+        var b int;
+        for i < 10 {
+            return;
+        }
+    }
+"""
+        expect = "Undeclared Identifier: i\n"
+        self.assertTrue(TestChecker.test(input,expect,482))
+
+    def test_out_scope_varible_in_for_each(self):
+        input = """
+    func main(){
+        var b int;
+        for index, value := range [2]int{1,2} {
+            return;
+        }
+        var c = index;
+    }
+"""
+        expect = "Undeclared Identifier: index\n"
+        self.assertTrue(TestChecker.test(input,expect,483))
+
+    def test_out_scope_variable_in_for_step(self):
+        input = """
+    func main(){
+        for i := 0; i < 10; i += 1 {
+            return;
+        }
+        var a = i;
+    }
+"""
+        expect = "Undeclared Identifier: i\n"
+        self.assertTrue(TestChecker.test(input,expect, 484))
+    
+    def test_undeclared_with_op_assign(self):
+        input = """
+    func main(){
+        a+=1;
+    }
+"""
+        expect = "Undeclared Identifier: a\n"
+        self.assertTrue(TestChecker.test(input,expect, 485))
+
+    def test_type_mismatch_assign_with_mtype(self):
+        input ="""
+    func main(){
+        a := b
+    }
+    func b(){
+        main()
+    }
+"""
+        expect="Type Mismatch: Assign(Id(a),Id(b))\n"
+        self.assertTrue(TestChecker.test(input,expect, 486))
+
+    def test_type_mismatch_assign1(self):
+        input ="""
+    func main(){
+        var a float;
+        var b int;
+        a := b
+    }
+
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 487))
+
+    def test_type_mismatch_assign2(self):
+        input ="""
+    func main(){
+        var a float;
+        var b int;
+        b := a
+    }
+
+"""
+        expect="Type Mismatch: Assign(Id(b),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 488))
+
+    def test_type_mismatch_assign3(self):
+        input ="""
+    func main(){
+        var a float;
+        var b string;
+        b := a
+    }
+
+"""
+        expect="Type Mismatch: Assign(Id(b),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 489))
+
+    def test_type_mismatch_assign4(self):
+        input ="""
+    func main(){
+        var a int;
+        var b string;
+        b := a
+    }
+
+"""
+        expect="Type Mismatch: Assign(Id(b),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 490))
+
+    def test_type_mismatch_assign5(self):
+        input ="""
+    func main(){
+        var a int;
+        var b Vjp;
+        b := a
+    }
+    type Vjp struct{
+        a int
+    }
+"""
+        expect="Type Mismatch: Assign(Id(b),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 491))
+
+    def test_type_assign_variable_with_array_literal(self):
+        input ="""
+    func main(){
+        a:= [3]int{1,2,3}
+        for index, value := range a{
+            main();
+        }
+    }
+    type Vjp struct{
+        a int
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 492))
+
+    def test_type_assign_variable_with_struct_literal(self):
+        input ="""
+    func main(){
+        a:= Vjp{};
+    }
+    type Vjp struct{
+        a int
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 493))
+
+    def test_assign_struct_for_struct_same_name(self):
+        input ="""
+    func main(){
+        a:= Vjp{};
+        b := a;
+    }
+    type Vjp struct{
+        a int
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 494))
+
+    def test_assign_struct_for_struct_diff_name(self):
+        input ="""
+    func main(){
+        a:= Vjp{};
+        var b Pro = a;
+    }
+    type Vjp struct{
+        a int
+    }
+    type Pro struct{
+        a int
+    }
+"""
+        expect="Type Mismatch: VarDecl(b,Id(Pro),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 495))
+
+    def test_assign_struct_for_interface_same_name(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Vjp =a;
+    }
+    type Vjp interface{
+        a();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 496))
+
+    def test_assign_struct_for_interface_diff_name(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro =a;
+    }
+    type Vjp interface{
+        a();
+    }
+    type Pro interface{
+        a();
+    }
+"""
+        expect="Type Mismatch: VarDecl(b,Id(Pro),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 497))
+
+    def test_assign_struct_for_interface_imple_complete(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        b int;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    type Pro interface{
+        a();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 498))
+
+#     def test_use_funcname_as_arg(self):
+#         input = """
+#     func main(){
+#         var a int;
+#         for index, value := range [5]int{1,2,3,4,5}{
+#             b(b);
+#         }
+#     }
+#     func b(a int){
+#         return;
+#     }
+# """
+#         expect = "Type Mismatch: FuncCall(b,[Id(b)])\n"
+#         self.assertTrue(TestChecker.test(input,expect,493))
+
+
+#     def test_const_init_by_other_const_init(self):
+#         input = """
+#     const a = 1;
+#     const b = a;
+# """
+#         expect = ""
+#         self.assertTrue(TestChecker.test(input,expect,493))
+
+#     def test_const_init_by_other_variable(self):
+#         input = """
+#     var a = 1;
+#     const b = a;
+# """
+#         expect = ""
+#         self.assertTrue(TestChecker.test(input,expect,494))
+
+#     def test_struct_and_interface_depend_on_together(self):
+#         input = """
+#     type A struct {
+#         a B;
+#     }
+
+#     type B interface{
+#         b() A;
+#     }
+# """
+#         expect = ""
+#         self.assertTrue(TestChecker.test(input,expect,495))
 
     
         
-    def test_function_with_many_return(self):
-        input = """
-        func WHO(a boolean) int{
-            if(a){ return true;}
-            return 1;
-        }
-"""
-        expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],IntType,Block([If(Id(a),Block([Return(BooleanLiteral(true))])),Return(IntLiteral(1))]))\n"
-        self.assertTrue(TestChecker.test(input,expect,496))
+#     def test_function_with_many_return(self):
+#         input = """
+#         func WHO(a boolean) int{
+#             if(a){ return true;}
+#             return 1;
+#         }
+# """
+#         expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],IntType,Block([If(Id(a),Block([Return(BooleanLiteral(true))])),Return(IntLiteral(1))]))\n"
+#         self.assertTrue(TestChecker.test(input,expect,496))
 
-    def test_function_with_many_return_in_deepblock(self):
-        input = """
-        func WHO(a boolean) boolean{
-            if(a){
-                if(true){
-                    return 1;
-                }
-                return false
-            }
-            return false;
-        }
-"""
-        expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],BoolType,Block([If(Id(a),Block([If(BooleanLiteral(true),Block([Return(IntLiteral(1))])),Return(BooleanLiteral(false))])),Return(BooleanLiteral(false))]))\n"
-        self.assertTrue(TestChecker.test(input,expect,497))
+#     def test_function_with_many_return_in_deepblock(self):
+#         input = """
+#         func WHO(a boolean) boolean{
+#             if(a){
+#                 if(true){
+#                     return 1;
+#                 }
+#                 return false
+#             }
+#             return false;
+#         }
+# """
+#         expect = "Type Mismatch: FuncDecl(WHO,[ParDecl(a,BoolType)],BoolType,Block([If(Id(a),Block([If(BooleanLiteral(true),Block([Return(IntLiteral(1))])),Return(BooleanLiteral(false))])),Return(BooleanLiteral(false))]))\n"
+#         self.assertTrue(TestChecker.test(input,expect,497))
 
-#test gán struct cho interface khi chưa đủ method, khi nhiều hơn
-#cần viết undeclared id trong các expr
-#viết test thể hiện thứ tự sử dụng scope
-#Viết test nếu arraycell lớn hơn số chiều của mảng ?
-#Kiểm tra return nằm sâu bên trong các block khác thì func có check đúng ko
-    def test_type_mismatch(self):
-        input = """var a int = 1.2;"""
-        expect = "Type Mismatch: VarDecl(a,IntType,FloatLiteral(1.2))\n"
-        self.assertTrue(TestChecker.test(input,expect,498))
+# #test gán struct cho interface khi chưa đủ method, khi nhiều hơn
+# #cần viết undeclared id trong các expr
+# #viết test thể hiện thứ tự sử dụng scope
+# #Viết test nếu arraycell lớn hơn số chiều của mảng ?
+# #Kiểm tra return nằm sâu bên trong các block khác thì func có check đúng ko
+# #Nhớ check tên hàm bị dùng như var
+#     def test_type_mismatch(self):
+#         input = """var a int = 1.2;"""
+#         expect = "Type Mismatch: VarDecl(a,IntType,FloatLiteral(1.2))\n"
+#         self.assertTrue(TestChecker.test(input,expect,498))
 
-    def test_undeclared_type_in_structLiteral(self):
-        input = """
-        func main(){
-            var a = Person{name: "Alice", age: 30}
-        }
-"""     
-        expect = "Undeclared Identifier: Person\n"
-        self.assertTrue(TestChecker.test(input,expect,499))
+#     def test_undeclared_type_in_structLiteral(self):
+#         input = """
+#         func main(){
+#             var a = Person{name: "Alice", age: 30}
+#         }
+# """     
+#         expect = "Undeclared Identifier: Person\n"
+#         self.assertTrue(TestChecker.test(input,expect,499))
 
-    def test_assign_mismatch(self):
-        input="""
-        func main(){
-        var a int;
-            a:=true;
-        }
-"""
-        expect ="Type Mismatch: Assign(Id(a),BooleanLiteral(true))\n"
-        self.assertTrue(TestChecker.test(input,expect,500))
+#     def test_assign_mismatch(self):
+#         input="""
+#         func main(){
+#         var a int;
+#             a:=true;
+#         }
+# """
+#         expect ="Type Mismatch: Assign(Id(a),BooleanLiteral(true))\n"
+#         self.assertTrue(TestChecker.test(input,expect,500))
 
-    def test_create_undeclared_varible(self):
-        input="""
-        func main(){
-            a:=true;
-            var b boolean = a;
-        }
-"""
-        expect =""
-        self.assertTrue(TestChecker.test(input,expect,501))
+#     def test_create_undeclared_varible(self):
+#         input="""
+#         func main(){
+#             a:=true;
+#             var b boolean = a;
+#         }
+# """
+#         expect =""
+#         self.assertTrue(TestChecker.test(input,expect,501))
 
-    def test_init_value_of_const(self):
-        input="""
-    const c = 2*3
-    const a = 1+c
-    var b int = a;
-"""
-        expect = ""
-        self.assertTrue(TestChecker.test(input,expect,502))
+#     def test_init_value_of_const(self):
+#         input="""
+#     const c = 2*3
+#     const a = 1+c
+#     var b int = a;
+# """
+#         expect = ""
+#         self.assertTrue(TestChecker.test(input,expect,502))

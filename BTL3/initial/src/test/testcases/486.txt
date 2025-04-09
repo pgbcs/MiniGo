@@ -1,0 +1,7 @@
+
+    func main(){
+        a := b
+    }
+    func b(){
+        main()
+    }

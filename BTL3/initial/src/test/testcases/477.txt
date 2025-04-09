@@ -1,0 +1,14 @@
+
+    func main(){
+        var a mewmew;
+        a.a();
+    }
+    func(a mewmew) a(){
+        a.c();
+    }
+    func(a mewmew) c(){
+        return;
+    }
+    type mewmew struct{
+        b mewmew;
+    }

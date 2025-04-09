@@ -1,0 +1,10 @@
+
+    func main(){
+        var b b;
+        if(true){
+            a:=b.b
+        }
+    }
+    type b struct{
+        b b;
+    }

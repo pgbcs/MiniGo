@@ -1,10 +1,11 @@
 
-        func WHO(a boolean) boolean{
-            if(a){
-                if(true){
-                    return 1;
-                }
-                return false
-            }
-            return false;
-        }
+    func main(){
+        var a Vjp;
+        var b Pro =a;
+    }
+    type Vjp interface{
+        a();
+    }
+    type Pro interface{
+        a();
+    }

@@ -1,0 +1,8 @@
+
+    func main(){
+        var b int;
+        for index, value := range [2]int{1,2} {
+            return;
+        }
+        var c = index;
+    }

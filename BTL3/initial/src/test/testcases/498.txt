@@ -1,1 +1,15 @@
-var a int = 1.2;
+
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        b int;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    type Pro interface{
+        a();
+    }

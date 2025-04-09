@@ -1,0 +1,7 @@
+
+    func main(){
+        var a int;
+        var b string;
+        b := a
+    }
+

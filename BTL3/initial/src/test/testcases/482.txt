@@ -1,0 +1,7 @@
+
+    func main(){
+        var b int;
+        for i < 10 {
+            return;
+        }
+    }
