@@ -1,5 +1,5 @@
 
         func main(){
             a:=true;
-            var b bool = a;
+            var b boolean = a;
         }

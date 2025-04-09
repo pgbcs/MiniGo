@@ -1,0 +1,4 @@
+
+    const c = 2*3
+    const a = 1+c
+    var b int = a;

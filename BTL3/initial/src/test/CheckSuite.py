@@ -667,8 +667,17 @@ class CheckSuite(unittest.TestCase):
         input="""
         func main(){
             a:=true;
-            var b bool = a;
+            var b boolean = a;
         }
 """
         expect =""
         self.assertTrue(TestChecker.test(input,expect,501))
+
+    def test_init_value_of_const(self):
+        input="""
+    const c = 2*3
+    const a = 1+c
+    var b int = a;
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect,502))

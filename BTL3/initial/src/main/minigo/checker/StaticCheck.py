@@ -259,6 +259,26 @@ class StaticChecker(BaseVisitor,Utils):
                     raise TypeMismatch(ast)
 
             else:
+                if type(ast.retType) is ArrayType:
+                    if not type(ast.retType.eleType) is type(retType.eleType): 
+                        if (not type(ast.retType) is FloatType) and (not type(retType) is IntType()):
+                            raise TypeMismatch(ast)
+                    else:
+                        if type(ast.retType.eleType) is StructType:
+                            if ast.retType.eleType.name != retType.eleType.name: raise TypeMismatch(ast)
+                            #TODO:có mảng interface??? có vẻ là không do ko có interface instance
+                    lhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), ast.retType.dimens))    
+                    rhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), retType.dimens))
+                    if len(lhsDim) != len(rhsDim): raise TypeMismatch(ast)
+                    if all(map(lambda x: type(x[0]) is IntType, lhsDim)):
+                        raise TypeMismatch(ast.retType)
+                    if all(map(lambda x: type(x[0]) is IntType, rhsDim)):
+                        raise TypeMismatch(retType)
+                    lhsDim = list(map(lambda x: x[1], lhsDim))
+                    rhsDim = list(map(lambda x: x[1], rhsDim))
+                    dimCmp = zip(lhsDim, rhsDim)
+                    if not (reduce(lambda x,y: x and (y[0]==y[1] and not y[0] is None and not y[1] is None), dimCmp, True)):
+                        raise TypeMismatch(ast)
                 if type(retType) is StructType and type(ast.retType) is StructType:
                     if retType.name != ast.retType.name:
                         raise TypeMismatch(ast)
@@ -554,14 +574,22 @@ class StaticChecker(BaseVisitor,Utils):
                 if not type(lhsType.eleType) is type(rhsType.eleType): 
                     if (not type(lhsType) is FloatType) and (not type(rhsType) is IntType()):
                         raise TypeMismatch(ast)
+                    #TODO: cần check mảng struct gán vào mảng interface
                 else:
                     if type(lhsType.eleType) is StructType:
                         if lhsType.eleType.name != rhsType.eleType.name: raise TypeMismatch(ast)
                         #TODO:có mảng interface??? có vẻ là không do ko có interface instance
                 lhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), lhsType.dimens))    
                 rhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), rhsType.dimens))
+                if len(lhsDim) != len(rhsDim): raise TypeMismatch(ast)
+                if all(map(lambda x: type(x[0]) is IntType, lhsDim)):
+                    raise TypeMismatch(ast.lhs)
+                if all(map(lambda x: type(x[0]) is IntType, rhsDim)):
+                    raise TypeMismatch(ast.rhs)
+                lhsDim = list(map(lambda x: x[1], lhsDim))
+                rhsDim = list(map(lambda x: x[1], rhsDim))
                 dimCmp = zip(lhsDim, rhsDim)
-                if not (reduce(lambda x,y: x and y[0]==y[1], dimCmp, True)):
+                if not (reduce(lambda x,y: x and (y[0]==y[1] and not y[0] is None and not y[1] is None), dimCmp, True)):
                     raise TypeMismatch(ast)
             elif type(lhsType) is StructType:
                 if not lhsType.name != rhsType.name:
@@ -593,6 +621,101 @@ class StaticChecker(BaseVisitor,Utils):
             arrType.eleType
         )
 
+    def visitBinaryOp(self, ast: BinaryOp, c: Props):
+        if c.flag["isConst"]:
+            leftType, leftValue = self.visit(ast.left, c)
+            rightType, rightValue = self.visit(ast.right, c)
+        else:
+            leftType = self.visit(ast.left, c)
+            rightType= self.visit(ast.right, c)
+        if ast.op == "+":
+            retType = None
+            if type(leftType) is type(rightType) and type(leftType) in [StringType, IntType, FloatType]:
+                retType = leftType
+            elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
+                retType = FloatType()
+            else:
+                raise TypeMismatch(ast)
+            if c.flag["isConst"]:
+                try:
+                    return (retType, leftValue + rightValue)   
+                except TypeError:
+                    return retType, None
+            else: return retType
+
+        elif ast.op in ["-", "*", "/"]:
+            if type(leftType) is type(rightType) and type(leftType) in [FloatType, IntType]:
+                retType = leftType
+            elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
+                retType = FloatType()
+            else: raise TypeMismatch(ast)
+            if c.flag["isConst"]:
+                try:
+                    if ast.op == "-": return retType, leftValue - rightValue
+                    elif ast.op =="*": return retType, leftValue * rightValue
+                    elif ast.op == "/": return retType, leftValue / rightValue
+                except TypeError:
+                    return retType, None
+            else: return retType
+        elif ast.op == "%":
+            if type(leftType) is IntType and type(rightType) is IntType:
+                retType= IntType()
+            else:
+                raise TypeMismatch(ast)
+            if c.flag["isConst"]:
+                try:
+                    return retType, leftValue % rightValue
+                except TypeError:
+                    return retType, None
+            else: return retType
+        elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
+            if type(leftType) is type(rightType) and type(leftType) in [StringType, IntType, FloatType]:
+                retType = BoolType()
+            else:
+                raise TypeMismatch(ast)
+            if c.flag["isConst"]:
+                try:
+                    if ast.op == "==": return retType, leftValue == rightValue
+                    elif ast.op == "!=": return retType, leftValue != rightValue
+                    elif ast.op == "<": return retType, leftValue < rightValue
+                    elif ast.op == "<=": return retType, leftValue <= rightValue
+                    elif ast.op == ">": return retType, leftValue > rightValue
+                    elif ast.op == ">=": return retType, leftValue >= rightValue
+                except TypeError:
+                    return retType, None
+            else: return retType
+        elif ast.op in ["&&", "||"]:
+            if type(leftType) is type(rightType) and type(leftType) is BoolType:
+                retType =  BoolType()
+            else:
+                raise TypeMismatch(ast)
+            if c.flag["isConst"]:
+                try:
+                    if ast.op == "&&": return retType, leftValue and rightValue
+                    elif ast.op == "||": return retType, leftValue or rightValue
+                except TypeError:
+                    return retType, None
+            else: return retType
+
+
+    def visitUnaryOp(self, ast: UnaryOp, c: Props):
+        if c.flag["isConst"]:
+            bodyType, bodyValue = self.visit(ast.body, c)
+        else: bodyType = self.visit(ast.body, c)
+        if not bodyType in [BoolType, FloatType, IntType]:
+            raise TypeMismatch(ast)
+        if ast.op == "!" and not type(bodyType) is BoolType:
+            raise TypeMismatch(ast)
+        elif ast.op == "-" and not type(bodyType) in [FloatType, IntType]:
+            raise TypeMismatch(ast)
+        if c.flag["isConst"]:
+            try:
+                if ast.op =="!": return bodyType, not bodyValue
+                elif ast.op =="-": return bodyType, -bodyValue
+            except:
+                return bodyType, None
+        else: raise bodyType
+
     def visitIf(self, ast: If, c: Props):
         if c.turn == 3:
             returnStmt = next(filter(lambda x: isinstance(x, Return), ast.thenStmt.member), None)
@@ -601,23 +724,25 @@ class StaticChecker(BaseVisitor,Utils):
             cond = self.visit(ast.expr,c)
             if(not isinstance(cond,BoolType)):
                 raise TypeMismatch(ast)
-            [self.visit(x,c) for x in ast.thenStmt.member]
+            [self.visit(x, c) for x in ast.thenStmt.member]
             if ast.elseStmt: self.visit(ast.elseStmt, c)
 
     def visitForBasic(self, ast: ForBasic, c: Props):
-        pass
+        if c.turn ==3:
+            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        elif c.turn ==4:
+            cond = self.visit(ast.expr,c)
+            if(not isinstance(cond,BoolType)):
+                raise TypeMismatch(ast)
+            [self.visit(x, c) for x in ast.loop.member]
 
     def visitForEach(self, ast: ForEach, c: Props):
         pass
 
     def visitForStep(self, ast: ForStep, c: Props):
-        pass
+        pass        
 
-    def visitBinaryOp(self, ast: BinaryOp, c: Props):
-        pass
-    
-    def visitUnaryOp(self, ast: UnaryOp, c: Props):
-        pass
 
 
     def visitId(self,ast: Id,c: Props):
@@ -625,7 +750,7 @@ class StaticChecker(BaseVisitor,Utils):
         if res is None:
             if c.flag["isConst"]: raise Undeclared(Constant(), ast.name)
             raise Undeclared(Identifier(), ast.name)
-        if c.flag["isConst"]: return res.value
+        if c.flag["isConst"]: return res.mtype,res.value
         return res.mtype
 #TODO: khi nào check đến expr thì phải bật meth hay funcall lên
 #TODO: thứ tự dùng env có cần theo thứ tự scope không
