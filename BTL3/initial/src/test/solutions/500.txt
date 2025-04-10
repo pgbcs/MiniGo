@@ -1,1 +1,1 @@
-Type Mismatch: Assign(Id(a),BooleanLiteral(true))
+Type Mismatch: VarDecl(a,ArrayType(IntType,[IntLiteral(5),IntLiteral(2)]),ArrayLiteral([IntLiteral(5)],IntType,[IntLiteral(1),IntLiteral(2),IntLiteral(3),IntLiteral(4),IntLiteral(5)]))

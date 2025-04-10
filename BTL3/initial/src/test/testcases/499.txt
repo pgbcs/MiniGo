@@ -1,4 +1,19 @@
 
-        func main(){
-            var a = Person{name: "Alice", age: 30}
-        }
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    type Pro interface{
+        a();
+        b();
+    }

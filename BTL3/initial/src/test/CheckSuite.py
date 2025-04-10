@@ -1193,7 +1193,55 @@ class CheckSuite(unittest.TestCase):
 """
         expect=""
         self.assertTrue(TestChecker.test(input,expect, 498))
+    
+    def test_assign_struct_for_interface_imple_complete2(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    type Pro interface{
+        a();
+        b();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 499))
 
+    def test_assign_array(self):
+        input ="""
+    var a [5][2]int = [5]int{1,2,3,4,5}
+"""
+        expect="Type Mismatch: VarDecl(a,ArrayType(IntType,[IntLiteral(5),IntLiteral(2)]),ArrayLiteral([IntLiteral(5)],IntType,[IntLiteral(1),IntLiteral(2),IntLiteral(3),IntLiteral(4),IntLiteral(5)]))\n"
+        self.assertTrue(TestChecker.test(input,expect, 500))
+
+    def test_check_compatible_type_in_param(self):
+        input ="""
+    func main(){
+        var b int;
+        var c Person;
+        a(b, c);
+    }
+    func a(x float, y Person){
+
+    }
+    type Person struct{
+        age int;
+    }
+
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 501))
 #     def test_use_funcname_as_arg(self):
 #         input = """
 #     func main(){

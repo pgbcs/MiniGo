@@ -1,5 +1,13 @@
 
-        func main(){
-            a:=true;
-            var b boolean = a;
-        }
+    func main(){
+        var b int;
+        var c Person;
+        a(b, c);
+    }
+    func a(x float, y Person){
+
+    }
+    type Person struct{
+        age int;
+    }
+

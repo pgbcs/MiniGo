@@ -104,15 +104,18 @@ class StaticChecker(BaseVisitor,Utils):
             if type(lhs.eleType) is StructType:
                 if lhs.eleType.name != rhs.eleType.name: raise TypeMismatch(ast)
                 #TODO:có mảng interface??? có vẻ là không do ko có interface instance*
-        lhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), lhs.dimens))    
-        rhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConstant": True})), rhs.dimens))
-        if len(lhsDim) != len(rhsDim): raise TypeMismatch(ast)
-        if all(map(lambda x: type(x[0]) is IntType, lhsDim)):
+        lhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConst": True})), lhs.dimens))    
+        rhsDim = list(map(lambda x: self.visit(x, Props(c.scope, c.env, c.typ_env, c.turn, {"isConst": True})), rhs.dimens))
+
+
+        if not all(map(lambda x: type(x[0]) is IntType, lhsDim)):
             raise TypeMismatch(lhs)
-        if all(map(lambda x: type(x[0]) is IntType, rhsDim)):
+        if not all(map(lambda x: type(x[0]) is IntType, rhsDim)):
             raise TypeMismatch(rhs)
         lhsDim = list(map(lambda x: x[1], lhsDim))
         rhsDim = list(map(lambda x: x[1], rhsDim))
+        if len(lhsDim) != len(rhsDim):
+            raise TypeMismatch(ast)
         dimCmp = zip(lhsDim, rhsDim)
         if not (reduce(lambda x,y: x and (y[0]==y[1] and not y[0] is None and not y[1] is None), dimCmp, True)):
             raise TypeMismatch(ast)
@@ -131,15 +134,36 @@ class StaticChecker(BaseVisitor,Utils):
                 )
 
     def checkCompatibleStructandInterface(self, ast, lhs: InterfaceType, rhs: StructType, c: Props):
-        thisStruct = self.lookup(rhs.name, c.typ_env, lambda x: x.name)
-        thisInterface= self.lookup(lhs.name, c.typ_env, lambda x: x.name)
+        thisStruct: StructTyp = self.lookup(rhs.name, c.typ_env, lambda x: x.name)
+        thisInterface: InterfaceTyp= self.lookup(lhs.name, c.typ_env, lambda x: x.name)
         #kiểm tra số method đã imple đủ chưa
         if len(thisStruct.mtypes) < len(thisInterface.mtypes):
             raise TypeMismatch(ast)
-        methCmp = zip(thisStruct.mtypes, thisInterface.mtypes)
-        #kiểm tra đã imple đủ method chưa
-        if not reduce(lambda x,y: x and self.checkEqualFunc(y[0], y[1]), methCmp, True):
-            raise TypeMismatch(ast)
+        # methCmp = zip(thisStruct.mtypes, thisInterface.mtypes)
+        # #kiểm tra đã imple đủ method chưa
+        # if not reduce(lambda x,y: x and self.checkEqualFunc(y[0], y[1]), methCmp, True):
+        #     raise TypeMismatch(ast)
+
+        for m in thisInterface.mtypes:
+            res=self.lookup(m.name, thisStruct.mtypes, lambda x: x.name)
+            if res is None:
+                raise TypeMismatch(ast)
+            if not self.checkEqualFunc(m, res):
+                raise TypeMismatch(ast)
+    
+    def checkCompatibleType(self, ast, lhs, rhs, c: Props):
+        if  not type(rhs) is type(lhs):
+            if not (type(rhs) is IntType and  type(lhs) is FloatType):
+                if type(rhs) is StructType and type(lhs) is InterfaceType:
+                    self.checkCompatibleStructandInterface(ast, lhs, rhs, c)
+                else: raise TypeMismatch(ast)
+        else:
+            if type(lhs) is ArrayType:
+                self.checkCompatibleArray(ast, lhs, rhs, c)
+            if type(lhs) in [StructType, InterfaceType]:
+                if rhs.name != lhs.name:
+                    raise TypeMismatch(ast)
+        return True
 
     def check(self):
         return self.visit(self.ast,self.global_envi)
@@ -222,17 +246,7 @@ class StaticChecker(BaseVisitor,Utils):
                         raise TypeMismatch(ast)
                     varType = initType
                 else:
-                    if  not type(initType) is type(varType):
-                        if not (type(initType) is IntType and type(varType) is FloatType):
-                            if type(initType) is StructType and varType is InterfaceType:
-                                self.checkCompatibleStructandInterface(ast, varType, initType, c)
-                            else: raise TypeMismatch(ast)
-                    else:
-                        if type(varType) is ArrayType:
-                            self.checkCompatibleArray(ast, varType, initType, c)
-                        if type(initType) is type(varType) and type(initType) in [StructType, InterfaceType]:
-                            if initType.name != varType.name:
-                                raise TypeMismatch(ast)
+                    self.checkCompatibleType(ast, varType, initType,c)
 
             return Symbol(ast.varName, varType,None)
 
@@ -269,7 +283,7 @@ class StaticChecker(BaseVisitor,Utils):
             params: Props = reduce(self.reducer, ast.params, Props([],[],c.typ_env))
             parType = [x.mtype for x in params.env]
 
-            return Symbol(ast.name, MType(parType, ast.retType))
+            return Symbol(ast.name, MType(parType[::-1], ast.retType))
         else:
             params = []
             if not c.flag["isMethod"]: 
@@ -310,17 +324,7 @@ class StaticChecker(BaseVisitor,Utils):
                 retType = VoidType()
             if type(ast.retType) is Id:
                 ast.retType = self.getDefType(ast.retType, c)
-            if  not type(retType) is type(ast.retType):
-                if not (type(retType) is IntType and type(ast.retType) is FloatType):
-                    if type(retType) is StructType and ast.retType is InterfaceType:
-                        self.checkCompatibleStructandInterface(ast, ast.retType, retType, c)
-                    else: raise TypeMismatch(ast)
-            else:
-                if type(ast.retType) is ArrayType:
-                    self.checkCompatibleArray(ast, ast.retType, retType, c)
-                if type(retType) is type(ast.retType) and type(retType) in [StructType, InterfaceType]:
-                    if retType.name != ast.retType.name:
-                        raise TypeMismatch(ast)
+            self.checkCompatibleType(ast, ast.retType, retType,c)
 
             return None#không cần trả về symbol ở turn 3 do đã có ở turn 2 
 
@@ -514,10 +518,16 @@ class StaticChecker(BaseVisitor,Utils):
             if not isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)     
         else:
             if isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)
-  
-        paramCmp = zip(paramType, func.mtype.partype)
-        if(not reduce(lambda x,y: x and type(y[0]) is type(y[1]) ,paramCmp, True)):
-            raise TypeMismatch(ast)
+        paramCmp = list(zip(paramType, func.mtype.partype))
+        # print(paramType)
+        # print(func.mtype.partype)
+        # print(paramCmp)
+        for p in paramCmp:
+            # print(type(p[1]), type(p[0]))
+            pcheck = p[1]
+            if type(pcheck) is Id:
+                pcheck = self.getDefType(pcheck, c)
+            self.checkCompatibleType(ast, pcheck, p[0],c)
         
         return func.mtype.rettype
 
@@ -606,18 +616,7 @@ class StaticChecker(BaseVisitor,Utils):
         if type(lhsType) is MType:
             raise TypeMismatch(ast)
         
-
-        if not type(lhsType) is type(rhsType):
-            if (not type(lhsType) is FloatType) and (not type(rhsType) is IntType()):
-                if type(lhsType) is InterfaceType and type(rhsType) is StructType:
-                    self.checkCompatibleStructandInterface(ast, lhsType, rhsType, c)
-                else: raise TypeMismatch(ast)
-        else:
-            if type(lhsType) is ArrayType:
-                self.checkCompatibleArray(ast, lhsType, rhsType, c)
-            elif type(lhsType) in [StructType, InterfaceType]:
-                if not lhsType.name != rhsType.name:
-                    raise TypeMismatch(ast)
+        self.checkCompatibleType(ast, lhsType, rhsType, c)
         return None
 
 
