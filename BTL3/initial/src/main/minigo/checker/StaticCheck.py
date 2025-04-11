@@ -45,6 +45,7 @@ class Props:
         "isMethod": False,
         "isCallStmt": False,
         "isConst": False
+        "returnValue": False
     }):
         flag = ["isMethod", "isCallStmt", "isConst", "isArrayDim"]
         self.scope: List[Symbol] = scope
@@ -558,8 +559,12 @@ class StaticChecker(BaseVisitor,Utils):
 
         paramType = reduce(lambda x,y: x + [self.visit(y)], ast.args, [])
         paramCmp = zip(paramType, methCheck.mtype.partype)
-        if(not reduce(lambda x,y: x and type(y[0]) == type(y[1]) ,paramCmp, True)):
-            raise TypeMismatch(ast)
+        for p in paramCmp:
+            # print(type(p[1]), type(p[0]))
+            pcheck = p[1]
+            if type(pcheck) is Id:
+                pcheck = self.getDefType(pcheck, c)
+            self.checkCompatibleType(ast, pcheck, p[0],c)
         return methCheck.mtype.rettype
     
     def visitFieldAccess(self, ast: FieldAccess, c: Props):

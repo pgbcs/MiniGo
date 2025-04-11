@@ -1145,7 +1145,7 @@ class CheckSuite(unittest.TestCase):
         expect="Type Mismatch: VarDecl(b,Id(Pro),Id(a))\n"
         self.assertTrue(TestChecker.test(input,expect, 495))
 
-    def test_assign_struct_for_interface_same_name(self):
+    def test_assign_interface_for_interface_same_name(self):
         input ="""
     func main(){
         var a Vjp;
@@ -1158,7 +1158,7 @@ class CheckSuite(unittest.TestCase):
         expect=""
         self.assertTrue(TestChecker.test(input,expect, 496))
 
-    def test_assign_struct_for_interface_diff_name(self):
+    def test_assign_interface_for_interface_diff_name(self):
         input ="""
     func main(){
         var a Vjp;
