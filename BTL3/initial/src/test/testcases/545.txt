@@ -1,0 +1,9 @@
+
+    func main() {
+        var a A;
+        var b int = a.b;
+    }
+    type A struct {
+        a int;
+        b int;
+    }

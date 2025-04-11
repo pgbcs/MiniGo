@@ -1,0 +1,9 @@
+
+    func test(a int, b string) {
+        return;
+    }
+    func main() {
+        var a int;
+        var b string;
+        test(a);
+    }

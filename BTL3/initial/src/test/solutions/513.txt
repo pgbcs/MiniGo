@@ -1,0 +1,1 @@
+Type Mismatch: StructLiteral(Test,[(test1,StringLiteral("abc")),(test2,StringLiteral("cad")),(test3,StringLiteral("wut"))])

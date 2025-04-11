@@ -1,0 +1,7 @@
+
+func main() {
+    var a int
+}
+func getInt() int {
+    return 1
+};

@@ -1,0 +1,11 @@
+
+    func B() A{
+        return C();
+    } 
+    func C() A{
+        return A{};
+    }
+    type A struct {
+        a int;
+    }
+        

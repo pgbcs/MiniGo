@@ -1,0 +1,12 @@
+
+    func main() int {
+        return getA().a;
+    }
+    func getA() A {
+        return A{};
+    }
+    type A struct {
+        a int;
+        b int;
+    } 
+    

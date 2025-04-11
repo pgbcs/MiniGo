@@ -1,0 +1,6 @@
+
+    func main() [5] int {
+        const a = 5;
+        var b [a] int =  [5]int{1,2,3,4,5};
+        return b;
+    }

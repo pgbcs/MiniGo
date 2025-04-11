@@ -1,0 +1,11 @@
+
+    func test(a int, b string) A{
+        return B{};
+    }
+    type A struct {
+        a int;
+    }
+    type B struct {
+        a int;
+    }
+        

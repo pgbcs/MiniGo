@@ -1,0 +1,7 @@
+
+    func main(){
+        a();
+    }
+    func a() int{
+        return 1;
+    }

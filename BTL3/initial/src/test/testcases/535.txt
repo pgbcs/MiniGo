@@ -1,0 +1,14 @@
+
+    func test(a int, b string) B{ 
+        return A{};
+    }
+    type A struct {
+        a int;
+    }
+    type B interface {
+        b(a A) int;
+    }
+    func (a A) b(a A) int {
+        return 1+2;
+    }
+        

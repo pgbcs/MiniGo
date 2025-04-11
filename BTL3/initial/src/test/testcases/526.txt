@@ -1,0 +1,11 @@
+const a = 2
+func main() {
+	var i [2]int = [2]int{1,2}
+	i := A{}.foo()
+}
+type A struct {
+	arr [a]int
+}
+func (a A) foo() [a]int {
+	return a.arr
+}

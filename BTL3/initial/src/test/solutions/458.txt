@@ -1,1 +1,1 @@
-Redeclared Field: name
+Type Mismatch: StructLiteral(Person,[(name,StringLiteral("bao")),(name,StringLiteral("abc"))])

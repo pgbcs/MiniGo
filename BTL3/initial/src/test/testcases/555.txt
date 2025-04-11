@@ -1,0 +1,12 @@
+
+    func main(){
+        var a int;
+        var index int;
+        var value int;
+        for index, value := range [5]int{1,2,3,4,5}{
+            b(b);
+        }
+    }
+    func b(a int){
+        return;
+    }

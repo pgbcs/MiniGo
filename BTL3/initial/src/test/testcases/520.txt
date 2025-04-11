@@ -1,0 +1,11 @@
+
+    func main(){
+        var flag = false;
+        var a = 1;
+        var b = 2;
+        for(flag){
+            for var a int = 1; b<2; a+=1{
+                break;
+            }
+        }
+    }

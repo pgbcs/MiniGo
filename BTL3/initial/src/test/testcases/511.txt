@@ -1,0 +1,12 @@
+
+    func main(){
+        var a Test = Test{test1: "abc", test2: "cad"}
+        var b Tes = a;
+    }
+    type Test struct{
+        test1 string;
+        test2 string;
+    }
+    type Tes struct{
+        hihi Test;
+    }

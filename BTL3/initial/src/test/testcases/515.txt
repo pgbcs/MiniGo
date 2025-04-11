@@ -1,0 +1,10 @@
+
+    func main(){
+        var a int;
+        var b int;
+        if(a+b>5||a/b<6&&a%b==0||(!true)){
+            return;
+        }else{
+            var re int;
+        }
+    }

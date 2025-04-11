@@ -1,0 +1,14 @@
+
+    func main() {
+        var a int;
+        var b string;
+        var c A;
+    }
+    type A struct {
+        a int;
+        b string;
+    }
+    func (a A) be() int {
+        return a.b;
+    }
+        

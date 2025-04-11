@@ -1,0 +1,24 @@
+
+    func main(){
+        var a int;
+        var b int;
+        var flag boolean;
+        var label boolean;
+        if(a+b>5||a/b<6&&a%b==0||(!check(a,b))){
+            return;
+        }else if(true||false){
+            var a int;
+            if(flag||label){
+                const b  =2;
+                if(!!!flag&&!!!label){
+                    return;
+                }
+            }            else{
+                var a = 8;
+            }
+        }
+    }
+
+    func check(a int, b int) boolean{
+        return a>b
+    }

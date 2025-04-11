@@ -1,5 +1,5 @@
 
-        func bruh(x,x int){
+        func bruh(x int){
             var a int;
         };
         var bruh = 2;

@@ -1,0 +1,13 @@
+
+    func test(a int, b string) A{
+        if(true){
+            if(false){
+                return A{};
+            }
+        }
+        return 1;
+    }
+    type A struct {
+        a int;
+    }
+        

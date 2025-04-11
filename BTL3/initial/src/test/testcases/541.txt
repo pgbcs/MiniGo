@@ -1,0 +1,6 @@
+
+    func main() [5][2] int {
+        const a = 5;
+        var b [a][2] int =  [5][2]int{{1,2},{3,4},{5,7},{3,4},{5,7}};
+        return b;
+    }

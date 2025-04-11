@@ -1,0 +1,7 @@
+
+func main() {
+    var a int;
+    var main int;
+    main := 1;
+    main();
+};

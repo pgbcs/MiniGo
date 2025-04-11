@@ -1,0 +1,8 @@
+
+    func main() {
+        var a [5][2] int =  [5][2]int{{1,2},{3,4},{5,7},{3,4},{5,7}};
+        var b int = a[1][genFloat()];
+    }
+    func genFloat() float {
+        return 1.2;
+    }

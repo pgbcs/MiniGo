@@ -1,0 +1,5 @@
+
+        func WHO(a boolean) int{
+            if(a){ return true;}
+            return 1;
+        }

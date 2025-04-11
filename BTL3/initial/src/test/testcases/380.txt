@@ -1,0 +1,1 @@
+Program([StructType(Person,[(name,StringType)],[]),MethodDecl(p,Id(Person),FuncDecl(getName,[ParDecl(x,FloatType)],StringType,Block([Return(FieldAccess(Id(p),name))]))),FuncDecl(main,[],VoidType,Block([VarDecl(p,Id(Person)),Assign(Id(x),MethodCall(Id(p),getName,[IntLiteral(3)]))]))])

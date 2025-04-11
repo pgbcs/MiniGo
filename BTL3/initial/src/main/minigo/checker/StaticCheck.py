@@ -59,7 +59,21 @@ class StaticChecker(BaseVisitor,Utils):
     
     def __init__(self,ast):
         self.ast = ast
-        self.global_envi = [Symbol("getInt",MType([],IntType())),Symbol("putIntLn",MType([IntType()],VoidType()))]
+        self.global_envi = [
+            Symbol("getInt",MType([],IntType())),
+            Symbol("putIntLn",MType([IntType()],VoidType())),
+            Symbol("putInt",MType([IntType()],VoidType())),
+            Symbol("getFloat",MType([],FloatType())),
+            Symbol("putFloat",MType([FloatType()],VoidType())),
+            Symbol("putFloatLn",MType([FloatType()],VoidType())),
+            Symbol("getBool",MType([],BoolType())),
+            Symbol("putBool",MType([BoolType()],VoidType())),
+            Symbol("putBoolLn",MType([BoolType()],VoidType())),
+            Symbol("getString",MType([],StringType())),
+            Symbol("putString",MType([StringType()],VoidType())),
+            Symbol("putStringLn",MType([StringType()],VoidType())),
+            Symbol("putLn",MType([],VoidType())),
+            ]
         self.prim_type=[IntType, 
                         FloatType, 
                         BoolType, 
@@ -169,7 +183,7 @@ class StaticChecker(BaseVisitor,Utils):
     def check(self):
         return self.visit(self.ast,self.global_envi)
 
-    def reducer(self, acc: Props, ele):#chưa có xử lý cập nhật type mới
+    def reducer(self, acc: Props, ele):
         visited = self.visit(ele, acc)
         if visited is None: return acc #đảm bảo cho các turn không cần giá trị đó
         if isinstance(ele, MethodDecl):
@@ -207,21 +221,23 @@ class StaticChecker(BaseVisitor,Utils):
         #turn 2: check field in type
         #turn 3: check global func and checkField in struct
         #turn 4: check in block
-        firstTurn = reduce(self.reducer, ast.decl,Props())
+        firstTurn = reduce(self.reducer, ast.decl,Props(self.global_envi,self.global_envi,[],1))
         #reset global variable
-        secondTurn = reduce(self.reducer, ast.decl, Props([],[],firstTurn.typ_env,2))
-        thirdTurn =  reduce(self.reducer, ast.decl, Props([],[],secondTurn.typ_env,3))
+        secondTurn = reduce(self.reducer, ast.decl, Props(self.global_envi,self.global_envi,firstTurn.typ_env,2))
+        thirdTurn =  reduce(self.reducer, ast.decl, Props(self.global_envi,self.global_envi,secondTurn.typ_env,3))
         global_func = filter(lambda x: type(x.mtype) is MType, thirdTurn.scope)
-
-        fourthTurn = reduce(self.reducer, ast.decl,Props([], list(global_func), thirdTurn.typ_env,4))
+        # for f in list(global_func):
+        #     print(f)
+        fourthTurn = reduce(self.reducer, ast.decl,Props(self.global_envi,list(global_func), thirdTurn.typ_env,4))
         return fourthTurn
     
     def visitVarDecl(self, ast: VarDecl, c: Props):
         #turn 1 và turn 2 chỉ quan tâm đến name:
         # if c.turn == 4:
         #     print(ast)
-        #     for s in c.scope:
+        # for s in c.scope:
         #         print(s)
+        # print(c.scope + c.typ_env if c.turn != 4 else c.scope)
         res = self.lookup(ast.varName,c.scope + c.typ_env if c.turn != 4 else c.scope, lambda x: x.name)
         if not res is None:
             raise Redeclared(Variable(), ast.varName) 
@@ -297,7 +313,7 @@ class StaticChecker(BaseVisitor,Utils):
             else:
                 p: Props = reduce(self.reducer, ast.params, Props([],[],c.typ_env))
                 params = p.scope
-            local_env = c.env + params #check param scope
+            local_env =params + c.env #check param scope
         
 
             # for l in local_env:
@@ -307,7 +323,9 @@ class StaticChecker(BaseVisitor,Utils):
             # for m in ast.body.member:
             #     print(str(m))
             # print(ast.body.member)
-
+            # print("body: ")
+            # for m in ast.body.member:
+            #     print(str(m))
             reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env, 4,{
                 "returnValue": ast.retType
             }))
@@ -378,7 +396,7 @@ class StaticChecker(BaseVisitor,Utils):
             #ở chỗ env cần thêm receiver vào
             thisType = self.lookup(ast.recType.name, c.typ_env, lambda x: x.name)
             thisMethod = self.lookup(ast.fun.name, thisType.mtypes, lambda x: x.name)
-            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)], c.typ_env,4, {
+            method = self.visit(ast.fun,Props([],[Symbol(ast.receiver, ast.recType)]  + c.env , c.typ_env,4, {
                 "isMethod": True
             }))
             
@@ -402,10 +420,15 @@ class StaticChecker(BaseVisitor,Utils):
                 fieldname = e[0]
                 if fieldname in local_scope: raise Redeclared(Field(),e[0])
                 if type(e[1]) not in self.prim_type:
-                    res = self.lookup(e[1].name, c.typ_env, lambda x: x.name)
-                    if res is None:
-                        # if type(e[1]) in local_scope: raise TypeMismatch(ast)
-                        raise Undeclared(Identifier(), e[1].name)
+                    if type(e[1]) is Id:
+                        res = self.getDefType(e[1], c)
+                    # res = self.lookup(e[1].name, c.typ_env, lambda x: x.name)
+                    # if (res.name == "arr"):
+                    #     print(res)
+                    # if res is None:
+                    #     # if type(e[1]) in local_scope: raise TypeMismatch(ast)
+                        # raise Undeclared(Identifier(), e[1].name)
+
                 local_scope+=[fieldname]
 
                 fields += [Symbol(fieldname, e[1])]
@@ -472,7 +495,7 @@ class StaticChecker(BaseVisitor,Utils):
         ls = []
         for i in fieldnames:
             if i in ls:
-                raise Redeclared(Field(), i)
+                raise TypeMismatch(ast)
             ls+=[i]
         # if len(fieldnames)>0:
         #     checkSameName = all(x != fieldnames[0] for x in fieldnames)
@@ -513,18 +536,21 @@ class StaticChecker(BaseVisitor,Utils):
     
     def visitFuncCall(self, ast: FuncCall, c:Props):
         paramType = reduce(lambda x,y: x + [self.visit(y,c)], ast.args, [])
-        func:Symbol = self.lookup(ast.funName, c.env, lambda x: x.name if isinstance(x.mtype, MType) else None)
+        func:Symbol = self.lookup(ast.funName, c.env, lambda x: x.name) #if isinstance(x.mtype, MType) else None
         if func is None or not type(func.mtype) is MType:
             raise Undeclared(Function(), ast.funName)
 
         if len(ast.args)!= len(func.mtype.partype):
             raise TypeMismatch(ast)
-
+        
+        # print(func.mtype.rettype)
+        # print(c.flag["isCallStmt"])
         if not c.flag["isCallStmt"]:
             if not isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)     
         else:
             if isinstance(func.mtype.rettype, VoidType):  raise TypeMismatch(ast)
         paramCmp = list(zip(paramType, func.mtype.partype))
+
         # print(paramType)
         # print(func.mtype.partype)
         # print(paramCmp)
@@ -534,14 +560,21 @@ class StaticChecker(BaseVisitor,Utils):
             if type(pcheck) is Id:
                 pcheck = self.getDefType(pcheck, c)
             self.checkCompatibleType(ast, pcheck, p[0],c)
-        
+        if not c.flag["isCallStmt"]:
+            return None
+        if type(func.mtype.rettype) is Id:
+            return self.getDefType(func.mtype.rettype, c)
         return func.mtype.rettype
 
     def visitMethCall(self, ast: MethCall, c: Props):
         #cần check receiver trả về kiểu đúng là struct ko
         #rồi sau đó check kiểu struct đó có tồn tại không
         #rồi check có method dó trong struct đó không
-        receiver = self.visit(ast.receiver, c)
+        newC = Props(c.scope, c.env, c.typ_env, c.turn,{
+            "isConst": True if c.flag["isConst"] else False,
+            "isCallStmt": True
+        })
+        receiver = self.visit(ast.receiver, newC)
         if type(receiver) is Id:
             receiver = self.getDefType(receiver, c)
         if not (isinstance(receiver, StructType) or isinstance(receiver, InterfaceType)):
@@ -562,7 +595,7 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             if isinstance(methCheck.mtype.rettype, VoidType):  raise TypeMismatch(ast)
 
-        paramType = reduce(lambda x,y: x + [self.visit(y)], ast.args, [])
+        paramType = reduce(lambda x,y: x + [self.visit(y, c)], ast.args, [])
         paramCmp = zip(paramType, methCheck.mtype.partype)
         for p in paramCmp:
             # print(type(p[1]), type(p[0]))
@@ -570,11 +603,22 @@ class StaticChecker(BaseVisitor,Utils):
             if type(pcheck) is Id:
                 pcheck = self.getDefType(pcheck, c)
             self.checkCompatibleType(ast, pcheck, p[0],c)
+        if not c.flag["isCallStmt"]:
+            return None
+        if type(methCheck.mtype.rettype) is Id:
+            return self.getDefType(methCheck.mtype.rettype, c)
         return methCheck.mtype.rettype
     
     def visitFieldAccess(self, ast: FieldAccess, c: Props):
+        newC = Props(c.scope, c.env, c.typ_env, c.turn,{
+            "isConst": True if c.flag["isConst"] else False,
+            "isCallStmt": True
+        })
         #check kiểu của receiver
-        receiver = self.visit(ast.receiver, c)
+        receiver = self.visit(ast.receiver, newC)
+        if type(receiver) is Id:
+            receiver = self.getDefType(receiver, c)
+
         if not isinstance(receiver, StructType):
             raise TypeMismatch(ast) 
         
@@ -601,7 +645,6 @@ class StaticChecker(BaseVisitor,Utils):
         }
         )) if ast.expr else VoidType() 
         funcRetType= c.flag["returnValue"]
-
         if type(funcRetType) is Id:
             funcRetType = self.getDefType(funcRetType, c)
         self.checkCompatibleType(ast, funcRetType, retType,c)
@@ -635,7 +678,8 @@ class StaticChecker(BaseVisitor,Utils):
 
 
     def visitArrayCell(self, ast: ArrayCell,c: Props):
-        arrType: ArrayType = self.visit(ast.arr)
+        arrType: ArrayType = self.visit(ast.arr, c)
+
         if not type(arrType) is ArrayType:
             raise TypeMismatch(ast)
         idx = [self.visit(i, Props(
@@ -647,7 +691,7 @@ class StaticChecker(BaseVisitor,Utils):
                 "isCallStmt": True
         })) for i in ast.idx]
 
-        intCheck = reduce(lambda x,y: x and type(y) is IntType(), idx, True)
+        intCheck = reduce(lambda x,y: x and type(y) is IntType, idx, True)
         if not intCheck:
             raise TypeMismatch(ast)
         
@@ -659,12 +703,16 @@ class StaticChecker(BaseVisitor,Utils):
         )
 
     def visitBinaryOp(self, ast: BinaryOp, c: Props):
+        newC = Props(c.scope, c.env, c.typ_env, c.turn,{
+            "isConst": True if c.flag["isConst"] else False,
+            "isCallStmt": True
+        })
         if c.flag["isConst"]:
-            leftType, leftValue = self.visit(ast.left, c)
-            rightType, rightValue = self.visit(ast.right, c)
+            leftType, leftValue = self.visit(ast.left, newC)
+            rightType, rightValue = self.visit(ast.right, newC)
         else:
-            leftType = self.visit(ast.left, c)
-            rightType= self.visit(ast.right, c)
+            leftType = self.visit(ast.left, newC)
+            rightType= self.visit(ast.right, newC)
         if ast.op == "+":
             retType = None
             if type(leftType) is type(rightType) and type(leftType) in [StringType, IntType, FloatType]:
@@ -736,9 +784,13 @@ class StaticChecker(BaseVisitor,Utils):
 
 
     def visitUnaryOp(self, ast: UnaryOp, c: Props):
+        newC = Props(c.scope, c.env, c.typ_env, c.turn,{
+            "isConst": True if c.flag["isConst"] else False,
+            "isCallStmt": True
+        })
         if c.flag["isConst"]:
-            bodyType, bodyValue = self.visit(ast.body, c)
-        else: bodyType = self.visit(ast.body, c)
+            bodyType, bodyValue = self.visit(ast.body, newC)
+        else: bodyType = self.visit(ast.body, newC)
 
         if not type(bodyType) in [BoolType, FloatType, IntType]:
             raise TypeMismatch(ast)
@@ -769,8 +821,24 @@ class StaticChecker(BaseVisitor,Utils):
             c.turn,
             c.flag
         ))
-        if ast.elseStmt: self.visit(ast.elseStmt, c)
-
+        
+        if isinstance(ast.elseStmt, If):
+            self.visit(ast.elseStmt, Props(
+            [],
+            c.env,
+            c.typ_env,
+            c.turn,
+            c.flag
+        ))
+        elif isinstance(ast.elseStmt, Block):
+            reduce(self.reducer, ast.elseStmt.member,  Props(
+            [],
+            c.env,
+            c.typ_env,
+            c.turn,
+            c.flag
+        ))
+    
     def visitForBasic(self, ast: ForBasic, c: Props):
         # if c.turn ==3:
         #     returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
@@ -834,7 +902,7 @@ class StaticChecker(BaseVisitor,Utils):
         #     return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
         # elif c.turn == 4:
             #Thêm symbol từ init vào env
-        initVar = self.visit(ast.init, c)
+        initVar = self.visit(ast.init, Props([], c.env, c.typ_env, c.turn, c.flag))
         newC = Props(([] if initVar is None else [initVar]), c.env+([] if initVar is None else [initVar]), c.typ_env, c.turn, c.flag)
         cond = self.visit(ast.cond, newC)
         if(not type(cond) is BoolType):
@@ -851,5 +919,13 @@ class StaticChecker(BaseVisitor,Utils):
         if c.flag["isConst"]: return res.mtype,res.value
         return res.mtype
     
+    def visitBlock(self, ast, c):
+        pass
+    def visitBreak(self, ast, c):
+        pass
+    def visitContinue(self, ast, c):
+        pass
+    def visitNilLiteral(self, ast, c):
+        pass
 #TODO: khi nào check đến expr thì phải bật meth hay funcall lên
 #TODO: thứ tự dùng env có cần theo thứ tự scope không

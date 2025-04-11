@@ -1,0 +1,10 @@
+
+    func main() {
+        var a int = 1;
+        var b int = -a;
+        var c int = !getA();
+    }
+    func getA() int {
+        return 1;
+    }
+    

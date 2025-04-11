@@ -1,0 +1,15 @@
+
+    func main(){
+        var a int;
+        var b int;
+
+        if(a+b>5||a/b<6&&a%b==0||(!check(a,b))){
+            return;
+        }else if(true||false){
+            var a int;
+        }
+    }
+
+    func check(a int, b int) boolean{
+        return a>b
+    }

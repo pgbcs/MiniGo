@@ -1,0 +1,9 @@
+
+    func main(){
+        var a int;
+        if(a){
+            return;
+        }else{
+            var re int;
+        }
+    }

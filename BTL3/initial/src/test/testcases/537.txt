@@ -1,0 +1,15 @@
+
+    func test(a int, b string) A{
+        if(true){
+            if(false){
+                return B{};
+            }
+        }
+    }
+    type A struct {
+        a int;
+    }
+    type B struct {
+        a int;
+    }
+        

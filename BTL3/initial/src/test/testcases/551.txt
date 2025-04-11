@@ -1,0 +1,16 @@
+
+    func main() int {
+        var a [5] A = [5]A{A{}, A{}, A{}, A{}, A{}};
+        return getA()[1].a;
+    }
+    func getA() [5] A {
+        return [5]A{A{}, A{}, A{}, A{}, A{}};
+    }
+    type A struct {
+        a int;
+        b int;
+    }
+    func (a A) get() int {
+        return a.a;
+    }
+    

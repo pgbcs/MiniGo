@@ -1,0 +1,10 @@
+
+    func main() int {
+        var a [5] A = [5]A{A{}, A{}, A{}, A{}, A{}};
+        return a[1].a;
+    }
+    type A struct {
+        a int;
+        b int;
+    }
+    
