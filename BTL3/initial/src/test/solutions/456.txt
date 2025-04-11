@@ -1,1 +1,1 @@
-Redeclared Variable: index
+Undeclared Identifier: value

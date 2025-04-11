@@ -4,7 +4,7 @@
         a.a();
     }
     func(a mewmew) a(){
-        a()
+       a.a()
     }
     type mewmew struct{
         b mewmew;

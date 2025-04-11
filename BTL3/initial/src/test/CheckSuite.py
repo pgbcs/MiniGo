@@ -644,6 +644,8 @@ class CheckSuite(unittest.TestCase):
         input = """
     func main(){
         var a int;
+        var value int;
+        var index int;
         for index, value := range [5]int{1,2,3,4,5}{
             var a int;
             var b int;
@@ -671,6 +673,7 @@ class CheckSuite(unittest.TestCase):
     def test_redeclared_index_forEach_scope(self):
         input = """
     func main(){
+        var index int;
         for index, value := range [5]int{1,2,3,4,5}{
             var index int;
             var b int;
@@ -678,20 +681,22 @@ class CheckSuite(unittest.TestCase):
         }
     }
 """ 
-        expect = "Redeclared Variable: index\n"
+        expect = "Undeclared Identifier: value\n"
         self.assertTrue(TestChecker.test(input,expect,456))
 
     def test_redeclared_value_forEach_scope(self):
         input = """
     func main(){
+        var index int;
+        var value int;
         for index, value := range [5]int{1,2,3,4,5}{
             var value int;
             var b int;
-            const b = 7;
+            const b = 5;
         }
     }
 """ 
-        expect = "Redeclared Variable: value\n"
+        expect = "Redeclared Constant: b\n"
         self.assertTrue(TestChecker.test(input,expect,457))
 
     def test_redeclared_field_in_structLiteral(self):
@@ -829,6 +834,8 @@ class CheckSuite(unittest.TestCase):
         input = """
     func main(){
         var a int;
+        var index int;
+        var value int;
         for index, value := range [5]int{1,2,3,4,5}{
             b(c);
         }
@@ -843,6 +850,7 @@ class CheckSuite(unittest.TestCase):
         input = """
     func main(){
         var a int;
+        var index int;
         for index, value := range [5]int{1,2,3,4,5}{
             main();
         }
@@ -851,7 +859,7 @@ class CheckSuite(unittest.TestCase):
         return;
     }
 """
-        expect = ""
+        expect = "Undeclared Identifier: value\n"
         self.assertTrue(TestChecker.test(input,expect,473))
         
     def test_undeclared_method_call_in_struct(self):
@@ -887,7 +895,7 @@ class CheckSuite(unittest.TestCase):
         a.a();
     }
     func(a mewmew) a(){
-        a()
+       a.a()
     }
     type mewmew struct{
         b mewmew;
@@ -1093,6 +1101,8 @@ class CheckSuite(unittest.TestCase):
         input ="""
     func main(){
         a:= [3]int{1,2,3}
+        var index int;
+        var value int;
         for index, value := range a{
             main();
         }
@@ -1233,7 +1243,7 @@ class CheckSuite(unittest.TestCase):
         a(b, c);
     }
     func a(x float, y Person){
-
+        return;
     }
     type Person struct{
         age int;
@@ -1242,6 +1252,174 @@ class CheckSuite(unittest.TestCase):
 """
         expect=""
         self.assertTrue(TestChecker.test(input,expect, 501))
+
+    def test_assign_struct_lack_method_for_interface(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    type Pro interface{
+        a();
+        b();
+    }
+"""
+        expect="Type Mismatch: Assign(Id(b),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 502))
+
+    def test_assign_struct_many_method_than_interface(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    type Pro interface{
+        a();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 503))
+
+
+    def test_assign_struct_many_method_than_interface(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    type Pro interface{
+        a();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 503))
+
+    def test_assign_struct_many_method_than_interface(self):
+        input ="""
+    func main(){
+        var a Vjp;
+        var b Pro; 
+        b:=a;
+    }
+    type Vjp struct{
+        c int;
+    }
+    func (v Vjp) a(){
+        return;
+    }
+    func (v Vjp) b(){
+        return;
+    }
+    type Pro interface{
+        a();
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 503))
+
+
+    def test_create_new_variable_by_short_assign(self):
+        input ="""
+    func main(){
+        if(true){
+            a:= [5]int{1,2,3,4,5};
+            var i int = 0;
+            var v int = 1;
+            for i,v := range a{
+                return;
+            }
+        }
+    }
+"""
+        expect=""
+        self.assertTrue(TestChecker.test(input,expect, 504)) 
+
+    def test_type_mismatch_init_var(self):
+        input  ="""
+    var a float = "type mismatch";
+"""
+        expect = "Type Mismatch: VarDecl(a,FloatType,StringLiteral(\"type mismatch\"))\n"
+        self.assertTrue(TestChecker.test(input,expect, 505)) 
+
+    def test_type_compatible_init_var(self):
+        input  ="""
+    var a float = 1+2+3+4/5;
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect, 506)) 
+
+    def test_type_compatible_init_var1(self):
+        input  ="""
+    var a [5]int = [5]int{1,2,3,4,5}
+    var b [5]int = a
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect, 507)) 
+
+    def test_type_compatible_init_var2(self):
+        input  ="""
+    var a [5][2]int = [5][2]int{1,2,3,4,5}
+    var b [5][1]int = a
+"""
+        expect = "Type Mismatch: VarDecl(b,ArrayType(IntType,[IntLiteral(5),IntLiteral(1)]),Id(a))\n"
+        self.assertTrue(TestChecker.test(input,expect, 508)) 
+
+    def test_type_compatible_init_var3(self):
+        input  ="""
+    func main(){
+        var a Test = Test{test1: "abc", test2: "cad"}
+        var b Test = a;
+    }
+    type Test struct{
+        test1 string;
+        test2 string;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect, 509)) 
+
+    def test_type_compatible_init_var4(self):
+        input  ="""
+    func main(){
+        var a Test = Test{test1: "abc", test2: "cad"}
+        var b Test = a;
+    }
+    type Test struct{
+        test1 string;
+        test2 string;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect, 510)) 
+
+    # def test_
 #     def test_use_funcname_as_arg(self):
 #         input = """
 #     func main(){

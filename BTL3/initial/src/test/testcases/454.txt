@@ -1,6 +1,8 @@
 
     func main(){
         var a int;
+        var value int;
+        var index int;
         for index, value := range [5]int{1,2,3,4,5}{
             var a int;
             var b int;

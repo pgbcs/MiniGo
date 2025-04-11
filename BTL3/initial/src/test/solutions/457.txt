@@ -1,1 +1,1 @@
-Redeclared Variable: value
+Redeclared Constant: b

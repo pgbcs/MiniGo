@@ -44,15 +44,15 @@ class Props:
     def __init__(self, scope=[], env=[], typ_env=[], turn=1, initflag = {
         "isMethod": False,
         "isCallStmt": False,
-        "isConst": False
+        "isConst": False,
         "returnValue": False
     }):
-        flag = ["isMethod", "isCallStmt", "isConst", "isArrayDim"]
+        flag = ["isMethod", "isCallStmt", "isConst", "returnValue"]
         self.scope: List[Symbol] = scope
         self.env: List[Symbol]= env
         self.typ_env: List[DefType] = typ_env
         self.turn: int= turn
-        self.flag = {x: True if initflag.get(x) == True else False for x in flag}
+        self.flag = {x: initflag.get(x, False) for x in flag}
         
 
 class StaticChecker(BaseVisitor,Utils):
@@ -175,14 +175,14 @@ class StaticChecker(BaseVisitor,Utils):
         if isinstance(ele, MethodDecl):
             return Props(acc.scope, acc.env, [x if x.name != ele.recType.name
                      else StructTyp(x.name, x.fields, x.mtypes+[visited]) 
-                     for x in acc.typ_env],acc.turn)
+                     for x in acc.typ_env],acc.turn, acc.flag)
         elif isinstance(ele, StructType) or isinstance(ele, InterfaceType):
             if isinstance(ele, StructType) and acc.turn == 2:
                 return Props(acc.scope, 
                              acc.env,
                              [x if x.name != ele.name 
                               else StructTyp(x.name, visited)
-                              for x in acc.typ_env], acc.turn)
+                              for x in acc.typ_env], acc.turn, acc.flag)
             elif isinstance(ele, InterfaceType) and acc.turn ==2:
                 return Props(
                     acc.scope, 
@@ -192,12 +192,13 @@ class StaticChecker(BaseVisitor,Utils):
                         else InterfaceTyp(x.name, visited)
                         for x in acc.typ_env
                     ],
-                    acc.turn
+                    acc.turn,
+                    acc.flag
                 )
-            return Props(acc.scope, acc.env, acc.typ_env + [visited], acc.turn)
+            return Props(acc.scope, acc.env, acc.typ_env + [visited], acc.turn, acc.flag)
 
         #Đã đảo ngược env để khi duyệt lấy đúng thứ tự từ trong ra ngoài
-        else: return Props([visited]+ acc.scope,[visited]+ acc.env, acc.typ_env,acc.turn)
+        else: return Props([visited]+ acc.scope,[visited]+ acc.env, acc.typ_env,acc.turn, acc.flag)
 
     def visitProgram(self,ast: Program, c: Props):
         #lambda acc,ele: acc[0] + [self.visit(ele,acc)]
@@ -306,26 +307,29 @@ class StaticChecker(BaseVisitor,Utils):
             # for m in ast.body.member:
             #     print(str(m))
             # print(ast.body.member)
-            reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env, 4))
 
-            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
-            #Lấy hết các return ở trong func (bao gồm cả block) khác
-            returnList = ([self.visit(returnStmt, Props([], local_env, c.typ_env, 3, c.flag))] if returnStmt else [])+ [self.visit(x, Props([], local_env, c.typ_env, 3, c.flag)) for x in ast.body.member if type(x) in [If,ForBasic,ForEach,ForStep]]
-            returnList = self.flatten(returnList)
-            # print(returnList)
-            # for r in returnList:
-            #     print(r)
-            returnList = list(filter(lambda x: not x is None, returnList))
-            if len(returnList) != 0:
-                checkSameType = all(type(x) is type(returnList[0]) for x in returnList)
-                if not checkSameType: raise TypeMismatch(ast)
+            reduce(self.reducer, ast.body.member, Props([], local_env, c.typ_env, 4,{
+                "returnValue": ast.retType
+            }))
 
-                retType = returnList[0]
-            else:
-                retType = VoidType()
-            if type(ast.retType) is Id:
-                ast.retType = self.getDefType(ast.retType, c)
-            self.checkCompatibleType(ast, ast.retType, retType,c)
+            # returnStmt = next(filter(lambda x: isinstance(x, Return), ast.body.member), None)
+            # #Lấy hết các return ở trong func (bao gồm cả block) khác
+            # returnList = ([self.visit(returnStmt, Props([], local_env, c.typ_env, 3, c.flag))] if returnStmt else [])+ [self.visit(x, Props([], local_env, c.typ_env, 3, c.flag)) for x in ast.body.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+            # returnList = self.flatten(returnList)
+            # # print(returnList)
+            # # for r in returnList:
+            # #     print(r)
+            # returnList = list(filter(lambda x: not x is None, returnList))
+            # if len(returnList) != 0:
+            #     checkSameType = all(type(x) is type(returnList[0]) for x in returnList)
+            #     if not checkSameType: raise TypeMismatch(ast)
+
+            #     retType = returnList[0]
+            # else:
+            #     retType = VoidType()
+            # if type(ast.retType) is Id:
+            #     ast.retType = self.getDefType(ast.retType, c)
+            # self.checkCompatibleType(ast, ast.retType, retType,c)
 
             return None#không cần trả về symbol ở turn 3 do đã có ở turn 2 
 
@@ -374,9 +378,10 @@ class StaticChecker(BaseVisitor,Utils):
             #ở chỗ env cần thêm receiver vào
             thisType = self.lookup(ast.recType.name, c.typ_env, lambda x: x.name)
             thisMethod = self.lookup(ast.fun.name, thisType.mtypes, lambda x: x.name)
-            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)]+[thisMethod], c.typ_env,4, {
+            method = self.visit(ast.fun,Props([], c.env + [Symbol(ast.receiver, ast.recType)], c.typ_env,4, {
                 "isMethod": True
             }))
+            
             return None
 
 
@@ -586,7 +591,7 @@ class StaticChecker(BaseVisitor,Utils):
 
 
     def visitReturn(self, ast: Return, c: Props):
-        if c.turn ==3: return self.visit(ast.expr, Props(
+        retType =  self.visit(ast.expr, Props(
             c.scope,
             c.env,
             c.typ_env,
@@ -595,7 +600,11 @@ class StaticChecker(BaseVisitor,Utils):
                 "isCallStmt": True
         }
         )) if ast.expr else VoidType() 
-        else: return None 
+        funcRetType= c.flag["returnValue"]
+
+        if type(funcRetType) is Id:
+            funcRetType = self.getDefType(funcRetType, c)
+        self.checkCompatibleType(ast, funcRetType, retType,c)
 
 
     def visitAssign(self, ast: Assign, c: Props):
@@ -746,79 +755,93 @@ class StaticChecker(BaseVisitor,Utils):
         else: return bodyType
 
     def visitIf(self, ast: If, c: Props):
-        if c.turn == 3:
-            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.thenStmt.member), None)
-            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.thenStmt.member if type(x) in [If,ForBasic,ForEach,ForStep]]
-        elif c.turn == 4:
-            cond = self.visit(ast.expr,c)
-            if(not type(cond) is BoolType):
-                raise TypeMismatch(ast)
-            reduce(self.reducer,ast.thenStmt.member,Props(
-                [],
-                c.env,
-                c.typ_env,
-                c.turn,
-                c.flag
-            ))
-            if ast.elseStmt: self.visit(ast.elseStmt, c)
+        # if c.turn == 3:
+        #     returnStmt = next(filter(lambda x: isinstance(x, Return), ast.thenStmt.member), None)
+        #     return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.thenStmt.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        # elif c.turn == 4:
+        cond = self.visit(ast.expr,c)
+        if(not type(cond) is BoolType):
+            raise TypeMismatch(ast)
+        reduce(self.reducer,ast.thenStmt.member,Props(
+            [],
+            c.env,
+            c.typ_env,
+            c.turn,
+            c.flag
+        ))
+        if ast.elseStmt: self.visit(ast.elseStmt, c)
 
     def visitForBasic(self, ast: ForBasic, c: Props):
-        if c.turn ==3:
-            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
-            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
-        elif c.turn ==4:
-            cond = self.visit(ast.cond,c)
-            if(not isinstance(cond,BoolType)):
-                raise TypeMismatch(ast)
-            reduce(self.reducer, ast.loop.member, Props(
-                [],
-                c.env,
-                c.typ_env,
-                c.turn,
-                c.flag
-            ))
+        # if c.turn ==3:
+        #     returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+        #     return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        # elif c.turn ==4:
+        cond = self.visit(ast.cond,c)
+        if(not isinstance(cond,BoolType)):
+            raise TypeMismatch(ast)
+        reduce(self.reducer, ast.loop.member, Props(
+            [],
+            c.env,
+            c.typ_env,
+            c.turn,
+            c.flag
+        ))
 
     def visitForEach(self, ast: ForEach, c: Props):
-        if c.turn == 3:
-            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
-            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
-        elif c.turn == 4:
-            arrType = self.visit(ast.arr, c)
-            if not type(arrType) is ArrayType:
-                raise TypeMismatch(ast)
-            if len(arrType.dimens)==1:
-                valueType = arrType.eleType
-            else:
-                valueType = ArrayType(
-                    arrType.dimens[1:],
-                    arrType.eleType
-                )
+        # if c.turn == 3:
+        #     returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+        #     return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        # elif c.turn == 4:
+        if not ast.idx is None:
+            if ast.idx.name != "_":
+                varName = self.lookup(ast.idx.name, c.env, lambda x: x.name)
+                if varName is None:
+                    raise Undeclared(Identifier(), ast.idx.name)
+                if not type(varName.mtype) is IntType:
+                    raise TypeMismatch(ast)
+        
+        arrType = self.visit(ast.arr, c)
+        if not type(arrType) is ArrayType:
+            raise TypeMismatch(ast)
 
-            reduce(self.reducer,ast.loop.member,Props(
-                ([Symbol(ast.idx.name, IntType())] if ast.idx.name!="_" else [])
-                + ([Symbol(ast.value.name, valueType)] if ast.value.name != "_" else []),
-                c.env 
-                + ([Symbol(ast.idx.name, IntType())] if ast.idx.name!="_" else [])
-                + ([Symbol(ast.value.name, valueType)] if ast.value.name != "_" else []),
-                c.typ_env,
-                c.turn,
-                c.flag
-            ))
+        if len(arrType.dimens)==1:
+            valueType = arrType.eleType
+        else:
+            valueType = ArrayType(
+                arrType.dimens[1:],
+                arrType.eleType
+            )
+
+        if not ast.value is None:
+            if ast.value.name != "_":
+                varName = self.lookup(ast.value.name, c.env, lambda x: x.name)
+                if varName is None:
+                    raise Undeclared(Identifier(), ast.value.name)
+                self.checkCompatibleType(ast, valueType, varName.mtype,c)
+
+        # print("c.flag: ", c.flag)
+        reduce(self.reducer,ast.loop.member,Props(
+            [],
+            c.env,
+            c.typ_env,
+            c.turn,
+            c.flag
+        ))
 
     def visitForStep(self, ast: ForStep, c: Props):
-        if c.turn ==3:
-            returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
-            return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
-        elif c.turn == 4:
+        # if c.turn ==3:
+        #     returnStmt = next(filter(lambda x: isinstance(x, Return), ast.loop.member), None)
+        #     return ([self.visit(returnStmt, c)] if returnStmt else []) + [self.visit(x, Props([], c.env, c.typ_env, c.turn, c.flag)) for x in ast.loop.member if type(x) in [If,ForBasic,ForEach,ForStep]]
+        # elif c.turn == 4:
             #Thêm symbol từ init vào env
-            initVar = self.visit(ast.init, c)
-            newC = Props(([] if initVar is None else [initVar]), c.env+([] if initVar is None else [initVar]), c.typ_env, c.turn, c.flag)
-            cond = self.visit(ast.cond, newC)
-            if(not type(cond) is BoolType):
-                raise TypeMismatch(ast)
-                # pass
-            self.visit(ast.upda, newC)
-            reduce(self.reducer,ast.loop.member, newC)
+        initVar = self.visit(ast.init, c)
+        newC = Props(([] if initVar is None else [initVar]), c.env+([] if initVar is None else [initVar]), c.typ_env, c.turn, c.flag)
+        cond = self.visit(ast.cond, newC)
+        if(not type(cond) is BoolType):
+            raise TypeMismatch(ast)
+            # pass
+        self.visit(ast.upda, newC)
+        reduce(self.reducer,ast.loop.member, newC)
 
     def visitId(self,ast: Id,c: Props):
         res = self.lookup(ast.name, c.env, lambda x: x.name)

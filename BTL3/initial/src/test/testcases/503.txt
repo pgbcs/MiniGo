@@ -7,10 +7,12 @@
     type Vjp struct{
         c int;
     }
+    func (v Vjp) a(){
+        return;
+    }
     func (v Vjp) b(){
         return;
     }
     type Pro interface{
         a();
-        b();
     }

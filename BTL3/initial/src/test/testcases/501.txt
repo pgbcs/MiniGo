@@ -5,7 +5,7 @@
         a(b, c);
     }
     func a(x float, y Person){
-
+        return;
     }
     type Person struct{
         age int;
