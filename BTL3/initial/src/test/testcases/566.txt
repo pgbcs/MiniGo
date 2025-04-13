@@ -1,0 +1,10 @@
+
+
+            type A struct {
+                i B 
+            }
+            type B struct {
+       A   A
+       i     A
+}
+        

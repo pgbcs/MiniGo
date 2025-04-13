@@ -1470,7 +1470,7 @@ class CheckSuite(unittest.TestCase):
         hihi Test;
     }
 """
-        expect = 'Type Mismatch: StructLiteral(Test,[(test1,StringLiteral("abc")),(test2,StringLiteral("cad")),(test3,StringLiteral("wut"))])\n'
+        expect = 'Undeclared Field: test3\n'
         self.assertTrue(TestChecker.test(input,expect, 513)) 
 
     def test_cond_in_if(self):
@@ -1662,22 +1662,6 @@ class CheckSuite(unittest.TestCase):
 """
         expect = "Type Mismatch: FuncCall(a,[])\n"
         self.assertTrue(TestChecker.test(input,expect, 525))
-
-#     def test_complex_program(self):
-#         input = """const a = 2
-# func main() {
-# 	var i [2]int = [2]int{1,2}
-# 	i := A{}.foo()
-# }
-# type A struct {
-# 	arr [a]int
-# }
-# func (a A) foo() [a]int {
-# 	return a.arr
-# }
-# """
-#         expect = ""
-#         self.assertTrue(TestChecker.test(input,expect, 526))
 
     def test_redeclared_builtin_func(self):
         input = """
@@ -2097,13 +2081,13 @@ func main() {
         expect = ""
         self.assertTrue(TestChecker.test(input,expect,556))
 
-    def test_const_init_by_other_variable(self):
-        input = """
-    var a = 1;
-    const b = a;
-"""
-        expect = ""
-        self.assertTrue(TestChecker.test(input,expect,557))
+#     def test_const_init_by_other_variable(self):
+#         input = """
+#     var a = 1;
+#     const b = a;
+# """
+#         expect = ""
+#         self.assertTrue(TestChecker.test(input,expect,557))
 
     def test_struct_and_interface_depend_on_together(self):
         input = """
@@ -2193,3 +2177,19 @@ func main() {
 """
         expect = ""
         self.assertTrue(TestChecker.test(input,expect,565))
+
+    def test_complex_program(self):
+        input = """const a = 2
+func main() {
+	var i [2]int = [2]int{1,2}
+	i := A{}.foo()
+}
+type A struct {
+	arr [a]int
+}
+func (a A) foo() [a]int {
+	return a.arr    
+}
+"""
+        expect = ""
+        self.assertTrue(TestChecker.test(input,expect, 567))

@@ -183,6 +183,7 @@ class StaticChecker(BaseVisitor,Utils):
     def check(self):
         return self.visit(self.ast,self.global_envi)
 
+
     def reducer(self, acc: Props, ele):
         visited = self.visit(ele, acc)
         if visited is None: return acc #đảm bảo cho các turn không cần giá trị đó
@@ -256,9 +257,16 @@ class StaticChecker(BaseVisitor,Utils):
         else:
             varType = ast.varType
             if not varType is None and type(varType) is Id:
+                res = self.lookup(varType.name, c.scope, lambda x: x.name)
+                if not res is None:
+                    raise Undeclared(Identifier(), varType.name)
                 varType = self.getDefType(varType, c)
             if ast.varInit:
-                initType = self.visit(ast.varInit, c)
+                newC = Props(c.scope, c.env, c.typ_env, c.turn,{
+                    "isConst": True if c.flag["isConst"] else False,
+                    "isCallStmt": True
+                })
+                initType = self.visit(ast.varInit, newC)
                 if varType is None:
                     if type(initType) is VoidType:
                         raise TypeMismatch(ast)
@@ -504,11 +512,25 @@ class StaticChecker(BaseVisitor,Utils):
         thisStruct: StructTyp = self.lookup(ast.name, c.typ_env, lambda x: x.name)
         if thisStruct is None:
             raise Undeclared(Identifier(), ast.name)
-        fieldThisStruct = list(map(lambda x: x.name, thisStruct.fields))
+        for f in ast.elements:
+            res = self.lookup(f[0], thisStruct.fields, lambda x: x.name)
+            f1Type = self.visit(f[1], Props(
+                c.scope,
+                c.env,
+                c.typ_env,
+                c.turn,
+                {
+                    "isCallStmt": True
+                }
+            ))
+            if res is None:
+                raise Undeclared(Field(), f[0])
+            self.checkCompatibleType(ast, res.mtype, f1Type, c)          
+        # fieldThisStruct = list(map(lambda x: x.name, thisStruct.fields))
 
-        for f in fieldnames:
-            if f not in fieldThisStruct:
-                raise TypeMismatch(ast)
+        # for f in fieldnames:
+        #     if f not in fieldThisStruct:
+        #         raise TypeMismatch(ast)
         
         if c.flag["isConst"]:
             return StructType(
@@ -522,8 +544,6 @@ class StaticChecker(BaseVisitor,Utils):
         )
 
     def visitArrayLiteral(self, ast: ArrayLiteral, c: Props):
-        # dimenList = [self.visit(x) for x in ast.dimens]
-        #need check id in dimen is const
         if c.flag["isConst"]:
             return ArrayType(
                 ast.dimens,
@@ -583,17 +603,18 @@ class StaticChecker(BaseVisitor,Utils):
         res = self.lookup(receiver.name, c.typ_env, lambda x: x.name)
         if res is None:
             raise Undeclared(Identifier(), receiver.name)
-
         methCheck = self.lookup(ast.metName, res.mtypes, lambda x: x.name)
         if methCheck is None:
             raise Undeclared(Method(), ast.metName)
         if len(methCheck.mtype.partype)!= len(ast.args):
             raise TypeMismatch(ast)
         
+
         if not c.flag["isCallStmt"]:
             if not isinstance(methCheck.mtype.rettype, VoidType):  raise TypeMismatch(ast)     
         else:
             if isinstance(methCheck.mtype.rettype, VoidType):  raise TypeMismatch(ast)
+
 
         paramType = reduce(lambda x,y: x + [self.visit(y, c)], ast.args, [])
         paramCmp = zip(paramType, methCheck.mtype.partype)
@@ -912,7 +933,9 @@ class StaticChecker(BaseVisitor,Utils):
         reduce(self.reducer,ast.loop.member, newC)
 
     def visitId(self,ast: Id,c: Props):
-        res = self.lookup(ast.name, c.env, lambda x: x.name)
+        if c.flag["isConst"]:
+            res = self.lookup(ast.name, c.env, lambda x: x.name if x.value != None else None)
+        else: res = self.lookup(ast.name, c.env, lambda x: x.name)
         if res is None:
             # if c.flag["isConst"]: raise Undeclared(Constant(), ast.name)
             raise Undeclared(Identifier(), ast.name)

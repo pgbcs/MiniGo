@@ -1,0 +1,1 @@
+Program([FuncDecl(process,[ParDecl(data,Id(MyData))],VoidType,Block([]))])
