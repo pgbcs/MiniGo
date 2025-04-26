@@ -1,0 +1,1 @@
+func main() {putInt(5);};

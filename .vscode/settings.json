@@ -3,6 +3,7 @@
     "./BTL2/initial/src/main/minigo/utils",
     "./BTL2/initial/target",
     "./BTL1/initial/src/test/Test",
-    "./BTL3/initial/src/main/minigo/utils"
+    "./BTL3/initial/src/main/minigo/utils",
+    "./BTL3/initial/src/main/minigo/checker"
   ]
 }
