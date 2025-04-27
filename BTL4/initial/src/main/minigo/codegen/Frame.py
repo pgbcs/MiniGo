@@ -1,4 +1,4 @@
-from BTL4.initial.src.main.minigo.codegen.CodeGenError import IllegalRuntimeException
+from CodeGenError import IllegalRuntimeException
 from Utils import *
 
 class Frame():

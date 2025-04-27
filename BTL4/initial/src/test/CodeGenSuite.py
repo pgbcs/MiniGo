@@ -29,3 +29,14 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "5000"
         self.assertTrue(TestCodeGen.test(input,expect,506))
     
+    def test_function_with_param(self):
+        input = """
+        func foo(a, b int) int{
+            return a;
+        }
+        func main(){
+            putInt(foo(1,2));
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input,expect,507))

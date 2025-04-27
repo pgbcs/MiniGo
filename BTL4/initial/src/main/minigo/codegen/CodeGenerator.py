@@ -42,9 +42,23 @@ class CodeGenerator(BaseVisitor,Utils):
         self.path = None
         self.emit = None
 
+    #need add more built-in function
     def init(self):
-        mem = [Symbol("putInt",MType([IntType()],VoidType()),CName("io",True)),
-                Symbol("putIntLn",MType([IntType()],VoidType()),CName("io",True))]
+        mem = [
+            Symbol("putInt", MType([IntType()], VoidType()),CName("io",True)),
+            Symbol("putIntLn", MType([IntType()], VoidType()),CName("io",True)),
+            Symbol("getInt", MType([], IntType()), CName("io", True)),
+            Symbol("getFloat", MType([], FloatType()), CName("io", True)),
+            Symbol("putFloat", MType([FloatType()], VoidType()), CName("io", True)),
+            Symbol("putFloatLn", MType([FloatType()], VoidType()), CName("io", True)),
+            Symbol("getBool", MType([], BoolType()), CName("io", True)),
+            Symbol("putBool", MType([BoolType()], VoidType()), CName("io", True)),
+            Symbol("putBoolLn", MType([BoolType()], VoidType()), CName("io", True)),
+            Symbol("getString", MType([], StringType()), CName("io", True)),
+            Symbol("putString", MType([StringType()], VoidType()), CName("io", True)),
+            Symbol("putStringLn", MType([StringType()], VoidType()), CName("io", True)),
+            Symbol("putLn", MType([], VoidType()), CName("io", True))
+            ]
         return mem
 
     def gen(self, ast, dir_):
@@ -53,7 +67,6 @@ class CodeGenerator(BaseVisitor,Utils):
         self.path = dir_
         self.emit = Emitter(dir_ + "/" + self.className + ".j")
         self.visit(ast, gl)
-       
         
     def emitObjectInit(self):
         frame = Frame("<init>", VoidType())  
@@ -71,7 +84,7 @@ class CodeGenerator(BaseVisitor,Utils):
         self.emit.printout(self.emit.emitENDMETHOD(frame))  
         frame.exitScope()  
 
-    def visitProgram(self, ast, c):
+    def visitProgram(self, ast: Program, c):
         env ={}
         env['env'] = [c]
         self.emit.printout(self.emit.emitPROLOG(self.className, "java.lang.Object"))
@@ -80,8 +93,7 @@ class CodeGenerator(BaseVisitor,Utils):
         self.emit.printout(self.emit.emitEPILOG())
         return env
 
-
-    def visitFuncDecl(self, ast, o):
+    def visitFuncDecl(self, ast: FuncDecl, o):
         frame = Frame(ast.name, ast.retType)
         isMain = ast.name == "main"
         if isMain:
@@ -106,12 +118,30 @@ class CodeGenerator(BaseVisitor,Utils):
         self.emit.printout(self.emit.emitENDMETHOD(frame))
         frame.exitScope()
         return o
-    def visitVarDecl(self, ast, o):
+    
+    def visitParamDecl(self, ast: ParamDecl, o):
+        frame: Frame = o['frame']
+        index = frame.getNewIndex()
+        paramCode = self.emit.emitVAR(
+            index,
+            ast.parName,
+            ast.parType,
+            frame.getStartLabel(),
+            frame.getEndLabel(),
+            frame
+        )
+        o['env'][0].append(
+            Symbol(ast.parName, ast.parType, Index(index))
+        )
+        self.emit.printout(paramCode)
+        return o
+
+    def visitVarDecl(self, ast, o):#need modify value init
         if 'frame' not in o: # global var
             o['env'][0].append(Symbol(ast.varName, ast.varType, CName(self.className)))
             self.emit.printout(self.emit.emitATTRIBUTE(ast.varName, ast.varType, True, False, str(ast.varInit.value) if ast.varInit else None))
         else:
-            frame = o['frame']
+            frame: Frame = o['frame']
             index = frame.getNewIndex()
             o['env'][0].append(Symbol(ast.varName, ast.varType, Index(index)))
             self.emit.printout(self.emit.emitVAR(index, ast.varName, ast.varType, frame.getStartLabel(), frame.getEndLabel(), frame))  
@@ -120,6 +150,20 @@ class CodeGenerator(BaseVisitor,Utils):
                 self.emit.printout(self.emit.emitWRITEVAR(ast.varName, ast.varType, index,  frame))
         return o
     
+    def visitConstDecl(self, ast: ConstDecl, o):
+        value = self.visit(ast.iniExpr)#need field to compute constant value
+        #need inference conType
+        if 'frame' not in o: #global constant
+            o['env'][0].append(Symbol(ast.conName, ast.conType, CName(self.className)))
+            self.emit.printout(self.emit.emitATTRIBUTE(ast.conName, ast.conType, True, True, str(value)))
+        else:
+            frame: Frame = o['frame']
+            index = frame.getNewIndex()
+            o['env'][0].append(Symbol(ast.conName, ast.conType, Index(index)))
+            self.emit.printout(self.emit.emitVAR(index, ast.conName, ast.conType, frame.getStartLabel(), frame.getEndLabel(), frame))
+            self.emit.printout(self.emit.emitPUSHCONST(value, ast.conType, frame))
+        return o
+
     def visitFuncCall(self, ast, o):
         sym = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
         env = o.copy()
@@ -138,6 +182,9 @@ class CodeGenerator(BaseVisitor,Utils):
         env['frame'].exitScope()
         return o
     
+    def visitReturn(self, ast: Return, o):
+        pass
+
     def visitId(self, ast, o):
         sym = next(filter(lambda x: x.name == ast.name, [j for i in o['env'] for j in i]),None)
         if type(sym.value) is Index:
