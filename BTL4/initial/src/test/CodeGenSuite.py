@@ -29,14 +29,32 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "5000"
         self.assertTrue(TestCodeGen.test(input,expect,506))
     
-    def test_function_with_param(self):
+    def test_global_var_using_other_var_for_init(self):
         input = """
-        func foo(a, b int) int{
-            return a;
-        }
-        func main(){
-            putInt(foo(1,2));
-        }
-"""
-        expect = "3"
+        var a int = 10;
+        var b int = a;
+        func main() { putInt(b);};
+        """
+        expect = "10"
         self.assertTrue(TestCodeGen.test(input,expect,507))
+
+    def test_global_const(self):
+        input = """
+        const b = 3
+        func main() { putInt(b);};
+        """
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input,expect,508))
+
+
+#     def test_function_with_param(self):
+#         input = """
+#         func foo(a, b int) int{
+#             return a;
+#         }
+#         func main(){
+#             putInt(foo(1,2));
+#         }
+# """
+#         expect = "3"
+#         self.assertTrue(TestCodeGen.test(input,expect,507))
