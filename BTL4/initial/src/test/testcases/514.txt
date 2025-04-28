@@ -1,0 +1,4 @@
+
+        var b boolean;
+        func main() { putBool(b);};
+        

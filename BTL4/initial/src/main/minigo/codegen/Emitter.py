@@ -150,8 +150,10 @@ class Emitter():
         #... -> ..., value
         
         frame.push()
-        if type(inType) is IntType:
+        if type(inType) in [IntType, BoolType]:
             return self.jvm.emitILOAD(index)
+        elif type(inType) is FloatType:
+            return self.jvm.emitFLOAD(index)
         elif type(inType) is cgen.ArrayType or type(inType) is cgen.ClassType or type(inType) is StringType:
             return self.jvm.emitALOAD(index)
         else:
@@ -182,8 +184,10 @@ class Emitter():
         
         frame.pop()
 
-        if type(inType) is IntType:
+        if type(inType) in [IntType, BoolType]:
             return self.jvm.emitISTORE(index)
+        elif type(inType) is FloatType:
+            return self.jvm.emitFSTORE(index)
         elif type(inType) is cgen.ArrayType or type(inType) is cgen.ClassType or type(inType) is StringType:
             return self.jvm.emitASTORE(index)
         else:
@@ -646,7 +650,9 @@ class Emitter():
     def clearBuff(self):
         self.buff.clear()
 
-
+    #write more
+    def emitPUSHNULL(self):
+        pass
 
 
 

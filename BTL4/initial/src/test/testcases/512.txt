@@ -1,0 +1,4 @@
+
+        var b int;
+        func main() { putInt(b);};
+        

@@ -53,6 +53,25 @@ class CodeGenerator(BaseVisitor,Utils):
             return str(initExpr.value)
         return None
 
+
+    #dont have to use it because in this case jasmin already have default value
+    def genDefaultValue(self, name, typ, o, isGlobal, **kwargs):
+        defaultVal = None
+        if type(typ) in [IntType, BoolType]:
+            defaultVal = "0"
+        elif type(typ) is FloatType:
+            defaultVal = "0.0"            
+
+        if defaultVal:
+            self.emit.printout(self.emit.emitPUSHCONST(defaultVal, typ, o['frame']))
+        else:
+            return
+
+
+        if isGlobal:
+            self.emit.printout(self.emit.emitPUTSTATIC(kwargs['className'] + '/' + name, typ, o['frame']))
+        else:
+            self.emit.printout(self.emit.emitWRITEVAR(name, typ, kwargs['index'],  o['frame']))
     # def emitInitValueLocal(self, initExpr, o):
     #     if type()
 
@@ -184,7 +203,7 @@ class CodeGenerator(BaseVisitor,Utils):
             if 'frame' not in o: # global var
                 o['env'][0].append(Symbol(ast.varName, varType, CName(self.className)))
                 self.emit.printout(self.emit.emitATTRIBUTE(ast.varName, varType, True, False, self.getLiteralValue(ast.varInit)))
-                if ast.varInit and not type(ast.varInit) in self.initType: o['globalInit'] = True
+                if not ast.varInit or not type(ast.varInit) in self.initType: o['globalInit'] = True
             else:
                 frame: Frame = o['frame']
                 index = frame.getNewIndex()
@@ -197,6 +216,9 @@ class CodeGenerator(BaseVisitor,Utils):
                     initCode,_ = self.visit(ast.varInit, newO)
                     self.emit.printout(initCode)
                     self.emit.printout(self.emit.emitWRITEVAR(ast.varName, varType, index,  frame))
+                else:
+                    self.genDefaultValue(ast.varName, ast.varType, o, False, index=index)
+
         if o['turn'] == 3:
             frame: Frame = o['frame']
             if ast.varInit:
@@ -206,6 +228,9 @@ class CodeGenerator(BaseVisitor,Utils):
                     varInitCode, varType = self.visit(ast.varInit, newO)
                     self.emit.printout(varInitCode)
                     self.emit.printout(self.emit.emitPUTSTATIC(self.className + '/' + ast.varName, varType, frame))
+            else:
+                self.genDefaultValue(ast.varName, ast.varType, o, True, className=self.className)
+
         return o
     
     def visitConstDecl(self, ast: ConstDecl, o):
@@ -242,6 +267,12 @@ class CodeGenerator(BaseVisitor,Utils):
                 self.emit.printout(self.emit.emitPUTSTATIC(self.className + '/' + ast.conName, conType, frame))
         return o
 
+    def visitMethodDecl(self, ast: MethodDecl, o):
+        pass
+
+    def visitStructType(self, ast: StructType, o):
+        pass
+
     def visitFuncCall(self, ast, o):
         sym = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
         env = o.copy()
@@ -277,7 +308,7 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitFloatLiteral(self, ast: FloatLiteral, o):
         if 'onlyType' in o and o['onlyType']: return FloatType()
-        return self.emit.emitPUSHCONST(ast.value, o['frame']), FloatType()
+        return self.emit.emitPUSHCONST(str(ast.value), FloatType(), o['frame']), FloatType()
 
     def visitStringLiteral(self, ast: StringLiteral, o):
         if 'onlyType' in o and o['onlyType']: return StringType()
@@ -285,7 +316,7 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitBooleanLiteral(self, ast: BooleanLiteral, o):
         if 'onlyType' in o and o['onlyType']: return BoolType()
-        return self.emit.emitPUSHCONST(ast.value, o['frame']), BoolType()
+        return self.emit.emitPUSHCONST(str(ast.value).lower(), BoolType(), o['frame']), BoolType()
 
     def visitNilLiteral(self, ast: NilLiteral, o):
         pass

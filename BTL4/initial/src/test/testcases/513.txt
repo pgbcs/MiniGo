@@ -1,0 +1,4 @@
+
+        var b float;
+        func main() { putFloat(b);};
+        

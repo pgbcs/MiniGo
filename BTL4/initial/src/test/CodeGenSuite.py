@@ -69,7 +69,62 @@ class CheckCodeGenSuite(unittest.TestCase):
         """
         expect = "hello world"
         self.assertTrue(TestCodeGen.test(input,expect,511))
+    
+    def test_default_int_global_var(self):
+        input = """
+        var b int;
+        func main() { putInt(b);};
+        """
+        expect = "0"
+        self.assertTrue(TestCodeGen.test(input,expect,512))
         
+    def test_default_float_global_var(self):
+        input = """
+        var b float;
+        func main() { putFloat(b);};
+        """
+        expect = "0.0"
+        self.assertTrue(TestCodeGen.test(input,expect,513))
+        
+    def test_default_bool_global_var(self):
+        input = """
+        var b boolean;
+        func main() { putBool(b);};
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input,expect,514))
+    
+    def test_int_local_var(self):
+        input = """
+        func main() {
+            var b int = 0;
+            putInt(b);
+        }
+        """
+        expect = "0"
+        self.assertTrue(TestCodeGen.test(input, expect, 515))
+
+    def test_float_local_var(self):
+        input = """
+        func main() {
+            var b float = 0.0;
+            putFloat(b);
+        }
+        """
+        expect = "0.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 516))
+
+    def test_bool_local_var(self):
+        input = """
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 517))
+    
+    
 #     def test_function_with_param(self):
 #         input = """
 #         func foo(a, b int) int{

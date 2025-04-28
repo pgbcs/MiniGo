@@ -1,0 +1,6 @@
+
+        func main() {
+            var b float = 0.0;
+            putFloat(b);
+        }
+        
