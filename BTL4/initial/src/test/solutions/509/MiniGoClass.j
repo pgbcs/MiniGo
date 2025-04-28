@@ -1,14 +1,14 @@
 .source MiniGoClass.java
 .class public MiniGoClass
 .super java.lang.Object
-.field static final b I = 3
+.field static final b F = 3.14
 
 .method public static main([Ljava/lang/String;)V
 Label0:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 Label2:
-	getstatic MiniGoClass/b I
-	invokestatic io/putInt(I)V
+	getstatic MiniGoClass/b F
+	invokestatic io/putFloat(F)V
 Label3:
 Label1:
 	return

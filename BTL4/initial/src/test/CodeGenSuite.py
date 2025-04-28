@@ -46,7 +46,30 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "3"
         self.assertTrue(TestCodeGen.test(input,expect,508))
 
-
+    def test_global_float_const(self):
+        input = """
+        const b = 3.14
+        func main() { putFloat(b);};
+        """
+        expect = "3.14"
+        self.assertTrue(TestCodeGen.test(input,expect,509))
+        
+    def test_global_boolean_const(self):
+        input = """
+        const b = true
+        func main() { putBool(b);};
+        """
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input,expect,510))
+    
+    def test_global_string_const(self):
+        input = """
+        const b = "hello world"
+        func main() { putString(b);};
+        """
+        expect = "hello world"
+        self.assertTrue(TestCodeGen.test(input,expect,511))
+        
 #     def test_function_with_param(self):
 #         input = """
 #         func foo(a, b int) int{

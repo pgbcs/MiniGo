@@ -1,0 +1,4 @@
+
+        const b = true
+        func main() { putBool(b);};
+        

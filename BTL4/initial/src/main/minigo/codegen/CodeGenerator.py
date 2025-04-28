@@ -48,6 +48,8 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def getLiteralValue(self, initExpr):
         if type(initExpr) in self.initType:
+            if type(initExpr) is BooleanLiteral:
+                return "1" if initExpr.value else "0"
             return str(initExpr.value)
         return None
 
@@ -222,8 +224,8 @@ class CodeGenerator(BaseVisitor,Utils):
                                                            conType, 
                                                            True, 
                                                            True, 
-                                                           str(ast.iniExpr.value) if type(ast.iniExpr) in self.initType else None))
-                o['globalInit'] = True
+                                                           self.getLiteralValue(ast.iniExpr)))
+                if not type(ast.iniExpr) in self.initType: o['globalInit'] = True
             else:
                 frame: Frame = o['frame']
                 index = frame.getNewIndex()
@@ -274,13 +276,16 @@ class CodeGenerator(BaseVisitor,Utils):
         return self.emit.emitPUSHICONST(ast.value, o['frame']), IntType()
 
     def visitFloatLiteral(self, ast: FloatLiteral, o):
-        pass
+        if 'onlyType' in o and o['onlyType']: return FloatType()
+        return self.emit.emitPUSHCONST(ast.value, o['frame']), FloatType()
 
     def visitStringLiteral(self, ast: StringLiteral, o):
-        pass
+        if 'onlyType' in o and o['onlyType']: return StringType()
+        return self.emit.emitPUSHCONST(ast.value, o['frame']), StringType()
 
     def visitBooleanLiteral(self, ast: BooleanLiteral, o):
-        pass
+        if 'onlyType' in o and o['onlyType']: return BoolType()
+        return self.emit.emitPUSHCONST(ast.value, o['frame']), BoolType()
 
     def visitNilLiteral(self, ast: NilLiteral, o):
         pass

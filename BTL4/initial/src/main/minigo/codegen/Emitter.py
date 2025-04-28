@@ -16,6 +16,10 @@ class Emitter():
         typeIn = type(inType)
         if typeIn is IntType:
             return "I"
+        elif typeIn is FloatType:
+            return "F"
+        elif typeIn is BoolType:
+            return "Z"
         elif typeIn is StringType:
             return "Ljava/lang/String;"
         elif typeIn is VoidType:
@@ -42,8 +46,8 @@ class Emitter():
         #in: Int or Sring
         #frame: Frame
         
-        frame.push();
         if type(in_) is int:
+            frame.push()
             i = in_
             if i >= -1 and i <=5:
                 return self.jvm.emitICONST(i)
@@ -81,11 +85,13 @@ class Emitter():
         #typ: Type
         #frame: Frame
         
-        if type(typ) is IntType:
+        if type(typ) in [IntType, BoolType]:
             return self.emitPUSHICONST(in_, frame)
         elif type(typ) is StringType:
             frame.push()
             return self.jvm.emitLDC(in_)
+        elif type(typ) is FloatType:
+            return self.emitPUSHFCONST(in_, frame)
         else:
             raise IllegalOperandException(in_)
 
