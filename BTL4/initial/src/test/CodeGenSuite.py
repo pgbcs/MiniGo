@@ -190,13 +190,14 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "false"
         self.assertTrue(TestCodeGen.test(input, expect, 521))
 
-    def test_method_decl(self):
+    def test_method_decl1(self):
         input = """
-        type Sahur struct {
+        type ABCD struct {
         value int;
         }
-        func (c Sahur) Add(x int)  {
+        func (c ABCD) Add(x int) int {
             c.value += x;
+            return c.value
         }
         func main() {
             var b boolean = false;
@@ -205,6 +206,35 @@ class CheckCodeGenSuite(unittest.TestCase):
         """
         expect = "false"
         self.assertTrue(TestCodeGen.test(input, expect, 522))
+
+    def test_field_access(self):
+        input = """
+        type Crocodilo struct {
+            value int;
+        }
+        func main() {
+            var b = Crocodilo{value: 4};
+            putInt(b.value);
+        }
+        """
+        expect = "4"
+        self.assertTrue(TestCodeGen.test(input, expect, 523))
+    
+    def test_funccall_with_return_value_as_stmt(self):
+        input = """
+        func Foo(a int) int {
+            return a;
+        }
+        func main(){
+            var a = 4;
+            Foo(a);
+            putInt(Foo(a));
+        }
+"""
+        expect= "4"
+        self.assertTrue(TestCodeGen.test(input, expect, 524))
+
+
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

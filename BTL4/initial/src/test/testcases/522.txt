@@ -1,9 +1,10 @@
 
-        type Sahur struct {
+        type ABCD struct {
         value int;
         }
-        func (c Sahur) Add(x int)  {
+        func (c ABCD) Add(x int) int {
             c.value += x;
+            return c.value
         }
         func main() {
             var b boolean = false;

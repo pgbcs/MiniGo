@@ -227,6 +227,10 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitVarDecl(self, ast: VarDecl, o):#need modify value init
         varType = self.getType(ast.varType)
+        if varType is None:
+            env = o.copy()
+            env['onlyType'] = True
+            varType = self.visit(ast.varInit, env)
         if o['turn'] == 2:
             if 'frame' not in o: # global var
                 o['env'][0].append(Symbol(ast.varName, varType, CName(self.className)))
@@ -235,13 +239,13 @@ class CodeGenerator(BaseVisitor,Utils):
             else:
                 frame: Frame = o['frame']
                 index = frame.getNewIndex()
-                o['env'][0].append(Symbol(ast.varName, ast.varType, Index(index)))
+                o['env'][0].append(Symbol(ast.varName, varType, Index(index)))
                 self.emit[o['className']].printout(self.emit[o['className']].emitVAR(index, ast.varName, varType, frame.getStartLabel(), frame.getEndLabel(), frame))  
                 if ast.varInit:
                     # self.emit.printout(self.emit.emitPUSHICONST(ast.varInit.value, frame)) --original code
                     newO = o.copy()
                     newO['isLeft'] = False
-                    initCode,_ = self.visit(ast.varInit, newO)
+                    initCode,initType = self.visit(ast.varInit, newO)
                     self.emit[o['className']].printout(initCode)
                     self.emit[o['className']].printout(self.emit[o['className']].emitWRITEVAR(ast.varName, varType, index,  frame))
                 else:
@@ -253,7 +257,7 @@ class CodeGenerator(BaseVisitor,Utils):
                 if not type(ast.varInit) in self.initType:
                     newO = o.copy()
                     newO['isLeft'] = False #not change directly due to can affect on higher layer?!
-                    varInitCode, varType = self.visit(ast.varInit, newO)
+                    varInitCode,_ = self.visit(ast.varInit, newO)
                     self.emit[o['className']].printout(varInitCode)
                     self.emit[o['className']].printout(self.emit[o['className']].emitPUTSTATIC(self.className + '/' + ast.varName, varType, frame))
             else:
@@ -346,13 +350,21 @@ class CodeGenerator(BaseVisitor,Utils):
         mtype = MType(list(map(lambda x: self.getType(x), ast.params)), ast.retType)
         return self.emit[o['className']].emitAMETHOD(ast.name, mtype), Symbol(ast.name, mtype)
         
-    def visitFuncCall(self, ast, o):
-        sym = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
+    #TODO: what case it is not stmt but still need pop???
+    def visitFuncCall(self, ast: FuncCall, o):#TODO: if it is stmt ???
+        sym:Symbol = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
         env = o.copy()
         env['isLeft'] = False
-        [self.emit[o['className']].printout(self.visit(x, env)[0]) for x in ast.args]
-        self.emit[o['className']].printout(self.emit[o['className']].emitINVOKESTATIC(f"{sym.value.value}/{ast.funName}",sym.mtype, o['frame']))
-        return o
+        paramCode = "".join([self.visit(x, env)[0] for x in ast.args])
+        funcCallCode = self.emit[o['className']].emitINVOKESTATIC(f"{sym.value.value}/{ast.funName}",sym.mtype, o['frame'])
+            
+        if 'isLeft' in o and o['isLeft'] ==False:
+            return paramCode + funcCallCode, sym.mtype.rettype
+        else:
+            print()
+            popCode = self.emit[o['className']].emitPOP(o['frame']) if not type(sym.mtype.rettype) is VoidType else ""
+            self.emit[o['className']].printout(paramCode+funcCallCode+popCode)
+            return o
     
     def visitMethCall(self, ast: MethCall, o):
         pass
@@ -361,17 +373,18 @@ class CodeGenerator(BaseVisitor,Utils):
         env = o.copy()
         env['isLeft'] = False
         recCode,recType = self.visit(ast.receiver, env)
+        className = recType.name
         thisStruct = next(filter(lambda x: x[0] == recType.name, o['struct']),None)
         field: Symbol = next(filter(lambda x: x.name == ast.field, thisStruct[1]), None)
         if o['isLeft']:
-            fieldAccessCode = recCode + self.emit[o['className']].emitPUTFIELD(
-                o['className'] + "/" + ast.field,
+            fieldAccessCode = recCode,self.emit[o['className']].emitPUTFIELD(
+                className+ "/" + ast.field,
                 field.mtype,
                 o['frame']       
             )
         else:
             fieldAccessCode =recCode + self.emit[o['className']].emitGETFIELD(
-                o['className']+"/"+ast.field,
+                className+"/"+ast.field,
                 field.mtype,
                 o['frame'] 
             )
@@ -383,7 +396,9 @@ class CodeGenerator(BaseVisitor,Utils):
         rhsCode, rhsType = self.visit(ast.rhs, env) 
         env['isLeft'] = True
         lhsCode, lhsType = self.visit(ast.lhs, env)
-        self.emit[o['className']].printout(rhsCode+lhsCode)
+        if type(lhsCode) is tuple:
+            self.emit[o['className']].printout(lhsCode[0] +rhsCode + lhsCode[1])
+        else: self.emit[o['className']].printout(rhsCode+lhsCode)
         return o
 
     def visitBinaryOp(self, ast: BinaryOp, o):
@@ -429,7 +444,14 @@ class CodeGenerator(BaseVisitor,Utils):
         return o
     
     def visitReturn(self, ast: Return, o):
-        pass
+        env = o.copy()
+        env['isLeft'] = False
+        retCode = ""
+        if ast.expr: retCode, retType = self.visit(ast.expr, env)
+        else: retType = VoidType()
+        self.emit[o['className']].printout(retCode+self.emit[o['className']].emitRETURN(retType, o['frame']))
+        return o
+        
 
     def visitId(self, ast: Id, o):
         sym = next(filter(lambda x: x.name == ast.name, [j for i in o['env'] for j in i]),None)
@@ -443,6 +465,7 @@ class CodeGenerator(BaseVisitor,Utils):
                 if o['isLeft']:
                     resCode = self.emit[o['className']].emitWRITEVAR(ast.name, sym.mtype, sym.value.value, o['frame']) 
                 else:
+                    # print(sym)
                     resCode = self.emit[o['className']].emitREADVAR(ast.name, sym.mtype, sym.value.value, o['frame']) 
                 return resCode,sym.mtype
         else:
@@ -453,6 +476,24 @@ class CodeGenerator(BaseVisitor,Utils):
             return resCode,sym.mtype
             # return self.emit[o['className']].emitGETSTATIC(f"{self.className}/{sym.name}",sym.mtype,o['frame']),sym.mtype
         
+    def visitStructLiteral(self, ast: StructLiteral, o):
+        if 'onlyType' in o and o['onlyType']: 
+            return ClassType(ast.name)
+        className = ast.name
+        frame = o['frame']
+        insCode =  self.emit[className].emitINSTANCE(ast.name, MType([], VoidType()),o['frame'])
+        thisStruct = next(filter(lambda x: x[0] == ast.name, o['struct']),None)
+        iniFieldCode = ""
+        for e in ast.elements:
+            field: Symbol = next(filter(lambda x: x.name == e[0], thisStruct[1]), None)
+            iniFieldCode += self.emit[className].emitDUP(frame)
+            env = o.copy()
+            env['isLeft'] = False
+            iniFieldCode += self.visit(e[1], env)[0]
+            iniFieldCode += self.emit[className].emitPUTFIELD(className + "/" + e[0], field.mtype, frame)
+        return insCode + iniFieldCode, ClassType(ast.name)
+
+
     def visitIntLiteral(self, ast: IntLiteral, o):
         if 'onlyType' in o and o['onlyType']: return IntType()
         return self.emit[o['className']].emitPUSHICONST(ast.value, o['frame']), IntType()

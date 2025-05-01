@@ -3,7 +3,7 @@ from StaticCheck import *
 from StaticError import *
 import CodeGenerator as cgen
 from MachineCode import JasminCode
-
+from CodeGenError import *
 
 
 class Emitter():
@@ -157,6 +157,7 @@ class Emitter():
         elif type(inType) is cgen.ArrayType or type(inType) is cgen.ClassType or type(inType) is StringType:
             return self.jvm.emitALOAD(index)
         else:
+            # print(inType)
             raise IllegalOperandException(name)
 
     ''' generate the second instruction for array cell access
@@ -666,3 +667,10 @@ class Emitter():
     def emitAMETHOD(self, lexeme, in_):
         return JasminCode.END + ".method public abstract " + lexeme + self.getJVMType(in_) + JasminCode.END + self.jvm.emitENDMETHOD()
         
+    def emitINSTANCE(self, lexeme, in_, frame):
+        result=""
+        frame.push()
+        result+=self.jvm.emitNEW(lexeme)
+        result+=self.emitDUP(frame)
+        result+=self.emitINVOKESPECIAL(frame, lexeme+"/<init>", in_)
+        return result

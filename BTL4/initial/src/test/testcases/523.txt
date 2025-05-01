@@ -1,0 +1,9 @@
+
+        type Crocodilo struct {
+            value int;
+        }
+        func main() {
+            var b = Crocodilo{value: 4};
+            putInt(b.value);
+        }
+        
