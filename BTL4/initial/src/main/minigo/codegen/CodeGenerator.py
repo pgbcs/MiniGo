@@ -350,9 +350,11 @@ class CodeGenerator(BaseVisitor,Utils):
         mtype = MType(list(map(lambda x: self.getType(x), ast.params)), ast.retType)
         return self.emit[o['className']].emitAMETHOD(ast.name, mtype), Symbol(ast.name, mtype)
         
+
     #TODO: what case it is not stmt but still need pop???
     def visitFuncCall(self, ast: FuncCall, o):#TODO: if it is stmt ???
         sym:Symbol = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
+        if 'onlyType' in o and o['onlyType']: return sym.mtype.rettype
         env = o.copy()
         env['isLeft'] = False
         paramCode = "".join([self.visit(x, env)[0] for x in ast.args])
@@ -361,44 +363,72 @@ class CodeGenerator(BaseVisitor,Utils):
         if 'isLeft' in o and o['isLeft'] ==False:
             return paramCode + funcCallCode, sym.mtype.rettype
         else:
-            print()
             popCode = self.emit[o['className']].emitPOP(o['frame']) if not type(sym.mtype.rettype) is VoidType else ""
             self.emit[o['className']].printout(paramCode+funcCallCode+popCode)
             return o
     
     def visitMethCall(self, ast: MethCall, o):
-        pass
+        env = o.copy()
+        env['isLeft'] = False
+        recCode, recType = self.visit(ast.receiver, env)
+
+        thisType = next(filter(lambda x: x[0] == recType.name, o['struct'] + o['interface']), None)
+        if len(thisType) == 2: #it is interface
+            sym: Symbol = next(filter(lambda x: x.name == ast.metName, thisType[1]),None)
+        else:
+            sym: Symbol = next(filter(lambda x: x.name == ast.metName, thisType[2]),None)
+
+        if 'onlyType' in o and o['onlyType']: return sym.mtype.rettype
+
+        paramCode = "".join([self.visit(x, env)[0] for x in ast.args])
+        methCallCode = self.emit[o['className']].emitINVOKEVIRTUAL(f"{sym.value.value}/{ast.metName}",sym.mtype, o['frame'])
+
+        if 'isLeft' in o and o['isLeft'] ==False:
+            return recCode + paramCode + methCallCode, sym.mtype.rettype
+        else:
+            popCode = self.emit[o['className']].emitPOP(o['frame']) if not type(sym.mtype.rettype) is VoidType else ""
+            self.emit[o['className']].printout(recCode + paramCode+methCallCode+popCode)
+            return o
 
     def visitFieldAccess(self, ast: FieldAccess, o):
         env = o.copy()
         env['isLeft'] = False
         recCode,recType = self.visit(ast.receiver, env)
+
         className = recType.name
         thisStruct = next(filter(lambda x: x[0] == recType.name, o['struct']),None)
         field: Symbol = next(filter(lambda x: x.name == ast.field, thisStruct[1]), None)
         if o['isLeft']:
-            fieldAccessCode = recCode,self.emit[o['className']].emitPUTFIELD(
-                className+ "/" + ast.field,
-                field.mtype,
-                o['frame']       
-            )
+            return recCode, (field, className)
         else:
             fieldAccessCode =recCode + self.emit[o['className']].emitGETFIELD(
                 className+"/"+ast.field,
                 field.mtype,
                 o['frame'] 
             )
-        return fieldAccessCode, field.mtype
+            return fieldAccessCode, field.mtype
 
     def visitAssign(self, ast: Assign, o):
-        env = o.copy()
-        env['isLeft'] = False
-        rhsCode, rhsType = self.visit(ast.rhs, env) 
-        env['isLeft'] = True
-        lhsCode, lhsType = self.visit(ast.lhs, env)
-        if type(lhsCode) is tuple:
-            self.emit[o['className']].printout(lhsCode[0] +rhsCode + lhsCode[1])
-        else: self.emit[o['className']].printout(rhsCode+lhsCode)
+        env = o.copy() 
+        # if type(lhsCode) is tuple:
+        #     self.emit[o['className']].printout(lhsCode[0] +rhsCode + lhsCode[1])
+        if type(ast.lhs) is FieldAccess:    
+            env['isLeft'] = True
+            lhsCode, optVal = self.visit(ast.lhs, env)
+            env['isLeft'] = False 
+            rhsCode, rhsType = self.visit(ast.rhs, env)
+            finCode = self.emit[o['className']].emitPUTFIELD(
+                optVal[1] + '/'+ optVal[0].name,
+                optVal[0].mtype,
+                env['frame']
+            )
+            self.emit[o['className']].printout(lhsCode+rhsCode+finCode)
+        else:            
+            env['isLeft'] = False 
+            rhsCode, rhsType = self.visit(ast.rhs, env)
+            env['isLeft'] = True
+            lhsCode, optVal = self.visit(ast.lhs, env)
+            self.emit[o['className']].printout(rhsCode+lhsCode)
         return o
 
     def visitBinaryOp(self, ast: BinaryOp, o):
@@ -432,6 +462,24 @@ class CodeGenerator(BaseVisitor,Utils):
         if 'onlyType' in o and o['onlyType']: return retType
         return leftCode+rightCode, retType
 
+    def visitUnaryOp(self, ast: UnaryOp, o):
+        env = o.copy()
+        env['isLeft'] = False
+        className = o['className']
+        bodyCode, bodyType = self.visit(ast.body, env)
+
+        if 'onlyType' in o and o['onlyType']:
+            return bodyType        
+
+        retCode =bodyCode
+
+        if ast.op == "!":
+            retCode+=self.emit[className].emitNOT(bodyType, o['frame'])
+        elif ast.op =="-":
+            retCode+= self.emit[className].emitNEGOP(bodyType)
+        
+        return retCode, bodyType
+
     def visitBlock(self, ast, o):
         # print("env in visit Block: ",o)
         env = o.copy()
@@ -452,6 +500,14 @@ class CodeGenerator(BaseVisitor,Utils):
         self.emit[o['className']].printout(retCode+self.emit[o['className']].emitRETURN(retType, o['frame']))
         return o
         
+    def visitArrayLiteral(self, ast: ArrayLiteral, o):
+        retType = ArrayType(ast.dimens, ast.eleType)
+        if 'onlyType' in o and o['onlyType']:
+            return retType
+        
+
+    def visitArrayCell(self, ast: ArrayCell, o):
+        pass
 
     def visitId(self, ast: Id, o):
         sym = next(filter(lambda x: x.name == ast.name, [j for i in o['env'] for j in i]),None)
@@ -465,7 +521,6 @@ class CodeGenerator(BaseVisitor,Utils):
                 if o['isLeft']:
                     resCode = self.emit[o['className']].emitWRITEVAR(ast.name, sym.mtype, sym.value.value, o['frame']) 
                 else:
-                    # print(sym)
                     resCode = self.emit[o['className']].emitREADVAR(ast.name, sym.mtype, sym.value.value, o['frame']) 
                 return resCode,sym.mtype
         else:
@@ -492,7 +547,6 @@ class CodeGenerator(BaseVisitor,Utils):
             iniFieldCode += self.visit(e[1], env)[0]
             iniFieldCode += self.emit[className].emitPUTFIELD(className + "/" + e[0], field.mtype, frame)
         return insCode + iniFieldCode, ClassType(ast.name)
-
 
     def visitIntLiteral(self, ast: IntLiteral, o):
         if 'onlyType' in o and o['onlyType']: return IntType()

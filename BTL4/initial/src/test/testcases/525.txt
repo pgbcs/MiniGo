@@ -1,0 +1,13 @@
+
+        type ABCD struct {
+        value int;
+        }
+        func (c ABCD) Add(x int) int {
+            c.value += x;
+            return c.value
+        }
+        func main() {
+            var b ABCD = ABCD{value: 2}
+            putInt(b.Add(3));
+        }
+        

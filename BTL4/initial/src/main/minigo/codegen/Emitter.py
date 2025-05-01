@@ -25,7 +25,7 @@ class Emitter():
         elif typeIn is VoidType:
             return "V"
         elif typeIn is ArrayType:
-            return "[" + self.getJVMType(inType.eleType)
+            return "["*len(inType.dimens) + self.getJVMType(inType.eleType)
         elif typeIn is MType:
             return "(" + "".join(list(map(lambda x: self.getJVMType(x), inType.partype))) + ")" + self.getJVMType(inType.rettype)
         elif typeIn is cgen.ClassType:
@@ -102,7 +102,7 @@ class Emitter():
         #frame: Frame
         #..., arrayref, index, value -> ...
         
-        frame.pop()
+        frame.pop()#????
         if type(in_) is IntType:
             return self.jvm.emitIALOAD()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.ClassType or type(in_) is StringType:
@@ -308,7 +308,7 @@ class Emitter():
     *   generate ineg, fneg.
     *   @param in the type of the operands.
     '''
-    def emitNEGOP(self, in_, frame):
+    def emitNEGOP(self, in_):
         #in_: Type
         #frame: Frame
         #..., value -> ..., result
@@ -325,12 +325,12 @@ class Emitter():
         label1 = frame.getNewLabel()
         label2 = frame.getNewLabel()
         result = list()
-        result.append(emitIFTRUE(label1, frame))
-        result.append(emitPUSHCONST("true", in_, frame))
-        result.append(emitGOTO(label2, frame))
-        result.append(emitLABEL(label1, frame))
-        result.append(emitPUSHCONST("false", in_, frame))
-        result.append(emitLABEL(label2, frame))
+        result.append(self.emitIFTRUE(label1, frame))
+        result.append(self.emitPUSHCONST("true", in_, frame))
+        result.append(self.emitGOTO(label2, frame))
+        result.append(self.emitLABEL(label1, frame))
+        result.append(self.emitPUSHCONST("false", in_, frame))
+        result.append(self.emitLABEL(label2, frame))
         return ''.join(result)
 
     '''

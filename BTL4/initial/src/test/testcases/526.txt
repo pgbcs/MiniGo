@@ -1,0 +1,10 @@
+
+    var a = true;
+    var b = 1;
+    func B (c int) int{
+        return 1;
+    }
+    func main(){
+        putIntLn(-B(b))
+        putBoolLn(!a)
+    }

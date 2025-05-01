@@ -234,7 +234,47 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect= "4"
         self.assertTrue(TestCodeGen.test(input, expect, 524))
 
+    def test_funcall_as_epxr(self):
+        input = """
+        type ABCD struct {
+        value int;
+        }
+        func (c ABCD) Add(x int) int {
+            c.value += x;
+            return c.value
+        }
+        func main() {
+            var b ABCD = ABCD{value: 2}
+            putInt(b.Add(3));
+        }
+        """
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input, expect, 525))
 
+    def test_unary_op(self):
+        input = """
+    var a = true;
+    var b = 1;
+    func B (c int) int{
+        return 1;
+    }
+    func main(){
+        putIntLn(-B(b))
+        putBoolLn(!a)
+    }
+"""
+        expect = "-1\nfalse\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 526))
+
+    def test_array_type(self):
+        input = """
+    func main(){
+        var b int = 5;
+        var a [3][4][3] int;
+    }
+"""
+        expect = ""
+        self.assertTrue(TestCodeGen.test(input, expect, 527))
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal
