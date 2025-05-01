@@ -1,0 +1,12 @@
+
+        type BrBrPatapim struct {
+            value int;
+        }
+        func (c BrBrPatapim) Add(x int) int {
+        
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        

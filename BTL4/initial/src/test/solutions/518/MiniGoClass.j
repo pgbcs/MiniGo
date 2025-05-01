@@ -1,21 +1,32 @@
 .source MiniGoClass.java
 .class public MiniGoClass
 .super java.lang.Object
+.field static b I
 
 .method public static main([Ljava/lang/String;)V
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 Label0:
 Label2:
-.var 1 is a I from Label2 to Label3
-	bipush 20
+.var 1 is b Z from Label2 to Label3
+	iconst_0
 	istore_1
 	iload_1
-	invokestatic io/putInt(I)V
+	invokestatic io/putBool(Z)V
 Label3:
 Label1:
 	return
 .limit stack 1
 .limit locals 2
+.end method
+
+.method public static <clinit>()V
+Label0:
+	iconst_0
+	putstatic MiniGoClass/b I
+Label1:
+	return
+.limit stack 1
+.limit locals 0
 .end method
 
 .method public <init>()V

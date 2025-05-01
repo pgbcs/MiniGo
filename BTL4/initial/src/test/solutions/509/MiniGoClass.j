@@ -4,8 +4,8 @@
 .field static final b F = 3.14
 
 .method public static main([Ljava/lang/String;)V
-Label0:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+Label0:
 Label2:
 	getstatic MiniGoClass/b F
 	invokestatic io/putFloat(F)V

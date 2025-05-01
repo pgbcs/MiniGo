@@ -125,6 +125,91 @@ class CheckCodeGenSuite(unittest.TestCase):
         self.assertTrue(TestCodeGen.test(input, expect, 517))
     
     
+    def test_struct_type(self):
+        input = """
+        var b int;
+        type Student struct {
+            name string ;
+            age int ;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 518))
+    
+    def test_type_field_is_struct(self):
+        input = """
+        type Student struct {
+            name string ;
+            age int ;
+            money Balance;
+        }
+        type Balance struct{
+            value int;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 519))
+
+    def test_interface_type(self):
+        input = """
+        type Calculator interface {
+        Add(x, y int) int;
+        Subtract(a, b float, c int) float;
+        Reset()
+        SayHello(name string)
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 520))
+
+    def test_method_decl(self):
+        input = """
+        type BrBrPatapim struct {
+            value int;
+        }
+        func (c BrBrPatapim) Add(x int) int {
+        
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 521))
+
+    def test_method_decl(self):
+        input = """
+        type Sahur struct {
+        value int;
+        }
+        func (c Sahur) Add(x int)  {
+            c.value += x;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        """
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 522))
+#test method name is main
+#local var same name with receiver
+#test order check env local->nonlocal
+
+
 #     def test_function_with_param(self):
 #         input = """
 #         func foo(a, b int) int{

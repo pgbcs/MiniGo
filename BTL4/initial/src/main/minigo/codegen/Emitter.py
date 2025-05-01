@@ -218,7 +218,7 @@ class Emitter():
         if isStatic:
             return self.jvm.emitSTATICFIELD(lexeme, self.getJVMType(in_), isFinal, value)
         else:
-            return self.jvm.emitFIELD(lexeme, self.getJVMType(in_), isFinal, value)
+            return self.jvm.emitINSTANCEFIELD(lexeme, self.getJVMType(in_), isFinal, value)
 
     def emitGETSTATIC(self, lexeme, in_, frame):
         #lexeme: String
@@ -476,7 +476,7 @@ class Emitter():
     *   @param isStatic <code>true</code> if the method is static; <code>false</code> otherwise.
     '''
 
-    def emitMETHOD(self, lexeme, in_, isStatic, frame):
+    def emitMETHOD(self, lexeme, in_, isStatic):
         #lexeme: String
         #in_: Type
         #isStatic: Boolean
@@ -651,9 +651,18 @@ class Emitter():
         self.buff.clear()
 
     #write more
-    def emitPUSHNULL(self):
-        pass
-
-
-
+    def emitINTERFACE(self, name, parent=""):
+        result = list()
+        result.append(self.jvm.emitSOURCE(name + ".java"))
+        result.append(".interface public " + name + JasminCode.END)
+        result.append(self.jvm.emitSUPER("java/land/Object" if parent == "" else parent))
+        return ''.join(result)
+    '''
+        use for emit abstract method
+    *   @param lexeme the qualified name of the method(i.e., class-name/method-name).
+    *   @param in the type descriptor of the method.
+    *   @param isStatic <code>true</code> if the method is static; <code>false</code> otherwise.
+    '''
+    def emitAMETHOD(self, lexeme, in_):
+        return JasminCode.END + ".method public abstract " + lexeme + self.getJVMType(in_) + JasminCode.END + self.jvm.emitENDMETHOD()
         

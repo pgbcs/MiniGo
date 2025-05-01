@@ -1,0 +1,11 @@
+
+        var b int;
+        type Student struct {
+            name string ;
+            age int ;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        

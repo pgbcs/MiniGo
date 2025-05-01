@@ -3,8 +3,8 @@
 .super java.lang.Object
 
 .method public static main([Ljava/lang/String;)V
-Label0:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+Label0:
 Label2:
 .var 1 is b I from Label2 to Label3
 	iconst_0

@@ -1,0 +1,12 @@
+
+        type Sahur struct {
+        value int;
+        }
+        func (c Sahur) Add(x int)  {
+            c.value += x;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        

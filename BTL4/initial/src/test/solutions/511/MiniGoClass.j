@@ -4,8 +4,8 @@
 .field static final b Ljava/lang/String; = "hello world"
 
 .method public static main([Ljava/lang/String;)V
-Label0:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+Label0:
 Label2:
 	getstatic MiniGoClass/b Ljava/lang/String;
 	invokestatic io/putString(Ljava/lang/String;)V

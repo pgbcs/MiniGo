@@ -5,8 +5,8 @@
 .field static b I
 
 .method public static main([Ljava/lang/String;)V
-Label0:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
+Label0:
 Label2:
 	getstatic MiniGoClass/b I
 	invokestatic io/putInt(I)V

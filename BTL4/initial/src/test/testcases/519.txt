@@ -1,0 +1,14 @@
+
+        type Student struct {
+            name string ;
+            age int ;
+            money Balance;
+        }
+        type Balance struct{
+            value int;
+        }
+        func main() {
+            var b boolean = false;
+            putBool(b);
+        }
+        
