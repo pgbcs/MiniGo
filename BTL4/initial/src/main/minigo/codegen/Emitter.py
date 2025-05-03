@@ -33,10 +33,14 @@ class Emitter():
         else:
             return str(typeIn)
 
-    def getFullType(inType):
+    def getFullType(self, inType):
         typeIn = type(inType)
         if typeIn is IntType:
             return "int"
+        elif typeIn is FloatType:
+            return "float"
+        elif typeIn is BoolType:
+            return "boolean"
         elif typeIn is cgen.StringType:
             return "java/lang/String"
         elif typeIn is VoidType:
@@ -105,6 +109,10 @@ class Emitter():
         frame.pop()#????
         if type(in_) is IntType:
             return self.jvm.emitIALOAD()
+        elif type(in_) is FloatType:
+            return self.jvm.emitFALOAD()
+        elif type(in_) is BoolType:
+            return self.jvm.emitBALOAD()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.ClassType or type(in_) is StringType:
             return self.jvm.emitAALOAD()
         else:
@@ -120,6 +128,10 @@ class Emitter():
         frame.pop()
         if type(in_) is IntType:
             return self.jvm.emitIASTORE()
+        elif type(in_) is FloatType:
+            return self.jvm.emitFASTORE()
+        elif type(in_) is BoolType:
+            return self.jvm.emitBASTORE()
         elif type(in_) is cgen.ArrayType or type(in_) is cgen.ClassType or type(in_) is StringType:
             return self.jvm.emitAASTORE()
         else:
@@ -195,16 +207,27 @@ class Emitter():
             raise IllegalOperandException(name)
 
     ''' generate the second instruction for array cell access
-    *
+    *   indices is tuple store index list: [1,2,3]->(1, 2, 3)
     '''
-    def emitWRITEVAR2(self, name, typ, frame):
+    def emitWRITEVAR2(self, indices, typ, frame): #old version: emitWRITEVAR2(self, name, indices, typ, frame)
         #name: String
         #typ: Type
         #frame: Frame
         #..., value -> ...
 
+        result= ""
+
+        for index, value in enumerate(indices):
+            if index == len(indices)-1:
+                result+=self.emitPUSHCONST(value, IntType(), frame)
+            else:
+                result+=self.emitPUSHCONST(value, IntType(), frame)
+                result+=self.emitALOAD(typ, frame)
+        
+        return result
+
         #frame.push()
-        raise IllegalOperandException(name)
+        # raise IllegalOperandException(name)
 
     ''' generate the field (static) directive for a class mutable or immutable attribute.
     *   @param lexeme the name of the attribute.
@@ -674,3 +697,58 @@ class Emitter():
         result+=self.emitDUP(frame)
         result+=self.emitINVOKESPECIAL(frame, lexeme+"/<init>", in_)
         return result
+    
+    # def emitARRAY(self, dimens, eleType, frame, isFirst=True):
+    #     result=""
+    #     if len(dimens) == 1:
+    #             result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
+    #             result+=self.jvm.emitNEWARRAY(self.getFullType(eleType))
+    #             if not isFirst:
+    #                 result+= self.emitASTORE(ArrayType(dimens, eleType), frame)
+    #     elif isFirst:
+    #         result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
+    #         result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
+    #         for i in range(dimens[0].value):
+    #             result+= self.emitDUP(frame)
+    #             result+= self.emitPUSHCONST(i, IntType(), frame)
+    #             # result+= self.emitALOAD(ArrayType(), frame)
+    #             result+= self.emitARRAY(dimens[1:], eleType, frame, False)
+    #     else:
+    #         # result+=self.emitDUP(frame)
+    #         result+= self.emitDUP2(frame)
+    #         result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
+    #         result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
+    #         result+=self.emitASTORE(ArrayType(dimens, eleType), frame)
+    #         result+=self.emitALOAD(ArrayType(dimens, eleType), frame)
+    #         for i in range(dimens[0].value):
+    #             result+= self.emitDUP(frame)
+    #             result+= self.emitPUSHCONST(i, IntType(), frame)
+    #             # result+= self.emitALOAD(ArrayType(), frame)
+    #             result+= self.emitARRAY(dimens[1:], eleType, frame, False)
+    #     return result                
+
+    # def emitDUP2(self, frame):
+    #     frame.push()
+    #     frame.push()
+    #     return self.jvm.INDENT + "dup2" + self.jvm.END
+
+    def emitARRAY(self, dimens, eleType, frame):
+        result = ""
+        if len(dimens) == 1:
+            inType = type(eleType)
+            result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
+            if inType in [IntType, FloatType, BoolType]:
+                result+=self.jvm.emitNEWARRAY(self.getFullType(eleType))
+            else:
+                result+=self.jvm.emitANEWARRAY(self.getFullType(eleType))
+        else:
+            result += reduce(lambda x,y: x + self.emitPUSHCONST(y.value, IntType(), frame), dimens, '')
+            result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
+        return result
+    
+    # def emitARRAYLITERAL(self, dimens, eleType, values, frame, isFirst=True, currentAccess=None):
+    #     result=""
+    #     if isFirst: result += self.emitARRAY(dimens, eleType, frame)
+    #     if len(dimens)== 1:
+    #         if type(eleType) in [IntType, FloatType, BoolType]:
+    #             result+=emit

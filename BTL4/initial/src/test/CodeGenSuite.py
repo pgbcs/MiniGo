@@ -41,7 +41,9 @@ class CheckCodeGenSuite(unittest.TestCase):
     def test_global_const(self):
         input = """
         const b = 3
-        func main() { putInt(b);};
+        func main() { 
+            putInt(b);
+        };
         """
         expect = "3"
         self.assertTrue(TestCodeGen.test(input,expect,508))
@@ -270,7 +272,13 @@ class CheckCodeGenSuite(unittest.TestCase):
         input = """
     func main(){
         var b int = 5;
-        var a [3][4][3] int;
+        var c [3][2][1] int = [3][2][1]int{
+            {
+                {1, 2}, {3, 4}            },
+            {
+                {5, 6}, {7, 8}            },
+            {
+                {9, 10}, {11, 12}}};
     }
 """
         expect = ""

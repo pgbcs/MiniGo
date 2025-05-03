@@ -52,6 +52,22 @@ class CodeGenerator(BaseVisitor,Utils):
             return str(initExpr.value)
         return None
 
+    def generateAllIndices(self, shape):
+        result = []
+
+        def backtrack(current: List):
+            if len(current) == len(shape):
+                result.append(current[:])
+                return
+            for i in range(shape[len(current)].value):
+                current.append(i)
+                backtrack(current)
+                current.pop()
+
+        backtrack([])
+        return result
+
+        
 
     #dont have to use it because in this case jasmin already have default value
     def genDefaultValue(self, name, typ, o, isGlobal, **kwargs):
@@ -241,6 +257,8 @@ class CodeGenerator(BaseVisitor,Utils):
                 index = frame.getNewIndex()
                 o['env'][0].append(Symbol(ast.varName, varType, Index(index)))
                 self.emit[o['className']].printout(self.emit[o['className']].emitVAR(index, ast.varName, varType, frame.getStartLabel(), frame.getEndLabel(), frame))  
+                if type(varType) is ArrayType:
+                    self.emit[o['className']].printout(self.emit[o['className']].emitARRAY(varType.dimens, varType.eleType, frame))
                 if ast.varInit:
                     # self.emit.printout(self.emit.emitPUSHICONST(ast.varInit.value, frame)) --original code
                     newO = o.copy()
@@ -501,10 +519,26 @@ class CodeGenerator(BaseVisitor,Utils):
         return o
         
     def visitArrayLiteral(self, ast: ArrayLiteral, o):
-        retType = ArrayType(ast.dimens, ast.eleType)
+        eleType = self.getType(ast.eleType)
+        retType = ArrayType(ast.dimens, eleType)
         if 'onlyType' in o and o['onlyType']:
             return retType
+        className = o['className']
+        frame = o['frame']
         
+        retCode = self.emit[className].emitARRAY(ast.dimens, eleType, frame)
+        indexList = self.generateAllIndices(ast.dimens)
+        for index in indexList:
+            retCode+= self.emit[className].emitDUP(frame)
+            retCode+= self.emit[className].emitWRITEVAR2(index, eleType, frame)
+            
+            element = reduce(lambda x,y: x[y], index, ast.value)
+            env = o.copy()
+            env['isLeft'] = False
+            valCode, valType = self.visit(element, env)
+            retCode+=valCode
+            retCode+= self.emit[className].emitASTORE(valType, frame)
+        return retCode, self.getType(eleType)
 
     def visitArrayCell(self, ast: ArrayCell, o):
         pass

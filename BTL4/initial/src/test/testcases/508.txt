@@ -1,4 +1,6 @@
 
         const b = 3
-        func main() { putInt(b);};
+        func main() { 
+            putInt(b);
+        };
         
