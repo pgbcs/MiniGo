@@ -1,0 +1,11 @@
+
+    func main(){
+        var a = true
+        var b = false
+        var c = true
+        var d = true
+        var e = true
+        var f boolean = (a||b&&c)&&d&&e;
+        putBool(f);
+  
+ }  

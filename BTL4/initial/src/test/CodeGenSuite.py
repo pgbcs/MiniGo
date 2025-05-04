@@ -285,7 +285,7 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "2"
         self.assertTrue(TestCodeGen.test(input, expect, 527))
 
-    def test_shortcircuit(self):
+    def test_shortcircuit_and(self):
         input =  """
     func main(){
         var c = 2;
@@ -293,10 +293,118 @@ class CheckCodeGenSuite(unittest.TestCase):
         var b boolean = (c==d&&c<d&&c>d);
         putBool(b);
   
- }
+ }  
 """
         expect = "false"
         self.assertTrue(TestCodeGen.test(input, expect, 528))
+    
+    def test_shortcircuit_or(self):
+        input = """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = (c==d||c<d||c>d);
+        putBool(b);
+  
+ }  
+"""
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input, expect, 529))
+    
+    def test_shortcircuit_and_or(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = ((false||c==d)&&c<d&&(c>d));
+        putBool(b);
+  
+ }  
+"""
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 530))
+
+    def test_shortcircuit_and_or1(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = ((false||c>d)&&c<d&&(c<d));
+        putBool(b);
+  
+ }  
+"""
+        expect = "false" 
+        self.assertTrue(TestCodeGen.test(input, expect, 531))
+
+    def test_shortcircuit_and_or2(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = ((false||c<d)&&c<d&&(c<d));
+        putBool(b);
+  
+ }  
+"""
+        expect = "true" 
+        self.assertTrue(TestCodeGen.test(input, expect, 532))
+
+    def test_shortcircuit_and_or3(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = c<d&&(c<d)&&((false||c<d));
+        putBool(b);
+  
+ }  
+"""
+        expect = "true" 
+        self.assertTrue(TestCodeGen.test(input, expect, 533))
+
+    def test_shortcircuit_and_or4(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = c>d||(c>d)||((true&&c<d));
+        putBool(b);
+  
+ }  
+"""
+        expect = "true" 
+        self.assertTrue(TestCodeGen.test(input, expect, 534))
+
+    def test_two_short_circuit(self):
+        input =  """
+    func main(){
+        var a = true
+        var b = false
+        var c = true
+        var d = true
+        var e = true
+        var f boolean = (a||b&&c)&&d&&e;
+        putBool(f);
+  
+ }  
+"""
+        expect = "true" 
+        self.assertTrue(TestCodeGen.test(input, expect, 535))
+
+    def test_if_stmt(self):
+        input = """func factorial(n int) int {
+                if (n < 0) { return -1; } else {
+                    return 1
+                }
+            }
+            func main() {
+                putIntLn(factorial(-102))
+            };
+        """
+        expect = "-1\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 536))
+
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

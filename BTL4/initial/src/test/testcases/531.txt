@@ -2,7 +2,7 @@
     func main(){
         var c = 2;
         var d = 5;
-        var b boolean = (c==d&&c<d&&c>d);
+        var b boolean = ((false||c>d)&&c<d&&(c<d));
         putBool(b);
   
  }  

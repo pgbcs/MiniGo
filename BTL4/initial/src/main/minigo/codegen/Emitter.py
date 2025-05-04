@@ -468,7 +468,7 @@ class Emitter():
         result.append(self.emitLABEL(labelO, frame))
         return ''.join(result)
 
-    def emitRELOP(self, op, trueLabel, falseLabel, frame):
+    def emitRELOP1(self, op, falseLabel, frame):
         #op: String
         #in_: Type
         #trueLabel: Int
@@ -493,9 +493,36 @@ class Emitter():
             result.append(self.jvm.emitIFICMPEQ(falseLabel))
         elif op == "==":
             result.append(self.jvm.emitIFICMPNE(falseLabel))
-        if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
+        # if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
         return ''.join(result)
+    
+    def emitRELOP2(self, op, trueLabel, frame):
+        #op: String
+        #in_: Type
+        #trueLabel: Int
+        #falseLabel: Int
+        #frame: Frame
+        #..., value1, value2 -> ..., result
 
+        result = list()
+
+        frame.pop()
+        frame.pop()
+        if op == ">":
+            result.append(self.jvm.emitIFICMPGT(trueLabel))
+            # result.append(self.emitGOTO(trueLabel, frame))
+        elif op == ">=":
+            result.append(self.jvm.emitIFICMPGE(trueLabel))
+        elif op == "<":
+            result.append(self.jvm.emitIFICMPLT(trueLabel))
+        elif op == "<=":
+            result.append(self.jvm.emitIFICMPLE(trueLabel))
+        elif op == "!=":
+            result.append(self.jvm.emitIFICMPNE(trueLabel))
+        elif op == "==":
+            result.append(self.jvm.emitIFICMPEQ(trueLabel))
+        # if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
+        return ''.join(result)
     '''   generate the method directive for a function.
     *   @param lexeme the qualified name of the method(i.e., class-name/method-name).
     *   @param in the type descriptor of the method.

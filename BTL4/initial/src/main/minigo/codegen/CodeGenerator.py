@@ -403,7 +403,37 @@ class CodeGenerator(BaseVisitor,Utils):
     def visitPrototype(self, ast: Prototype, o):
         mtype = MType(list(map(lambda x: self.getType(x), ast.params)), ast.retType)
         return self.emit[o['className']].emitAMETHOD(ast.name, mtype), Symbol(ast.name, mtype)
+
+    def visitIf(self, ast: If, o):
+        # if 'needReturn' in o and o['needReturn']:
+        #     returnList = reduce()
+
+        frame: Frame = o['frame']
+        className = o['className']
+
+        elseLabel = frame.getNewLabel()
+        endLabel = frame.getNewLabel()
         
+        env = o.copy()
+        env['isLeft'] = False
+        self.emit[className].printout(self.visit(ast.expr, env)[0])
+        self.emit[className].printout(self.emit[className].emitIFFALSE(elseLabel, frame))
+        if not ast.thenStmt is None:
+            #need discover return stmt in it
+            # envThen = o.copy()
+            # envThen['needReturn'] = True
+            # returnList = list(filter(lambda x: type(x) is Return, ast.thenStmt.member))
+            returnList += reduce(lambda x, y: x+self.visit(y, envThen) if type(y) in [If, ForBasic, ForEach, ForStep] else [], ast.thenStmt.member, [])
+
+            self.visit(ast.thenStmt, o)
+        self.emit[className].printout(self.emit[className].emitGOTO(endLabel, frame))
+        self.emit[className].printout(self.emit[className].emitLABEL(elseLabel, frame))
+        if not ast.elseStmt is None:
+            self.visit(ast.elseStmt, o)
+        self.emit[className].printout(self.emit[className].emitLABEL(endLabel, frame))
+        
+        return o
+
 
     #TODO: what case it is not stmt but still need pop???
     def visitFuncCall(self, ast: FuncCall, o):#TODO: if it is stmt ???
@@ -530,18 +560,26 @@ class CodeGenerator(BaseVisitor,Utils):
         #have many circuit ???
         if ast.op == "&&":
             retType =  BoolType()
+            tempFlag = None
+            if 'isFirstSCO' in o:
+                tempFlag = o['isFirstSCO']
+                trueLabel = o['trueLabelO']
+                o['isFirstSCO'] = True
+            
             if 'isFirstSCA' in o and o['isFirstSCA'] == False:
                 falseLabel = o['falseLabelA']
                 
                 if type(ast.left) is BinaryOp:
                     leftCode = self.visit(ast.left, o.copy())[0]
                 else:
-                    leftCode = self.emit[className].emitIFFALSE(falseLabel, frame)
+                    leftCode = self.visit(ast.left, o.copy())[0]
+                    leftCode += self.emit[className].emitIFFALSE(falseLabel, frame)
                 
                 if type(ast.right) is BinaryOp:
                     rightCode = self.visit(ast.right, o.copy())[0]
                 else:
-                    rightCode = self.emit[className].emitIFFALSE(falseLabel, frame)
+                    rightCode = self.visit(ast.right, o.copy())[0]
+                    rightCode += self.emit[className].emitIFFALSE(falseLabel, frame)
             else:
                 falseLabel = frame.getNewLabel()
                 endLabel = frame.getNewLabel()
@@ -554,17 +592,84 @@ class CodeGenerator(BaseVisitor,Utils):
                 if type(ast.left) is BinaryOp:
                     leftCode = self.visit(ast.left, envSC)[0]
                 else:
-                    leftCode = self.emit[className].emitIFFALSE(falseLabel, frame)
+                    envLeft = o.copy()
+                    envLeft['isLeft'] = False
+                    leftCode = self.visit(ast.left, envLeft)[0]
+                    leftCode += self.emit[className].emitIFFALSE(falseLabel, frame)
                 
                 if type(ast.right) is BinaryOp:
                     rightCode = self.visit(ast.right, envSC)[0]
                 else:
-                    rightCode = self.emit[className].emitIFFALSE(falseLabel, frame)
-                rightCode+=self.emit[className].emitPUSHCONST(1, IntType(), frame)
-                rightCode+=self.emit[className].emitGOTO(endLabel, frame)
-                rightCode+=self.emit[className].emitLABEL(falseLabel, frame)
-                rightCode+=self.emit[className].emitPUSHCONST(0, IntType(), frame)
-                rightCode+=self.emit[className].emitLABEL(endLabel, frame)
+                    envRight = o.copy()
+                    envRight['isLeft'] = False
+                    rightCode = self.visit(ast.right, envRight)[0]
+                    rightCode += self.emit[className].emitIFFALSE(falseLabel, frame)
+
+                if tempFlag == False:
+                    rightCode+=self.emit[className].emitGOTO(trueLabel, frame)
+                    rightCode+=self.emit[className].emitLABEL(falseLabel, frame)
+                else:
+                    rightCode+=self.emit[className].emitPUSHCONST(1, IntType(), frame)
+                    rightCode+=self.emit[className].emitGOTO(endLabel, frame)
+                    rightCode+=self.emit[className].emitLABEL(falseLabel, frame)
+                    rightCode+=self.emit[className].emitPUSHCONST(0, IntType(), frame)
+                    rightCode+=self.emit[className].emitLABEL(endLabel, frame)
+        elif ast.op == '||':
+            tempFlag = None
+            if 'isFirstSCA' in o:
+                tempFlag = o['isFirstSCA']
+                falseLabel = o['falseLabelA']
+                o['isFirstSCA'] = True
+
+
+            retType =  BoolType()
+            if 'isFirstSCO' in o and o['isFirstSCO'] == False:
+                trueLabel = o['trueLabelO']
+                
+                if type(ast.left) is BinaryOp:
+                    leftCode = self.visit(ast.left, o.copy())[0]
+                else:
+                    leftCode = self.visit(ast.left, o.copy())[0]
+                    leftCode += self.emit[className].emitIFTRUE(trueLabel, frame)
+                
+                if type(ast.right) is BinaryOp:
+                    rightCode = self.visit(ast.right, o.copy())[0]
+                else:
+                    rightCode = self.visit(ast.right, o.copy())[0]
+                    rightCode += self.emit[className].emitIFTRUE(trueLabel, frame)
+            else:
+                trueLabel = frame.getNewLabel()
+                endLabel = frame.getNewLabel()
+
+                envSC = o.copy()
+                envSC['isLeft'] = False
+                envSC['isFirstSCO'] = False
+                envSC['trueLabelO'] = trueLabel
+
+                if type(ast.left) is BinaryOp:
+                    leftCode = self.visit(ast.left, envSC)[0]
+                else:
+                    envLeft = o.copy()
+                    envLeft['isLeft'] = False
+                    leftCode = self.visit(ast.left, envLeft)[0]
+                    leftCode += self.emit[className].emitIFTRUE(trueLabel, frame)
+                
+                if type(ast.right) is BinaryOp:
+                    rightCode = self.visit(ast.right, envSC)[0]
+                else:
+                    envRight = o.copy()
+                    envRight['isLeft'] = False
+                    rightCode = self.visit(ast.right, envRight)[0]
+                    rightCode += self.emit[className].emitIFTRUE(trueLabel, frame)
+                if tempFlag == False:
+                    rightCode+=self.emit[className].emitGOTO(falseLabel , frame)
+                    rightCode+=self.emit[className].emitLABEL(trueLabel, frame)
+                else:
+                    rightCode+=self.emit[className].emitPUSHCONST(0, IntType(), frame)
+                    rightCode+=self.emit[className].emitGOTO(endLabel , frame)
+                    rightCode+=self.emit[className].emitLABEL(trueLabel, frame)
+                    rightCode+=self.emit[className].emitPUSHCONST(1, IntType(), frame)
+                    rightCode+=self.emit[className].emitLABEL(endLabel, frame)
         else:
             leftCode, leftType = self.visit(ast.left, env)
             rightCode, rightType =self.visit(ast.right, env)
@@ -596,8 +701,10 @@ class CodeGenerator(BaseVisitor,Utils):
                 rightCode+=self.emit[className].emitMOD(frame)
             elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
                 retType = BoolType()
-                if 'isFirstSCA' in o:
-                    rightCode+=self.emit[className].emitRELOP(ast.op, None, o['falseLabelA'], frame)
+                if 'isFirstSCA' in o and o['isFirstSCA'] == False:
+                    rightCode+=self.emit[className].emitRELOP1(ast.op, o['falseLabelA'], frame)
+                elif 'isFirstSCO' in o and o['isFirstSCO'] == False:
+                    rightCode+=self.emit[className].emitRELOP2(ast.op, o['trueLabelO'], frame)
                 else: rightCode+=self.emit[className].emitREOP(ast.op, frame)
         
 
