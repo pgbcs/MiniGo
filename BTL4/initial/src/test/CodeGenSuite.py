@@ -272,17 +272,31 @@ class CheckCodeGenSuite(unittest.TestCase):
         input = """
     func main(){
         var b int = 5;
-        var c [3][2][1] int = [3][2][1]int{
+        var c [3][2][2] int = [3][2][2]int{
             {
                 {1, 2}, {3, 4}            },
             {
                 {5, 6}, {7, 8}            },
             {
                 {9, 10}, {11, 12}}};
+        putInt(c[0][0][1]);
     }
 """
-        expect = ""
+        expect = "2"
         self.assertTrue(TestCodeGen.test(input, expect, 527))
+
+    def test_shortcircuit(self):
+        input =  """
+    func main(){
+        var c = 2;
+        var d = 5;
+        var b boolean = (c==d&&c<d&&c>d);
+        putBool(b);
+  
+ }
+"""
+        expect = "false"
+        self.assertTrue(TestCodeGen.test(input, expect, 528))
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

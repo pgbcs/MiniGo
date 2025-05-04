@@ -175,14 +175,16 @@ class Emitter():
     ''' generate the second instruction for array cell access
     *
     '''
-    def emitREADVAR2(self, name, typ, frame):
+    def emitREADVAR2(self, typ, frame):
         #name: String
         #typ: Type
         #frame: Frame
         #... -> ..., value
 
-        #frame.push()
-        raise IllegalOperandException(name)
+        frame.pop()
+
+        return self.emitALOAD(typ, frame)
+
 
     '''
     *   generate code to pop a value on top of the operand stack and store it to a block-scoped variable.
@@ -222,7 +224,7 @@ class Emitter():
                 result+=self.emitPUSHCONST(value, IntType(), frame)
             else:
                 result+=self.emitPUSHCONST(value, IntType(), frame)
-                result+=self.emitALOAD(typ, frame)
+                result+=self.emitALOAD(ArrayType(None, None), frame)
         
         return result
 
@@ -434,7 +436,7 @@ class Emitter():
         frame.pop()
         return self.jvm.emitIOR()
 
-    def emitREOP(self, op, in_, frame):
+    def emitREOP(self, op, frame):
         #op: String
         #in_: Type
         #frame: Frame
@@ -466,7 +468,7 @@ class Emitter():
         result.append(self.emitLABEL(labelO, frame))
         return ''.join(result)
 
-    def emitRELOP(self, op, in_, trueLabel, falseLabel, frame):
+    def emitRELOP(self, op, trueLabel, falseLabel, frame):
         #op: String
         #in_: Type
         #trueLabel: Int
@@ -480,7 +482,7 @@ class Emitter():
         frame.pop()
         if op == ">":
             result.append(self.jvm.emitIFICMPLE(falseLabel))
-            result.append(self.emitGOTO(trueLabel))
+            # result.append(self.emitGOTO(trueLabel, frame))
         elif op == ">=":
             result.append(self.jvm.emitIFICMPLT(falseLabel))
         elif op == "<":
@@ -491,7 +493,7 @@ class Emitter():
             result.append(self.jvm.emitIFICMPEQ(falseLabel))
         elif op == "==":
             result.append(self.jvm.emitIFICMPNE(falseLabel))
-        result.append(self.jvm.emitGOTO(trueLabel))
+        if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
         return ''.join(result)
 
     '''   generate the method directive for a function.

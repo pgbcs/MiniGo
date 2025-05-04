@@ -12,65 +12,117 @@ Label2:
 .var 2 is c [[[I from Label2 to Label3
 	iconst_3
 	iconst_2
-	iconst_1
-	multianewarray [[[I 3
-	iconst_3
 	iconst_2
-	iconst_1
 	multianewarray [[[I 3
 	dup
 	iconst_0
-	iaload
+	aaload
 	iconst_0
-	iaload
+	aaload
 	iconst_0
 	iconst_1
 	iastore
 	dup
 	iconst_0
-	iaload
+	aaload
+	iconst_0
+	aaload
 	iconst_1
-	iaload
+	iconst_2
+	iastore
+	dup
+	iconst_0
+	aaload
+	iconst_1
+	aaload
 	iconst_0
 	iconst_3
 	iastore
 	dup
-	iconst_1
-	iaload
 	iconst_0
-	iaload
+	aaload
+	iconst_1
+	aaload
+	iconst_1
+	iconst_4
+	iastore
+	dup
+	iconst_1
+	aaload
+	iconst_0
+	aaload
 	iconst_0
 	iconst_5
 	iastore
 	dup
 	iconst_1
-	iaload
+	aaload
+	iconst_0
+	aaload
 	iconst_1
-	iaload
+	bipush 6
+	iastore
+	dup
+	iconst_1
+	aaload
+	iconst_1
+	aaload
 	iconst_0
 	bipush 7
 	iastore
 	dup
+	iconst_1
+	aaload
+	iconst_1
+	aaload
+	iconst_1
+	bipush 8
+	iastore
+	dup
 	iconst_2
-	iaload
+	aaload
 	iconst_0
-	iaload
+	aaload
 	iconst_0
 	bipush 9
 	iastore
 	dup
 	iconst_2
-	iaload
+	aaload
+	iconst_0
+	aaload
 	iconst_1
-	iaload
+	bipush 10
+	iastore
+	dup
+	iconst_2
+	aaload
+	iconst_1
+	aaload
 	iconst_0
 	bipush 11
 	iastore
+	dup
+	iconst_2
+	aaload
+	iconst_1
+	aaload
+	iconst_1
+	bipush 12
+	iastore
 	astore_2
+	aload_2
+	iconst_0
+	aaload
+	iconst_0
+	aaload
+	iconst_1
+	iaload
+	invokestatic io/putInt(I)V
 Label3:
 Label1:
 	return
-.limit stack 9
+.limit stack 6
 .limit locals 3
 .end method
 

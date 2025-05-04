@@ -3,17 +3,6 @@
 .super java.lang.Object
 .field value I
 
-.method public Add(I)I
-.var 0 is this LBrBrPatapim; from Label0 to Label1
-.var 1 is x I from Label0 to Label1
-Label0:
-Label2:
-Label3:
-Label1:
-.limit stack 0
-.limit locals 2
-.end method
-
 .method public <init>()V
 .var 0 is this LBrBrPatapim; from Label0 to Label1
 Label0:
@@ -23,4 +12,15 @@ Label1:
 	return
 .limit stack 1
 .limit locals 1
+.end method
+
+.method public Add(I)I
+.var 0 is this LBrBrPatapim; from Label0 to Label1
+.var 1 is x I from Label0 to Label1
+Label0:
+Label2:
+Label3:
+Label1:
+.limit stack 0
+.limit locals 2
 .end method
