@@ -12,6 +12,7 @@ Label2:
 	fload_1
 	invokestatic io/putFloat(F)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

@@ -20,6 +20,7 @@ Label1:
 Label0:
 Label2:
 Label3:
+	nop
 Label1:
 .limit stack 0
 .limit locals 2

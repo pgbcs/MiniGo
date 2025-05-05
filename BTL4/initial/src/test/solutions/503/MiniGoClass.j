@@ -10,6 +10,7 @@ Label2:
 	getstatic MiniGoClass/a I
 	invokestatic io/putInt(I)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

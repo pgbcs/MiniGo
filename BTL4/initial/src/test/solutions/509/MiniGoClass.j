@@ -10,6 +10,7 @@ Label2:
 	getstatic MiniGoClass/b F
 	invokestatic io/putFloat(F)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

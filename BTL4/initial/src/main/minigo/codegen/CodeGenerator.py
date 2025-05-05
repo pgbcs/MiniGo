@@ -230,7 +230,9 @@ class CodeGenerator(BaseVisitor,Utils):
             self.emit[o['className']].printout(self.emit[o['className']].emitLABEL(frame.getStartLabel(), frame))
             # if 'isMethod' in env and env['isMethod']:
             #     print(env['frame'])
+            # env['inFunc'] = True
             self.visit(ast.body,env)
+            self.emit[o['className']].printout(self.emit[o['className']].emitNOP())
             self.emit[o['className']].printout(self.emit[o['className']].emitLABEL(frame.getEndLabel(), frame))
             if type(ast.retType) is VoidType:
                 self.emit[o['className']].printout(self.emit[o['className']].emitRETURN(VoidType(), frame)) 
@@ -405,8 +407,6 @@ class CodeGenerator(BaseVisitor,Utils):
         return self.emit[o['className']].emitAMETHOD(ast.name, mtype), Symbol(ast.name, mtype)
 
     def visitIf(self, ast: If, o):
-        # if 'needReturn' in o and o['needReturn']:
-        #     returnList = reduce()
 
         frame: Frame = o['frame']
         className = o['className']
@@ -414,19 +414,17 @@ class CodeGenerator(BaseVisitor,Utils):
         elseLabel = frame.getNewLabel()
         endLabel = frame.getNewLabel()
         
+        endFlag = True
         env = o.copy()
         env['isLeft'] = False
         self.emit[className].printout(self.visit(ast.expr, env)[0])
         self.emit[className].printout(self.emit[className].emitIFFALSE(elseLabel, frame))
         if not ast.thenStmt is None:
-            #need discover return stmt in it
-            # envThen = o.copy()
-            # envThen['needReturn'] = True
-            # returnList = list(filter(lambda x: type(x) is Return, ast.thenStmt.member))
-            returnList += reduce(lambda x, y: x+self.visit(y, envThen) if type(y) in [If, ForBasic, ForEach, ForStep] else [], ast.thenStmt.member, [])
-
+            # if 'inFunc' in o and o['inFunc']:
+            #     returnStmt = next(filter(lambda x: type(x) is Return, ast.thenStmt.member), None)
+            #     if not returnStmt is None: endFlag = False
             self.visit(ast.thenStmt, o)
-        self.emit[className].printout(self.emit[className].emitGOTO(endLabel, frame))
+        if endFlag: self.emit[className].printout(self.emit[className].emitGOTO(endLabel, frame))
         self.emit[className].printout(self.emit[className].emitLABEL(elseLabel, frame))
         if not ast.elseStmt is None:
             self.visit(ast.elseStmt, o)

@@ -392,6 +392,9 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "true" 
         self.assertTrue(TestCodeGen.test(input, expect, 535))
 
+    
+
+
     def test_if_stmt(self):
         input = """func factorial(n int) int {
                 if (n < 0) { return -1; } else {
@@ -403,8 +406,43 @@ class CheckCodeGenSuite(unittest.TestCase):
             };
         """
         expect = "-1\n"
-        self.assertTrue(TestCodeGen.test(input, expect, 536))
+        self.assertTrue(TestCodeGen.test(input, expect, 539))
 
+    def test_unreachable_stmt(self):
+        input = """
+    func foo() int{
+        return 1;
+        var a int =2;
+        return a;
+    }
+    func main(){
+        putInt(foo());
+    }
+
+"""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input, expect, 540))
+
+    def test_unreachable_stmt1(self):
+        input = """
+    func foo(n int) int{
+        if (n<2){
+            if(n<100){
+                return -1;
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }
+    func main(){
+        putInt(foo(1));
+    }
+
+"""
+        expect = "-1"
+        self.assertTrue(TestCodeGen.test(input, expect, 541))
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

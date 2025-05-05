@@ -45,6 +45,7 @@ Label5:
 	iload 6
 	invokestatic io/putBool(Z)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 2

@@ -19,6 +19,7 @@ Label2:
 	invokevirtual ABCD/Add(I)I
 	invokestatic io/putInt(I)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 3

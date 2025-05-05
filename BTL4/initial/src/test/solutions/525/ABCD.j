@@ -29,6 +29,7 @@ Label2:
 	getfield ABCD/value I
 	ireturn
 Label3:
+	nop
 Label1:
 .limit stack 3
 .limit locals 2

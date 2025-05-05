@@ -2,12 +2,12 @@
 .class public MiniGoClass
 .super java.lang.Object
 
-.method public static factorial(I)I
+.method public static foo(I)I
 .var 0 is n I from Label0 to Label1
 Label0:
 Label2:
 	iload_0
-	iconst_0
+	iconst_2
 	if_icmpge Label6
 	iconst_1
 	goto Label7
@@ -16,18 +16,37 @@ Label6:
 Label7:
 	ifle Label4
 Label8:
+	iload_0
+	bipush 100
+	if_icmpge Label12
+	iconst_1
+	goto Label13
+Label12:
+	iconst_0
+Label13:
+	ifle Label10
+Label14:
 	iconst_1
 	ineg
 	ireturn
+Label15:
+	goto Label11
+Label10:
+Label16:
+	iconst_0
+	ireturn
+Label17:
+Label11:
 Label9:
 	goto Label5
 Label4:
-Label10:
-	iconst_1
+Label18:
+	iconst_0
 	ireturn
-Label11:
+Label19:
 Label5:
 Label3:
+	nop
 Label1:
 .limit stack 2
 .limit locals 1
@@ -37,11 +56,11 @@ Label1:
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 Label0:
 Label2:
-	bipush 102
-	ineg
-	invokestatic MiniGoClass/factorial(I)I
-	invokestatic io/putIntLn(I)V
+	iconst_1
+	invokestatic MiniGoClass/foo(I)I
+	invokestatic io/putInt(I)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

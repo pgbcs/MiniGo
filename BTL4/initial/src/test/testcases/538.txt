@@ -1,0 +1,16 @@
+
+    func foo(n int) int{
+        if (n<2){
+            if(n<100){
+                return -1;
+            }else{
+                return 0;
+            }
+        }else{
+            return 0;
+        }
+    }
+    func main(){
+        putInt(foo(1));
+    }
+

@@ -120,6 +120,7 @@ Label2:
 	iaload
 	invokestatic io/putInt(I)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 6

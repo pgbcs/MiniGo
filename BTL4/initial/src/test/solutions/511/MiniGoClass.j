@@ -10,6 +10,7 @@ Label2:
 	getstatic MiniGoClass/b Ljava/lang/String;
 	invokestatic io/putString(Ljava/lang/String;)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

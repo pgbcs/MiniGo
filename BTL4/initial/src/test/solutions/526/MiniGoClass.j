@@ -11,6 +11,7 @@ Label2:
 	iconst_1
 	ireturn
 Label3:
+	nop
 Label1:
 .limit stack 1
 .limit locals 1
@@ -33,6 +34,7 @@ Label4:
 Label5:
 	invokestatic io/putBoolLn(Z)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 2

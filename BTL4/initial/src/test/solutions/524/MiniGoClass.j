@@ -9,6 +9,7 @@ Label2:
 	iload_0
 	ireturn
 Label3:
+	nop
 Label1:
 .limit stack 1
 .limit locals 1
@@ -28,6 +29,7 @@ Label2:
 	invokestatic MiniGoClass/Foo(I)I
 	invokestatic io/putInt(I)V
 Label3:
+	nop
 Label1:
 	return
 .limit stack 1

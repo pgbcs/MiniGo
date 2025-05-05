@@ -775,6 +775,8 @@ class Emitter():
             result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
         return result
     
+    def emitNOP(self):
+        return self.jvm.INDENT + "nop" + self.jvm.END
     # def emitARRAYLITERAL(self, dimens, eleType, values, frame, isFirst=True, currentAccess=None):
     #     result=""
     #     if isFirst: result += self.emitARRAY(dimens, eleType, frame)
