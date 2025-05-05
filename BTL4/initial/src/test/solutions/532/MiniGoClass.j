@@ -38,7 +38,7 @@ Label3:
 	nop
 Label1:
 	return
-.limit stack 2
+.limit stack 8
 .limit locals 4
 .end method
 

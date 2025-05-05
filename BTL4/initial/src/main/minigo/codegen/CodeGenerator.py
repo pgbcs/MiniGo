@@ -432,6 +432,9 @@ class CodeGenerator(BaseVisitor,Utils):
         
         return o
 
+    def visitForBasic(self, ast: ForBasic, o):
+        pass
+    
 
     #TODO: what case it is not stmt but still need pop???
     def visitFuncCall(self, ast: FuncCall, o):#TODO: if it is stmt ???
@@ -440,6 +443,7 @@ class CodeGenerator(BaseVisitor,Utils):
         env = o.copy()
         env['isLeft'] = False
         paramCode = "".join([self.visit(x, env)[0] for x in ast.args])
+
         funcCallCode = self.emit[o['className']].emitINVOKESTATIC(f"{sym.value.value}/{ast.funName}",sym.mtype, o['frame'])
             
         if 'isLeft' in o and o['isLeft'] ==False:
@@ -502,7 +506,7 @@ class CodeGenerator(BaseVisitor,Utils):
             retType = ArrayType(arrType.dimens[len(ast.idx):], arrType.eleType)
         else:
             retType = arrType.eleType
-        
+        if 'onlyType' in o and o['onlyType']: return retType
         indexCode = ""
         for index, value in enumerate(ast.idx):
             indexCode+=self.visit(value, env)[0]
@@ -558,6 +562,7 @@ class CodeGenerator(BaseVisitor,Utils):
         #have many circuit ???
         if ast.op == "&&":
             retType =  BoolType()
+            if 'onlyType' in o and o['onlyType']: return retType
             tempFlag = None
             if 'isFirstSCO' in o:
                 tempFlag = o['isFirstSCO']
@@ -596,6 +601,10 @@ class CodeGenerator(BaseVisitor,Utils):
                     leftCode += self.emit[className].emitIFFALSE(falseLabel, frame)
                 
                 if type(ast.right) is BinaryOp:
+                    #must assign again due to left hand can turn off it
+                    envSC['isLeft'] = False
+                    envSC['isFirstSCA'] = False
+                    envSC['falseLabelA'] = falseLabel
                     rightCode = self.visit(ast.right, envSC)[0]
                 else:
                     envRight = o.copy()
@@ -618,9 +627,8 @@ class CodeGenerator(BaseVisitor,Utils):
                 tempFlag = o['isFirstSCA']
                 falseLabel = o['falseLabelA']
                 o['isFirstSCA'] = True
-
-
             retType =  BoolType()
+            if 'onlyType' in o and o['onlyType']: return retType
             if 'isFirstSCO' in o and o['isFirstSCO'] == False:
                 trueLabel = o['trueLabelO']
                 
@@ -653,6 +661,9 @@ class CodeGenerator(BaseVisitor,Utils):
                     leftCode += self.emit[className].emitIFTRUE(trueLabel, frame)
                 
                 if type(ast.right) is BinaryOp:
+                    envSC['isLeft'] = False
+                    envSC['isFirstSCO'] = False
+                    envSC['trueLabelO'] = trueLabel
                     rightCode = self.visit(ast.right, envSC)[0]
                 else:
                     envRight = o.copy()
@@ -669,44 +680,77 @@ class CodeGenerator(BaseVisitor,Utils):
                     rightCode+=self.emit[className].emitPUSHCONST(1, IntType(), frame)
                     rightCode+=self.emit[className].emitLABEL(endLabel, frame)
         else:
-            leftCode, leftType = self.visit(ast.left, env)
-            rightCode, rightType =self.visit(ast.right, env)
+            env['onlyType'] = True
+            leftType = self.visit(ast.left, env)
+            rightType = self.visit(ast.right, env)
 
+            #need compute retType first
             if ast.op == "+":
                 if type(leftType) is type(rightType) and type(leftType) in [StringType, IntType, FloatType]:
                     retType = leftType
-                    rightCode+=self.emit[className].emitADDOP(ast.op, leftType, frame)
                 elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
                     retType = FloatType()
-                    if(type(leftType) is IntType):
-                        leftCode+=self.emit[className].emitI2F(frame)
-                    else:
-                        rightCode+=self.emit[className].emitI2F(frame)
-                    rightCode+=self.emit[className].emitADDOP(ast.op, leftType, frame)
             elif ast.op in ["-", "*", "/"]:
                 if type(leftType) is type(rightType) and type(leftType) in [FloatType, IntType]:
                     retType = leftType
-                    rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
                 elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
                     retType = FloatType()
-                    if(type(leftType) is IntType):
-                        leftCode+=self.emit[className].emitI2F(frame)
-                    else:
-                        rightCode+=self.emit[className].emitI2F(frame)
-                    rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
             elif ast.op == "%": 
                 retType = IntType()
-                rightCode+=self.emit[className].emitMOD(frame)
             elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
                 retType = BoolType()
-                if 'isFirstSCA' in o and o['isFirstSCA'] == False:
-                    rightCode+=self.emit[className].emitRELOP1(ast.op, o['falseLabelA'], frame)
-                elif 'isFirstSCO' in o and o['isFirstSCO'] == False:
-                    rightCode+=self.emit[className].emitRELOP2(ast.op, o['trueLabelO'], frame)
-                else: rightCode+=self.emit[className].emitREOP(ast.op, frame)
-        
 
-        if 'onlyType' in o and o['onlyType']: return retType
+            if 'onlyType' in o and o['onlyType']: return retType
+            env['onlyType'] = False
+            if type(leftType) is type(rightType) and type(leftType) is StringType:
+                if ast.op == "+":
+                    leftCode = self.emit[className].emitSTRINGBUILDER(frame)
+                    leftCode += self.emit[className].emitDUP(frame)
+                    leftCode += self.visit(ast.left, env)[0]
+                    leftCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/append", MType([StringType()], ClassType("java/lang/StringBuilder")), frame)
+                    leftCode += self.emit[className].emitDUP(frame)
+                    rightCode = self.visit(ast.right, env)[0]
+                    rightCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/append", MType([StringType()], ClassType("java/lang/StringBuilder")), frame)
+                    rightCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/toString", MType([],  StringType()), frame )
+                elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
+                    leftCode, leftType = self.visit(ast.left, env)
+                    rightCode, rightType =self.visit(ast.right, env)
+                    if 'isFirstSCA' in o and o['isFirstSCA'] == False:
+                        rightCode+=self.emit[className].emitRELOPSTRING1(ast.op, o['falseLabelA'], frame)
+                    elif 'isFirstSCO' in o and o['isFirstSCO'] == False:
+                        rightCode+=self.emit[className].emitRELOPSTRING2(ast.op, o['trueLabelO'], frame)
+                    else: rightCode+=self.emit[className].emitREOPSTRING(ast.op, frame)
+            else:
+                leftCode, leftType = self.visit(ast.left, env)
+                rightCode, rightType =self.visit(ast.right, env)
+
+                if ast.op == "+":
+                    if type(leftType) is type(rightType) and type(leftType) in [StringType, IntType, FloatType]:
+                        rightCode+=self.emit[className].emitADDOP(ast.op, leftType, frame)
+                    elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
+                        if(type(leftType) is IntType):
+                            leftCode+=self.emit[className].emitI2F(frame)
+                        else:
+                            rightCode+=self.emit[className].emitI2F(frame)
+                        rightCode+=self.emit[className].emitADDOP(ast.op, leftType, frame)
+                elif ast.op in ["-", "*", "/"]:
+                    if type(leftType) is type(rightType) and type(leftType) in [FloatType, IntType]:
+                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
+                    elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
+                        if(type(leftType) is IntType):
+                            leftCode+=self.emit[className].emitI2F(frame)
+                        else:
+                            rightCode+=self.emit[className].emitI2F(frame)
+                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
+                elif ast.op == "%": 
+                    rightCode+=self.emit[className].emitMOD(frame)
+                elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
+                    if 'isFirstSCA' in o and o['isFirstSCA'] == False:
+                        rightCode+=self.emit[className].emitRELOP1(ast.op, o['falseLabelA'], frame)
+                    elif 'isFirstSCO' in o and o['isFirstSCO'] == False:
+                        rightCode+=self.emit[className].emitRELOP2(ast.op, o['trueLabelO'], frame)
+                    else: rightCode+=self.emit[className].emitREOP(ast.op, frame)
+
         return leftCode+rightCode, retType
 
     def visitUnaryOp(self, ast: UnaryOp, o):
@@ -818,7 +862,7 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitStringLiteral(self, ast: StringLiteral, o):
         if 'onlyType' in o and o['onlyType']: return StringType()
-        return self.emit[o['className']].emitPUSHCONST(ast.value, o['frame']), StringType()
+        return self.emit[o['className']].emitPUSHCONST(ast.value, StringType(), o['frame']), StringType()
 
     def visitBooleanLiteral(self, ast: BooleanLiteral, o):
         if 'onlyType' in o and o['onlyType']: return BoolType()

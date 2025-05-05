@@ -392,8 +392,41 @@ class CheckCodeGenSuite(unittest.TestCase):
         expect = "true" 
         self.assertTrue(TestCodeGen.test(input, expect, 535))
 
-    
 
+    def test_assign_arraycell(self):
+        input = """
+        func main(){
+            var a[2][2] string=[2][2] string{{"abc", "hello"},{"ghi", "jkl"}}
+            putString(a[0][1] + " ")
+            a[0][1] := "world"
+            putString(a[0][1])
+        }
+"""
+        expect = "hello world"
+        self.assertTrue(TestCodeGen.test(input, expect, 536))
+
+    def test_compare_string(self):
+        input = """
+        func main(){
+            var a[2][2] string=[2][2] string{{"abc", "hello"},{"ghi", "jkl"}}
+            putBoolLn(a[0][1] ==  "hello")
+            a[0][1] := "world"
+            putBoolLn(a[0][1] ==  "hello")
+        }
+"""
+        expect = "true\nfalse\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 537))
+
+    def test_short_circuit_with_string(self):
+        print(538)
+        input = """
+        func main(){
+            var a[2][2] string=[2][2] string{{"abc", "hello"},{"ghi", "jkl"}}
+            putBoolLn(a[0][1] ==  "hello"&&a[0][0]>"abcd"&&a[1][0]<="ghi" || a[1][1] >= "jkl")
+        }
+"""
+        expect = "true\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 538))
 
     def test_if_stmt(self):
         input = """func factorial(n int) int {
@@ -443,10 +476,12 @@ class CheckCodeGenSuite(unittest.TestCase):
 """
         expect = "-1"
         self.assertTrue(TestCodeGen.test(input, expect, 541))
+
+    
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal
-
+#need write more test case for string
 
 #     def test_function_with_param(self):
 #         input = """

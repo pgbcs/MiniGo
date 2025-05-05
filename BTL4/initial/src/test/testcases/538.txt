@@ -1,16 +1,5 @@
 
-    func foo(n int) int{
-        if (n<2){
-            if(n<100){
-                return -1;
-            }else{
-                return 0;
-            }
-        }else{
-            return 0;
+        func main(){
+            var a[2][2] string=[2][2] string{{"abc", "hello"},{"ghi", "jkl"}}
+            putBoolLn(a[0][1] ==  "hello"&&a[0][0]>"abcd"&&a[1][0]<="ghi" || a[1][1] >= "jkl")
         }
-    }
-    func main(){
-        putInt(foo(1));
-    }
-
