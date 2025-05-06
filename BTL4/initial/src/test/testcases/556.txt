@@ -1,0 +1,5 @@
+
+        func main(){
+            const a = 3.14;
+            putFloat(a);
+        }

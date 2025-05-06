@@ -1,0 +1,8 @@
+
+        func foo() int{
+            return 1;
+        }
+        func main(){
+            var a = foo();
+            putInt(a);
+        }

@@ -1,0 +1,5 @@
+
+        func main(){
+            const a = "hello";
+            putString(a);
+        }

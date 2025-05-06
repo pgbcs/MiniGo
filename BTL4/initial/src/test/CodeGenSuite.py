@@ -418,7 +418,6 @@ class CheckCodeGenSuite(unittest.TestCase):
         self.assertTrue(TestCodeGen.test(input, expect, 537))
 
     def test_short_circuit_with_string(self):
-        print(538)
         input = """
         func main(){
             var a[2][2] string=[2][2] string{{"abc", "hello"},{"ghi", "jkl"}}
@@ -476,6 +475,311 @@ class CheckCodeGenSuite(unittest.TestCase):
 """
         expect = "-1"
         self.assertTrue(TestCodeGen.test(input, expect, 541))
+
+    def test_basic_for_loop(self):
+        input = """
+    func main(){
+        var i = 0;
+        for i < 3 {
+            // loop body
+            putIntLn(i);
+            i+=1
+        }
+    }
+
+"""
+        expect = "0\n1\n2\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 542))
+
+    def test_for_step(self):
+        input = """
+    func main(){
+        for var i int= 0; i < 10; i += 1 {
+         // loop body
+        putInt(i)
+    }
+    }
+"""
+        expect = "0123456789"
+        self.assertTrue(TestCodeGen.test(input, expect, 543))
+    
+    def test_assign_to_create_new_var(self):
+        input = """
+    func main(){
+        i:=100
+        putInt(i)
+    }
+"""
+        expect = "100"
+        self.assertTrue(TestCodeGen.test(input, expect, 544))
+
+    def test_global_float_var(self):
+        input = """
+        var a = 1.5
+        func main(){
+            putFloat(a);
+        }
+"""
+        expect ="1.5"
+        self.assertTrue(TestCodeGen.test(input, expect, 545))
+    
+    def test_global_boolean_var(self):
+        input = """
+        var a = true
+        func main(){
+            putBool(a);
+        }
+"""
+        expect ="true"
+        self.assertTrue(TestCodeGen.test(input, expect, 546))
+
+    def test_global_string_var(self):
+        input = """
+        var a = "hello"
+        func main(){
+            putString(a);
+        }
+"""
+        expect ="hello"
+        self.assertTrue(TestCodeGen.test(input, expect, 547))
+    
+    def test_init_var_with_func_call(self):
+        input = """
+        func foo() int{
+            return 1;
+        }
+        func main(){
+            var a = foo();
+            putInt(a);
+        }
+"""
+        expect = "1"
+        self.assertTrue(TestCodeGen.test(input, expect, 548))
+
+    def test_init_var_with_expr(self):
+        input = """
+        func main(){
+            var a = 1 + 2;
+            putInt(a);
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input, expect, 549))
+    
+    def test_init_var_with_expr1(self):
+        input = """
+        func main(){
+            var a = 1 + 2 * 3;
+            putInt(a);
+        }
+"""
+        expect = "7"
+        self.assertTrue(TestCodeGen.test(input, expect, 550))
+
+    def test_init_var_with_expr2(self):
+        input = """
+        func main(){
+            var a = 1 + 2 * 3 - 4 / 2;
+            putInt(a);
+        }
+"""
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input, expect, 551))
+
+    def test_init_var_with_arraycell(self):
+        input = """
+        func main(){
+            var a[2][2] int = [2][2]int{{1, 2}, {3, 4}};
+            b := a[0][1] + a[1][0];
+            putInt(b);
+        }
+"""
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input, expect, 552))
+
+    def test_init_var_with_string_arraycell(self):
+        input = """
+        func main(){
+            var a[2][2] string = [2][2]string{{"hello", "world"}, {"foo", "bar"}};
+            b := a[0][1] + a[1][0];
+            putString(b);
+        }
+"""
+        expect = "worldfoo"
+        self.assertTrue(TestCodeGen.test(input, expect, 553))
+
+    def test_struct_var(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30};
+            putString(p.name);
+        }
+"""
+        expect = "John"
+        self.assertTrue(TestCodeGen.test(input, expect, 554))
+    
+    def test_local_constant(self):
+        input = """
+        func main(){
+            const a = 10;
+            putInt(a);
+        }
+"""
+        expect = "10"
+        self.assertTrue(TestCodeGen.test(input, expect, 555))
+
+    def test_local_float_constant(self):
+        input = """
+        func main(){
+            const a = 3.14;
+            putFloat(a);
+        }
+"""
+        expect = "3.14"
+        self.assertTrue(TestCodeGen.test(input, expect, 556))
+    
+    def test_local_boolean_constant(self):
+        input = """
+        func main(){
+            const a = true;
+            putBool(a);
+        }
+"""
+        expect = "true"
+        self.assertTrue(TestCodeGen.test(input, expect, 557))
+
+    def test_local_string_constant(self):
+        input = """
+        func main(){
+            const a = "hello";
+            putString(a);
+        }
+"""
+        expect = "hello"
+        self.assertTrue(TestCodeGen.test(input, expect, 558))
+    
+    def test_local_struct_constant(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func main(){
+            const p = Person{name: "John", age: 30};
+            putString(p.name);
+        }
+"""
+        expect = "John"
+        self.assertTrue(TestCodeGen.test(input, expect, 559))
+
+    def test_local_array_constant(self):
+        input = """
+        func main(){
+            const a = [2][2]int{{1, 2}, {3, 4}};
+            putInt(a[0][1]);
+        }
+"""
+        expect = "2"
+        self.assertTrue(TestCodeGen.test(input, expect, 560))
+    
+    def test_local_expression_constant(self):
+        input = """
+        func main(){
+            const a = 1 + 2 * 3 - 4 / 2;
+            putInt(a);
+        }
+"""
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input, expect, 561))
+    
+    def test_local_string_expression_constant(self):
+        input = """
+        func main(){
+            const a = "hello" + " world";
+            putString(a);
+        }
+"""
+        expect = "hello world"
+        self.assertTrue(TestCodeGen.test(input, expect, 562))
+
+    def test_local_var_with_same_name_as_global(self):
+        input = """
+        var a = 10;
+        func main(){
+            var a = 20;
+            putInt(a);
+        }
+"""
+        expect = "20"
+        self.assertTrue(TestCodeGen.test(input, expect, 563))
+    
+    def test_local_var_with_same_name_as_param(self):
+        input = """
+        func foo(a int) int {
+            var a = 20;
+            return a;
+        }
+        func main(){
+            putInt(foo(10));
+        }
+"""
+        expect = "20"
+        self.assertTrue(TestCodeGen.test(input, expect, 564))
+    
+    def test_array_declare_with_init_many_dim(self):
+        input = """
+var a [5][5][5] int = [5][5][5]int{
+    {
+        {57, 12, 140, 125, 114},
+        {71, 52, 44, 216, 16},
+        {15, 47, 111, 119, 13},
+        {101, 214, 112, 229, 142},
+        {3, 81, 216, 174, 142}    },
+    {
+        {79, 110, 172, 52, 47},
+        {194, 49, 183, 176, 135},
+        {22, 235, 63, 193, 40},
+        {150, 185, 98, 35, 23},
+        {116, 148, 40, 119, 51}    },
+    {
+        {194, 142, 232, 186, 83},
+        {189, 181, 107, 136, 36},
+        {87, 125, 83, 236, 194},
+        {138, 112, 166, 28, 117},
+        {16, 161, 205, 137, 33}   },
+    {
+        {108, 161, 108, 255, 202},
+        {234, 73, 135, 71, 126},
+        {134, 219, 204, 185, 112},
+        {70, 252, 46, 24, 56},
+        {78, 81, 216, 32, 197}    },
+    {
+        {195, 239, 128, 5, 58},
+        {136, 174, 57, 150, 222},
+        {80, 232, 1, 134, 91},
+        {54, 152, 101, 78, 191},
+        {82, 0, 165, 250, 9}    }};
+func main(){
+    putInt(a[0][0][0]);
+}
+"""
+        expect = "57"
+        self.assertTrue(TestCodeGen.test(input, expect, 565))
+    
+    def test_assign_array_for_other_array(self):
+        input = """
+        var a[2][2] int = [2][2]int{{1, 2}, {3, 4}};
+        var b[2] int = a[0];
+        func main(){
+            putInt(b[1]);
+        }
+"""
+        expect = "2"
+        self.assertTrue(TestCodeGen.test(input, expect, 566))
 
     
 #test method name is main

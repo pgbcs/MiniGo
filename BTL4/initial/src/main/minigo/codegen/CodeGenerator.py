@@ -322,9 +322,9 @@ class CodeGenerator(BaseVisitor,Utils):
             else:
                 frame: Frame = o['frame']
                 index = frame.getNewIndex()
-                o['env'][0].append(Symbol(ast.conName, ast.conType, Index(index)))
+                o['env'][0].append(Symbol(ast.conName, conType, Index(index)))
                 self.emit[o['className']].printout(self.emit[o['className']].emitVAR(index, ast.conName, conType, frame.getStartLabel(), frame.getEndLabel(), frame))
-                initCode,_ = self.visit(ast.iniExpr, frame)
+                initCode,_ = self.visit(ast.iniExpr, env)
                 self.emit[o['className']].printout(initCode)
                 self.emit[o['className']].printout(self.emit[o['className']].emitWRITEVAR(ast.conName, conType, index,  frame))
         elif o['turn'] == 3:
@@ -433,9 +433,60 @@ class CodeGenerator(BaseVisitor,Utils):
         return o
 
     def visitForBasic(self, ast: ForBasic, o):
-        pass
-    
+        env = o.copy()
+        env['isLeft'] = False
+        frame: Frame = o['frame']
+        className = o['className']
+        frame.enterLoop()
 
+        continueLabel = frame.getContinueLabel()
+        breakLabel = frame.getBreakLabel()
+        
+        self.emit[className].printout(self.emit[className].emitLABEL(continueLabel, frame))
+        self.emit[className].printout(self.visit(ast.cond, env)[0])
+        self.emit[className].printout(self.emit[className].emitIFFALSE(breakLabel, frame))
+        self.visit(ast.loop, o)
+        self.emit[className].printout(self.emit[className].emitGOTO(continueLabel, frame))
+        self.emit[className].printout(self.emit[className].emitLABEL(breakLabel, frame))
+        frame.exitLoop()
+        return o
+
+    def visitForStep(self, ast: ForStep, o):
+        env = o.copy()
+        env['isLeft'] = False
+        frame: Frame = o['frame']
+        className = o['className']
+
+        
+        self.visit(ast.init, o)
+        frame.enterLoop()
+        continueLabel = frame.getContinueLabel()
+        breakLabel = frame.getBreakLabel()
+        loopLabel = frame.getNewLabel()
+        self.emit[className].printout(self.emit[className].emitLABEL(loopLabel, frame))
+        self.emit[className].printout(self.visit(ast.cond, env)[0])
+        self.emit[className].printout(self.emit[className].emitIFFALSE(breakLabel, frame))
+        self.visit(ast.loop, o)
+
+        self.emit[className].printout(self.emit[className].emitLABEL(continueLabel, frame))
+        self.visit(ast.upda, o)
+        self.emit[className].printout(self.emit[className].emitGOTO(loopLabel, frame))
+        self.emit[className].printout(self.emit[className].emitLABEL(breakLabel, frame))
+        frame.exitLoop()
+        return o
+    
+    def visitBreak(self, ast: Break, o):
+        frame: Frame = o['frame']
+        className = o['className']
+        self.emit[className].printout(self.emit[className].emitGOTO(frame.getBreakLabel(), frame))
+        return o
+    
+    def visitContinue(self, ast: Continue, o):
+        frame: Frame = o['frame']
+        className = o['className']
+        self.emit[className].printout(self.emit[className].emitGOTO(frame.getContinueLabel(), frame))
+        return o
+    
     #TODO: what case it is not stmt but still need pop???
     def visitFuncCall(self, ast: FuncCall, o):#TODO: if it is stmt ???
         sym:Symbol = next(filter(lambda x: x.name == ast.funName, o['env'][-1]),None)
@@ -547,6 +598,16 @@ class CodeGenerator(BaseVisitor,Utils):
         else:            
             env['isLeft'] = False 
             rhsCode, rhsType = self.visit(ast.rhs, env)
+
+            if type(ast.lhs) is Id:
+                sym = next(filter(lambda x: x.name == ast.lhs.name, [j for i in o['env'] for j in i]),None)
+                if sym is None:
+                    frame: Frame = o['frame']
+                    index = frame.getNewIndex()
+                    self.emit[o['className']].printout(self.emit[o['className']].emitVAR(index, ast.lhs.name, rhsType, frame.getStartLabel(), frame.getEndLabel(), frame))  
+                    o['env'][0].append(Symbol(ast.lhs.name, rhsType, Index(index)))
+            
+            env = o.copy()
             env['isLeft'] = True
             lhsCode, optVal = self.visit(ast.lhs, env)
             self.emit[o['className']].printout(rhsCode+lhsCode)
@@ -735,13 +796,13 @@ class CodeGenerator(BaseVisitor,Utils):
                         rightCode+=self.emit[className].emitADDOP(ast.op, leftType, frame)
                 elif ast.op in ["-", "*", "/"]:
                     if type(leftType) is type(rightType) and type(leftType) in [FloatType, IntType]:
-                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
+                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame) if ast.op in ["*", "/"] else self.emit[className].emitADDOP(ast.op, leftType, frame)
                     elif not type(leftType) is type(rightType) and type(leftType) in [IntType, FloatType] and type(rightType) in [IntType, FloatType] :
                         if(type(leftType) is IntType):
                             leftCode+=self.emit[className].emitI2F(frame)
                         else:
                             rightCode+=self.emit[className].emitI2F(frame)
-                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame)
+                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame) if ast.op in ["*", "/"] else self.emit[className].emitADDOP(ast.op, leftType, frame)
                 elif ast.op == "%": 
                     rightCode+=self.emit[className].emitMOD(frame)
                 elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
@@ -815,6 +876,7 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitId(self, ast: Id, o):
         sym = next(filter(lambda x: x.name == ast.name, [j for i in o['env'] for j in i]),None)
+
         if type(sym.value) is Index:
             if 'receiver' in o and o['receiver'] == sym.name:
                 # if o['className'] != self.className:

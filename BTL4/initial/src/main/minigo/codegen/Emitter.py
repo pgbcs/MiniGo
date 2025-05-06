@@ -859,6 +859,7 @@ class Emitter():
     #             result+=emit
 
     def emitSTRINGBUILDER(self, frame):
+        frame.push()
         result = self.jvm.emitNEW("java/lang/StringBuilder")
         result += self.emitDUP(frame)
         result += self.emitINVOKESPECIAL(frame, "java/lang/StringBuilder/<init>", MType([], VoidType())) 

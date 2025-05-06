@@ -1,0 +1,6 @@
+
+        var a = 10;
+        func main(){
+            var a = 20;
+            putInt(a);
+        }

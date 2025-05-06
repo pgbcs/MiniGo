@@ -1,0 +1,9 @@
+
+        type Person struct {
+            name string;
+            age int;
+        }
+        func main(){
+            const p = Person{name: "John", age: 30};
+            putString(p.name);
+        }

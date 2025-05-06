@@ -1,0 +1,5 @@
+
+        func main(){
+            const a = [2][2]int{{1, 2}, {3, 4}};
+            putInt(a[0][1]);
+        }
