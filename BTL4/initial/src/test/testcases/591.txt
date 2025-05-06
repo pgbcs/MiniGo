@@ -1,0 +1,28 @@
+
+        type Printer interface {
+            print()
+        }
+
+        type Person struct {
+            name string
+        }
+
+        func (p Person) print() {
+            putStringLn(p.name)
+        }
+
+        func (p Pearson) say() {
+            putStringLn(p.name)
+        }
+
+        func main() {
+            var people Printer
+            //people := Person{name: "Anna"}
+            people := Pearson{name: "Bob"}
+            //people.print()
+        }
+
+        type Pearson struct {
+            name string
+        }
+        

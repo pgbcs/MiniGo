@@ -1,0 +1,10 @@
+
+        func foo(a string){
+            a+=" world"
+        }
+        func main(){
+            var a string = "hello";
+            foo(a)
+            putString(a);
+    }
+            

@@ -11,6 +11,7 @@ class Emitter():
         self.filename = filename
         self.buff = list()
         self.jvm = JasminCode()
+        self.interface = []
 
     def getJVMType(self, inType):
         typeIn = type(inType)
@@ -782,7 +783,7 @@ class Emitter():
         result = list()
         result.append(self.jvm.emitSOURCE(name + ".java"))
         result.append(".interface public " + name + JasminCode.END)
-        result.append(self.jvm.emitSUPER("java/land/Object" if parent == "" else parent))
+        result.append(self.jvm.emitSUPER("java/lang/Object" if parent == "" else parent))
         return ''.join(result)
     '''
         use for emit abstract method
@@ -864,3 +865,30 @@ class Emitter():
         result += self.emitDUP(frame)
         result += self.emitINVOKESPECIAL(frame, "java/lang/StringBuilder/<init>", MType([], VoidType())) 
         return result
+    
+    def emitPUSHNULL(self, frame):
+        frame.push()
+        return self.jvm.emitPUSHNULL()
+    
+    def emitINVOKEINTERFACE(self, lexeme, in_, frame):
+        #lexeme: String
+        #in_: Type
+        #frame: Frame
+
+        typ = in_
+        list(map(lambda x: frame.pop(), typ.partype))
+        frame.pop()
+        if not type(typ) is VoidType:
+            frame.push()
+        return self.jvm.emitINVOKEINTERFACE(lexeme, self.getJVMType(in_), len(typ.partype)+1)
+    
+
+    def emitIMPLEMENT(self, lexeme):
+        if lexeme in self.interface:
+            return 
+        className = self.filename[self.filename.rindex('/')+1:self.filename.rindex('.j')]
+        for i, v in enumerate(self.buff):
+            if v == f'.source {className}.java\n.class public {className}\n.super java.lang.Object\n':
+                self.buff.insert(i+1, self.jvm.emitIMPLEMENTS(lexeme))
+                break
+        return 

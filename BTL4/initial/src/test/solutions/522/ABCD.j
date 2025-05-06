@@ -8,9 +8,12 @@
 Label0:
 	aload_0
 	invokespecial java/lang/Object/<init>()V
+	aload_0
+	iconst_0
+	putfield ABCD/value I
 Label1:
 	return
-.limit stack 1
+.limit stack 2
 .limit locals 1
 .end method
 
@@ -31,6 +34,6 @@ Label2:
 Label3:
 	nop
 Label1:
-.limit stack 5
+.limit stack 4
 .limit locals 2
 .end method

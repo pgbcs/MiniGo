@@ -1,0 +1,7 @@
+
+        func main(){
+            var a[5] int = [5] int {1, 2, 3, 4, 5};
+            b := a;
+            b[0] := 10;
+            putInt(a[0]);
+        }

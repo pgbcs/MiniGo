@@ -781,7 +781,201 @@ func main(){
         expect = "2"
         self.assertTrue(TestCodeGen.test(input, expect, 566))
 
+    def test_struct_depend_on_other_struct(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        type Student struct {
+            person Person;
+            grade int;
+        }
+        func main(){
+            var s Student = Student{person: Person{name: "John", age: 20}, grade: 90};
+            putString(s.person.name);
+        }
+"""
+        expect = "John"
+        self.assertTrue(TestCodeGen.test(input, expect, 567))
+
+    def test_referece_to_arraycell(self):
+        input = """
+        func main(){
+            var a[5] int = [5] int {1, 2, 3, 4, 5};
+            b := a;
+            b[0] := 10;
+            putInt(a[0]);
+        }
+"""
+        expect = "10"
+        self.assertTrue(TestCodeGen.test(input, expect, 568))
+
+#     def test_arraycell_without_init(self):
+#         input = """
     
+#     func main(){
+#         var a[5] int;
+#         a[0]:=1
+#         putInt(a[0])
+#     }
+# """     
+#         expect = "1"
+#         self.assertTrue(TestCodeGen.test(input, expect, 568))
+    
+    def test_string_ref(self):
+        input = """
+        func foo(a string){
+            a+=" world"
+        }
+        func main(){
+            var a string = "hello";
+            foo(a)
+            putString(a);
+    }
+            """
+        expect = "hello world"
+        self.assertTrue(TestCodeGen.test(input, expect, 569))
+
+    def test_struct_declare_with_array_field(self):
+        print("test_struct_declare_with_array_field")
+        input = """
+        type Person struct {
+            name string;
+            age int;
+            scores [3] int;
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30, scores: [3]int{90, 80, 70}};
+            putFloat(p.scores[0]);
+        }
+"""
+        expect = "90.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 570))
+
+
+    def test_interface6(self):
+        input = """
+        func ( a A ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+
+        func main() {
+            var a Printable 
+            a := A{age: 8, name: "nicole"}
+            a.print()
+        }
+
+        type Printable interface{
+            print()
+        }
+        type A struct {
+            age int
+            name string
+        }
+        """
+        expect = "nicole\n8\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 589))
+
+    def test_test_interface7(self):
+        input = """
+        func ( a A ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+
+        func main() {
+            var a Printable 
+            a := A{age: 8, name: "nicole"}
+            var b Printable
+            b := B{age: 10, name: "nicole"}
+            a.print()
+            b.print()
+        }
+
+        type Printable interface{
+            print()
+        }
+        type A struct {
+            age int
+            name string
+        }
+        type B struct{
+            age int
+            name string
+        }
+        func ( a B ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+        """
+        expect = "nicole\n8\nnicole\n10\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 590))
+    
+    def test_interface8(self):
+        input = """
+        type Printer interface {
+            print()
+        }
+
+        type Person struct {
+            name string
+        }
+
+        func (p Person) print() {
+            putStringLn(p.name)
+        }
+
+        func (p Pearson) say() {
+            putStringLn(p.name)
+        }
+
+        func main() {
+            var people Printer
+            //people := Person{name: "Anna"}
+            people := Pearson{name: "Bob"}
+            //people.print()
+        }
+
+        type Pearson struct {
+            name string
+        }
+        """
+        expect = ""
+        self.assertTrue(TestCodeGen.test(input, expect, 591))
+
+    # def test_interface9(self):
+    #     input = """
+    #     type Printer interface {
+    #         print()
+    #     }
+
+    #     type Person struct {
+    #         name string
+    #     }
+
+    #     func (p Person) print() {
+    #         putStringLn(p.name)
+    #     }
+
+    #     func (p Pearson) say() {
+    #         putStringLn(p.name)
+    #     }
+
+    #     func main() {
+    #         var people Printer
+    #         //people := Person{name: "Anna"}
+    #         people := Pearson{name: "Bob"}
+    #         people.print()
+    #     }
+
+    #     type Pearson struct {
+    #         name string
+    #     }
+    #     """
+    #     expect = ""
+    #     self.assertTrue(TestCodeGen.test(input, expect, 592))
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

@@ -1,0 +1,31 @@
+
+        func ( a A ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+
+        func main() {
+            var a Printable 
+            a := A{age: 8, name: "nicole"}
+            var b Printable
+            b := B{age: 10, name: "nicole"}
+            a.print()
+            b.print()
+        }
+
+        type Printable interface{
+            print()
+        }
+        type A struct {
+            age int
+            name string
+        }
+        type B struct{
+            age int
+            name string
+        }
+        func ( a B ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+        

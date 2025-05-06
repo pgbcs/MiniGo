@@ -183,12 +183,12 @@ class TestCodeGen():
             classPreviewPATH = "../classPreview"
             subprocess.call("java  -jar "+ JASMIN_JAR + " " + path + "/*.j",shell=True,stderr=subprocess.STDOUT)
             
-        #     subprocess.run(
-        #     f"java -jar {JASMIN_JAR} -d {classPreviewPATH}/{os.path.basename(path)} {path}/*.j",
-        #     shell=True,
-        #     check=True,
-        #     stderr=subprocess.STDOUT
-        # )
+            subprocess.run(
+            f"java -jar {JASMIN_JAR} -d {classPreviewPATH}/{os.path.basename(path)} {path}/*.j",
+            shell=True,
+            check=True,
+            stderr=subprocess.STDOUT
+        )
             
             subprocess.run("java -cp ./lib;. MiniGoClass",shell=True, stdout = f, timeout=10)
         except StaticError as e:

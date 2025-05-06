@@ -1,0 +1,20 @@
+
+        func ( a A ) print() {
+            putStringLn(a.name)
+            putIntLn(a.age)
+        }
+
+        func main() {
+            var a Printable 
+            a := A{age: 8, name: "nicole"}
+            a.print()
+        }
+
+        type Printable interface{
+            print()
+        }
+        type A struct {
+            age int
+            name string
+        }
+        

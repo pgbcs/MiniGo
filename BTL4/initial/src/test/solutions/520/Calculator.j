@@ -1,6 +1,6 @@
 .source Calculator.java
 .interface public Calculator
-.super java/land/Object
+.super java/lang/Object
 
 .method public abstract Add(II)I
 .end method

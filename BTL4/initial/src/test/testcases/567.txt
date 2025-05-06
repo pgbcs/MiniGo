@@ -1,0 +1,13 @@
+
+        type Person struct {
+            name string;
+            age int;
+        }
+        type Student struct {
+            person Person;
+            grade int;
+        }
+        func main(){
+            var s Student = Student{person: Person{name: "John", age: 20}, grade: 90};
+            putString(s.person.name);
+        }

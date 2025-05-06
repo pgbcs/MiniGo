@@ -1,0 +1,10 @@
+
+        type Person struct {
+            name string;
+            age int;
+            scores [3] int;
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30, scores: [3]int{90, 80, 70}};
+            putFloat(p.scores[0]);
+        }

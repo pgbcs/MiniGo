@@ -9,8 +9,14 @@
 Label0:
 	aload_0
 	invokespecial java/lang/Object/<init>()V
+	aload_0
+	aconst_null
+	putfield Student/name Ljava/lang/String;
+	aload_0
+	iconst_0
+	putfield Student/age I
 Label1:
 	return
-.limit stack 1
+.limit stack 2
 .limit locals 1
 .end method
