@@ -1,0 +1,19 @@
+
+        type Shape interface {
+            area() float
+        }
+        type Circle struct {
+            radius float
+        }
+        func foo(s Shape) {
+            s := Circle{radius: 10.0}
+        }
+        func (c Circle) area() float {
+            return 3.14 * c.radius * c.radius
+        }
+        
+        func main() {
+            var c Shape = Circle{radius: 5.0}
+            foo(c)
+            putFloatLn(c.area())
+        }

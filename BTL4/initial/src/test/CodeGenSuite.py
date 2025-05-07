@@ -1274,10 +1274,114 @@ func main(){
         expect = "15.0"
         self.assertTrue(TestCodeGen.test(input, expect, 593))
 
+    def test_pass_by_value_with_primitive_type(self):
+        input = """
+        func foo(a int) {
+            a := 10;
+        }
+        func main() {
+            var a int = 5;
+            foo(a);
+            putInt(a);
+        }
+"""
+        expect = "5"
+        self.assertTrue(TestCodeGen.test(input, expect, 594))
     
+    def test_pass_by_ref_with_struct(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func foo(p Person) {
+            p.age := 10;
+        }
+        func main() {
+            var p Person = Person{name: "Alice", age: 5};
+            foo(p);
+            putInt(p.age);
+        }
+"""
+        expect = "10"
+        self.assertTrue(TestCodeGen.test(input, expect, 595))
 
-    # def test
+    def test_pass_by_ref_with_array(self):
+        input = """
+        func foo(arr [5]int) {
+            arr[0] := 10;
+        }
+        func main() {
+            var arr [5]int = [5]int{1, 2, 3, 4, 5};
+            foo(arr);
+            putInt(arr[0]);
+        }
+"""
+        expect = "10"
+        self.assertTrue(TestCodeGen.test(input, expect, 596))
 
+    def test_pass_by_ref_with_interface(self):
+        input = """
+        type Shape interface {
+            area() float
+        }
+        type Circle struct {
+            radius float
+        }
+        func foo(s Shape) {
+            s := Circle{radius: 10.0}
+        }
+        func (c Circle) area() float {
+            return 3.14 * c.radius * c.radius
+        }
+        
+        func main() {
+            var c Shape = Circle{radius: 5.0}
+            foo(c)
+            putFloatLn(c.area())
+        }
+"""
+        expect = "314\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 597))
+
+    def test_arraycell_with_index_is_expr(self):
+        input = """
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b int = 2
+            putInt(a[b])
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input, expect, 598))
+
+    def test_break_stmt(self):
+        input = """
+        func main() {
+            for i := 0; i < 10; i+=1 {
+                if (i == 5) {
+                    break
+                }
+                putInt(i)
+            }
+        }
+"""
+        expect = "01234"
+        self.assertTrue(TestCodeGen.test(input, expect, 599))
+
+    def test_continue_stmt(self):
+        input = """
+        func main() {
+            for i := 0; i < 10; i+=1 {
+                if (i == 5) {
+                    continue
+                }
+                putInt(i)
+            }
+        }
+"""
+        expect = "012346789"
+        self.assertTrue(TestCodeGen.test(input, expect, 600))
     # def test_interface9(self):
     #     input = """
     #     type Printer interface {

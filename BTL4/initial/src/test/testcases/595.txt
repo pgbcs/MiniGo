@@ -1,0 +1,13 @@
+
+        type Person struct {
+            name string;
+            age int;
+        }
+        func foo(p Person) {
+            p.age := 10;
+        }
+        func main() {
+            var p Person = Person{name: "Alice", age: 5};
+            foo(p);
+            putInt(p.age);
+        }

@@ -814,40 +814,7 @@ class Emitter():
         result+=self.emitDUP(frame)
         result+=self.emitINVOKESPECIAL(frame, lexeme+"/<init>", in_)
         return result
-    
-    # def emitARRAY(self, dimens, eleType, frame, isFirst=True):
-    #     result=""
-    #     if len(dimens) == 1:
-    #             result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
-    #             result+=self.jvm.emitNEWARRAY(self.getFullType(eleType))
-    #             if not isFirst:
-    #                 result+= self.emitASTORE(ArrayType(dimens, eleType), frame)
-    #     elif isFirst:
-    #         result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
-    #         result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
-    #         for i in range(dimens[0].value):
-    #             result+= self.emitDUP(frame)
-    #             result+= self.emitPUSHCONST(i, IntType(), frame)
-    #             # result+= self.emitALOAD(ArrayType(), frame)
-    #             result+= self.emitARRAY(dimens[1:], eleType, frame, False)
-    #     else:
-    #         # result+=self.emitDUP(frame)
-    #         result+= self.emitDUP2(frame)
-    #         result+=self.emitPUSHCONST(dimens[0].value, IntType(), frame)
-    #         result+=self.jvm.emitMULTIANEWARRAY(self.getJVMType(ArrayType(dimens, eleType)), str(len(dimens)))
-    #         result+=self.emitASTORE(ArrayType(dimens, eleType), frame)
-    #         result+=self.emitALOAD(ArrayType(dimens, eleType), frame)
-    #         for i in range(dimens[0].value):
-    #             result+= self.emitDUP(frame)
-    #             result+= self.emitPUSHCONST(i, IntType(), frame)
-    #             # result+= self.emitALOAD(ArrayType(), frame)
-    #             result+= self.emitARRAY(dimens[1:], eleType, frame, False)
-    #     return result                
 
-    # def emitDUP2(self, frame):
-    #     frame.push()
-    #     frame.push()
-    #     return self.jvm.INDENT + "dup2" + self.jvm.END
 
     def emitARRAY(self, dimens, eleType, frame):
         result = ""
@@ -903,6 +870,7 @@ class Emitter():
         for i, v in enumerate(self.buff):
             if v == f'.source {className}.java\n.class public {className}\n.super java.lang.Object\n':
                 self.buff.insert(i+1, self.jvm.emitIMPLEMENTS(lexeme))
+                self.interface.append(lexeme)
                 break
         return 
     

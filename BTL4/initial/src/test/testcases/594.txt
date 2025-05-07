@@ -1,0 +1,9 @@
+
+        func foo(a int) {
+            a := 10;
+        }
+        func main() {
+            var a int = 5;
+            foo(a);
+            putInt(a);
+        }
