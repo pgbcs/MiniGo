@@ -6,23 +6,25 @@
 .var 0 is args [Ljava/lang/String; from Label0 to Label1
 Label0:
 Label2:
-.var 1 is a Ljava/lang/String; from Label2 to Label3
-	new java/lang/StringBuilder
+.var 1 is p LPerson; from Label2 to Label3
+	new Person
 	dup
-	invokespecial java/lang/StringBuilder/<init>()V
-	ldc "hello"
-	invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-	ldc " world"
-	invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-	invokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;
+	invokespecial Person/<init>()V
+	dup
+	ldc "John"
+	putfield Person/name Ljava/lang/String;
+	dup
+	bipush 30
+	putfield Person/age I
 	astore_1
 	aload_1
-	invokestatic io/putString(Ljava/lang/String;)V
+	ldc "Alice"
+	invokevirtual Person/greet(Ljava/lang/String;)V
 Label3:
 	nop
 Label1:
 	return
-.limit stack 2
+.limit stack 3
 .limit locals 2
 .end method
 

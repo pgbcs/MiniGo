@@ -811,6 +811,8 @@ func main(){
         expect = "10"
         self.assertTrue(TestCodeGen.test(input, expect, 568))
 
+
+    
 #     def test_arraycell_without_init(self):
 #         input = """
     
@@ -838,7 +840,6 @@ func main(){
         self.assertTrue(TestCodeGen.test(input, expect, 569))
 
     def test_struct_declare_with_array_field(self):
-        print("test_struct_declare_with_array_field")
         input = """
         type Person struct {
             name string;
@@ -853,6 +854,131 @@ func main(){
         expect = "90.0"
         self.assertTrue(TestCodeGen.test(input, expect, 570))
 
+    def test_assign_assign_float_array_to_int_array1(self):
+        input = """
+        func main(){
+            var a[5] int = [5] int {1, 2, 3, 4, 5};
+            var b[5] float;
+            b:=a
+            putFloat(b[0]);
+        }
+"""
+        expect = "1.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 571))
+
+    def test_assign_assign_float_array_to_int_array2(self):
+        input = """
+        func main(){
+            var a[5] int;
+            var b[5] float;
+            b:=a
+            b := [5] float {1.0, 2.0, 3.0, 4.0, 5.0};
+            putFloat(b[0]);
+        }
+"""
+        expect = "1.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 572))
+
+
+
+    def test_assign_int_array_to_float_array3(self):
+        input = """
+        func main(){
+            var a[5] int = [5] int {4, 2, 3, 4, 5};
+            var b A = A{name: "hello", arr: [5] float {1.0, 2.0, 3.0, 4.0, 5.0}};
+            b.arr := a
+            putFloat(b.arr[0]);
+        }
+        type A struct {
+            name string;
+            // array of float
+            arr [5] float;
+        }
+"""
+        expect = "4.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 573))
+
+    def test_assign_int_array_to_float_array4(self):
+        #use slicing array
+        input = """
+        func main(){
+            var a[5] int = [5] int {4, 2, 3, 4, 5};
+            var b[2][5] float = [2][5] float{{1.0, 2.0, 3.0, 4.0, 5.0}, {6.0, 7.0, 8.0, 9.0, 10.0}};
+            b[0] := a
+            putFloat(b[0][0]);
+        }
+"""
+        expect = "4.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 574))
+
+    def test_assign_int_array_to_float_array5(self):
+        #use funcall to have int array
+        input = """
+        func foo() [5] int {
+            return [5] int {1, 2, 3, 4, 5};
+        }
+        func main(){
+            var b[5] float = foo();
+            putFloat(b[0]);
+        };
+    """
+        expect = "1.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 575))
+    
+    def test_assign_int_to_float_var1(self):
+        input = """
+        func main(){
+            var a int = 5;
+            var b float = a;
+            putFloat(b);
+        }
+"""
+        expect = "5.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 576))
+
+    def test_assign_int_to_float_var2(self):
+        #global var
+        input = """
+        var a int = 5;
+        var c float = a;
+        func main(){
+            var b float = a;
+            putFloat(b);
+            putFloat(c);
+        }
+"""
+        expect = "5.05.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 577))
+
+    def test_assign_int_arr_to_float_arr6(self):
+        #with global var and funcall
+        input = """
+        var a[5] int = [5] int {1, 2, 3, 4, 5};
+        var b[5] float = a;
+        func main(){
+            putFloat(b[0]);
+        }
+"""
+        expect = "1.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 578))
+
+    def test_struct_method_with_param(self):
+        print("test_struct_method_with_param")
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func (p Person) greet(name string) {
+            putString("Hello, " + name + "! My name is " + p.name);
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30};
+            p.greet("Alice");
+        }
+"""
+        expect = "Hello, Alice! My name is John"
+        self.assertTrue(TestCodeGen.test(input, expect, 579))
 
     def test_interface6(self):
         input = """

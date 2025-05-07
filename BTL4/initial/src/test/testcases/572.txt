@@ -1,0 +1,8 @@
+
+        func main(){
+            var a[5] int;
+            var b[5] float;
+            b:=a
+            b := [5] float {1.0, 2.0, 3.0, 4.0, 5.0};
+            putFloat(b[0]);
+        }

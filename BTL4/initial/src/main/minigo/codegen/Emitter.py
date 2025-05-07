@@ -714,6 +714,19 @@ class Emitter():
         if type(in_) is IntType:
             frame.pop()
             return self.jvm.emitIRETURN()
+        elif type(in_) is FloatType:
+            frame.pop()
+            return self.jvm.emitFRETURN()
+        elif type(in_) is cgen.ClassType or type(in_) is StringType:
+            frame.pop()
+            return self.jvm.emitARETURN()
+        elif type(in_) is ArrayType:
+            frame.pop()
+            return self.jvm.emitARETURN()
+        elif type(in_) is BoolType:
+            frame.pop()
+            return self.jvm.emitIRETURN()
+        
         elif type(in_) is VoidType:
             return self.jvm.emitRETURN()
 
@@ -892,3 +905,10 @@ class Emitter():
                 self.buff.insert(i+1, self.jvm.emitIMPLEMENTS(lexeme))
                 break
         return 
+    
+    def emitIFNULL(self, label, frame):
+        #label: Int
+        #frame: Frame
+
+        frame.pop()
+        return self.jvm.INDENT + "ifnull Label" + str(label) + self.jvm.END

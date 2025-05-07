@@ -39,14 +39,12 @@ Label2:
 	new java/lang/StringBuilder
 	dup
 	invokespecial java/lang/StringBuilder/<init>()V
-	dup
 	aload_1
 	iconst_0
 	aaload
 	iconst_1
 	aaload
 	invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-	dup
 	aload_1
 	iconst_1
 	aaload
@@ -61,7 +59,7 @@ Label3:
 	nop
 Label1:
 	return
-.limit stack 8
+.limit stack 6
 .limit locals 3
 .end method
 

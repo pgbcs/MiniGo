@@ -1,0 +1,8 @@
+
+        var a int = 5;
+        var c float = a;
+        func main(){
+            var b float = a;
+            putFloat(b);
+            putFloat(c);
+        }

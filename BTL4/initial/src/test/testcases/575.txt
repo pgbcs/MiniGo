@@ -1,0 +1,9 @@
+
+        func foo() [5] int {
+            return [5] int {1, 2, 3, 4, 5};
+        }
+        func main(){
+            var b[5] float = foo();
+            putFloat(b[0]);
+        };
+    

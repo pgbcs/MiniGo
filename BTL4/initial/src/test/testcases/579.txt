@@ -1,0 +1,12 @@
+
+        type Person struct {
+            name string;
+            age int;
+        }
+        func (p Person) greet(name string) {
+            putString("Hello, " + name + "! My name is " + p.name);
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30};
+            p.greet("Alice");
+        }

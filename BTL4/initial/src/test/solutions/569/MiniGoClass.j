@@ -9,10 +9,8 @@ Label2:
 	new java/lang/StringBuilder
 	dup
 	invokespecial java/lang/StringBuilder/<init>()V
-	dup
 	aload_0
 	invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-	dup
 	ldc " world"
 	invokevirtual java/lang/StringBuilder/append(Ljava/lang/String;)Ljava/lang/StringBuilder;
 	invokevirtual java/lang/StringBuilder/toString()Ljava/lang/String;
@@ -21,7 +19,7 @@ Label3:
 	nop
 Label1:
 	return
-.limit stack 4
+.limit stack 2
 .limit locals 1
 .end method
 

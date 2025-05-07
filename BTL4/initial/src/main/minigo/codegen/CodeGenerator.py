@@ -102,6 +102,50 @@ class CodeGenerator(BaseVisitor,Utils):
     # def emitInitValueLocal(self, initExpr, o):
     #     if type()
 
+
+    def genIntArrayLiteralCode(self, dimens, eleType, o, tempVar):
+        
+        className = o['className']
+        frame: Frame = o['frame']
+
+        retCode = self.emit[className].emitARRAY(dimens, FloatType(), frame)
+        indexList = self.generateAllIndices(dimens)
+        
+        for index in indexList:
+            retCode+= self.emit[className].emitDUP(frame)
+            retCode+= self.emit[className].emitWRITEVAR2(index, eleType, frame)
+
+            retCode+= self.emit[className].emitREADVAR(tempVar, ArrayType(dimens, eleType), tempVar, frame)
+            for i, v  in enumerate(index):
+                retCode += self.emit[className].emitPUSHCONST(v, IntType(), frame)
+                if i != len(index)-1:
+                    retCode+=self.emit[className].emitALOAD(ArrayType(None, None), frame) #only need ArrayType 
+            retCode += self.emit[className].emitREADVAR2(IntType(), frame)
+            retCode += self.emit[className].emitI2F(frame)            
+            retCode+= self.emit[className].emitASTORE(FloatType(), frame)
+
+        # print("genIntArrayLiteralCode",retCode)
+        return retCode
+    
+    def assignIntArr2FloatArr(self, o, arrType, rhsType, rhsCode):
+            if type(arrType.eleType) is FloatType and type(rhsType.eleType) is IntType:
+                #we need temp var to store int array
+                endLabel = o['frame'].getNewLabel()
+                elseLabel = o['frame'].getNewLabel()
+                tempVar = o['frame'].getNewIndex()
+                rhsCode += self.emit[o['className']].emitDUP(o['frame'])
+                rhsCode += self.emit[o['className']].emitIFNULL(elseLabel, o['frame'])
+                rhsCode += self.emit[o['className']].emitVAR(tempVar, "temp", rhsType, o['frame'].getStartLabel(), o['frame'].getEndLabel(), o['frame'])
+                rhsCode += self.emit[o['className']].emitWRITEVAR("temp", rhsType, tempVar, o['frame'])
+                rhsCode += self.genIntArrayLiteralCode(rhsType.dimens, IntType(),o, tempVar)
+                rhsCode += self.emit[o['className']].emitGOTO(endLabel, o['frame'])
+                rhsCode +=self.emit[o['className']].emitLABEL(elseLabel, o['frame'])
+                rhsCode += self.emit[o['className']].emitPOP(o['frame'])
+                rhsCode += self.emit[o['className']].emitPUSHNULL(o['frame'])
+                rhsCode += self.emit[o['className']].emitLABEL(endLabel, o['frame'])
+            return rhsCode
+
+
     #need add more built-in function
     def init(self):
         mem = [
@@ -128,23 +172,7 @@ class CodeGenerator(BaseVisitor,Utils):
         self.emit[self.className] = Emitter(dir_ + "/" + self.className + ".j")
         self.visit(ast, gl)        
 
-    # def emitObjectInit(self, env):
-    #     for key in self.emit.keys():
-    #         if key in list(map(lambda x: x[0], env['struct'])) or key ==self.className:
-    #             frame = Frame("<init>", VoidType())  
-    #             self.emit[key].printout(self.emit[key].emitMETHOD("<init>", MType([], VoidType()), False))  # Bắt đầu định nghĩa phương thức <init>
-    #             frame.enterScope(True)  
-    #             self.emit[key].printout(self.emit[key].emitVAR(frame.getNewIndex(), "this", ClassType(key), frame.getStartLabel(), frame.getEndLabel(), frame))  # Tạo biến "this" trong phương thức <init>
-                
-    #             self.emit[key].printout(self.emit[key].emitLABEL(frame.getStartLabel(), frame))
-    #             self.emit[key].printout(self.emit[key].emitREADVAR("this", ClassType(key), 0, frame))  
-    #             self.emit[key].printout(self.emit[key].emitINVOKESPECIAL(frame))  
-            
-                
-    #             self.emit[key].printout(self.emit[key].emitLABEL(frame.getEndLabel(), frame))
-    #             self.emit[key].printout(self.emit[key].emitRETURN(VoidType(), frame))  
-    #             self.emit[key].printout(self.emit[key].emitENDMETHOD(frame))  
-    #             frame.exitScope() 
+
     def emitObjectInit(self):
         frame = Frame("<init>", VoidType())  
         self.emit[self.className].printout(self.emit[self.className].emitMETHOD("<init>", MType([], VoidType()), False))  # Bắt đầu định nghĩa phương thức <init>
@@ -290,10 +318,18 @@ class CodeGenerator(BaseVisitor,Utils):
                 # if type(varType) is ArrayType and not ast.varInit:
                 #     self.emit[o['className']].printout(self.emit[o['className']].emitARRAY(varType.dimens, varType.eleType, frame))
                 if ast.varInit:
+                    
                     # self.emit.printout(self.emit.emitPUSHICONST(ast.varInit.value, frame)) --original code
                     newO = o.copy()
                     newO['isLeft'] = False
                     initCode,initType = self.visit(ast.varInit, newO)
+
+                    if type(initType) is IntType and type(varType) is FloatType:
+                        initCode+=self.emit[o['className']].emitI2F(frame)
+                    elif type(initType) is ArrayType and type(varType) is ArrayType:
+                        if type(initType.eleType) is IntType and type(varType.eleType) is FloatType:
+                            initCode = self.assignIntArr2FloatArr(o, varType, initType, initCode)
+
                     self.emit[o['className']].printout(initCode)
                     self.emit[o['className']].printout(self.emit[o['className']].emitWRITEVAR(ast.varName, varType, index,  frame))
                 else:
@@ -305,7 +341,12 @@ class CodeGenerator(BaseVisitor,Utils):
                 if not type(ast.varInit) in self.initType:
                     newO = o.copy()
                     newO['isLeft'] = False #not change directly due to can affect on higher layer?!
-                    varInitCode,_ = self.visit(ast.varInit, newO)
+                    varInitCode, initType = self.visit(ast.varInit, newO)
+                    if type(initType) is IntType and type(varType) is FloatType:
+                        varInitCode+=self.emit[o['className']].emitI2F(frame)
+                    elif type(initType) is ArrayType and type(varType) is ArrayType:
+                        if type(initType.eleType) is IntType and type(varType.eleType) is FloatType:
+                            varInitCode = self.assignIntArr2FloatArr(o, varType, initType, varInitCode)
                     self.emit[o['className']].printout(varInitCode)
                     self.emit[o['className']].printout(self.emit[o['className']].emitPUTSTATIC(self.className + '/' + ast.varName, varType, frame))
             else:
@@ -608,14 +649,19 @@ class CodeGenerator(BaseVisitor,Utils):
 
     def visitAssign(self, ast: Assign, o):
         env = o.copy() 
+        notTransFlag = True
         # if type(lhsCode) is tuple:
         #     self.emit[o['className']].printout(lhsCode[0] +rhsCode + lhsCode[1])
 
+        
         if type(ast.lhs) is FieldAccess:    
             env['isLeft'] = True
             lhsCode, optVal = self.visit(ast.lhs, env)
             env['isLeft'] = False 
             rhsCode, rhsType = self.visit(ast.rhs, env)
+            if type(optVal[0].mtype) is ArrayType: 
+                notTransFlag = False
+                rhsCode = self.assignIntArr2FloatArr(o, optVal[0].mtype, rhsType, rhsCode)
             finCode = self.emit[o['className']].emitPUTFIELD(
                 optVal[1] + '/'+ optVal[0].name,
                 optVal[0].mtype,
@@ -627,24 +673,31 @@ class CodeGenerator(BaseVisitor,Utils):
             lhsCode, optVal = self.visit(ast.lhs, env)
             env['isLeft'] = False
             rhsCode, rhsType = self.visit(ast.rhs, env)
+            if type(optVal) is ArrayType: 
+                notTransFlag = False
+                rhsCode = self.assignIntArr2FloatArr(o, optVal, rhsType, rhsCode)
             finCode = self.emit[o['className']].emitASTORE(optVal, o['frame'])
             self.emit[o['className']].printout(lhsCode+rhsCode+finCode)
         else:            
             env['isLeft'] = False 
             rhsCode, rhsType = self.visit(ast.rhs, env)
-
+            
             if type(ast.lhs) is Id:
-                sym = next(filter(lambda x: x.name == ast.lhs.name, [j for i in o['env'] for j in i]),None)
+                sym: Symbol = next(filter(lambda x: x.name == ast.lhs.name, [j for i in o['env'] for j in i]),None)
                 if sym is None:
                     frame: Frame = o['frame']
                     index = frame.getNewIndex()
                     self.emit[o['className']].printout(self.emit[o['className']].emitVAR(index, ast.lhs.name, rhsType, frame.getStartLabel(), frame.getEndLabel(), frame))  
                     o['env'][0].append(Symbol(ast.lhs.name, rhsType, Index(index)))
-            
+                else:
+                    if type(sym.mtype) is ArrayType:
+                        rhsCode = self.assignIntArr2FloatArr(o, sym.mtype, rhsType, rhsCode)
+                        notTransFlag = False
             env = o.copy()
             env['isLeft'] = True
             lhsCode, optVal = self.visit(ast.lhs, env)
-            if type(rhsType) is IntType:
+            
+            if type(rhsType) is IntType and notTransFlag:
                 if type(optVal) is tuple:
                     if type(optVal[0].mtype) is FloatType:
                         rhsCode += self.emit[o['className']].emitI2F(frame)
@@ -657,12 +710,12 @@ class CodeGenerator(BaseVisitor,Utils):
             if type(optVal[0].mtype) is ClassType:
                 if optVal[0].mtype.name in list(map(lambda x: x[0], o['interface'])):
                     interfaceName = optVal[0].mtype.name
+            
         elif type(optVal) is ClassType:
             if optVal.name in list(map(lambda x: x[0], o['interface'])):
                 interfaceName = optVal.name
-        elif type(optVal) is ClassType:
-            if optVal.name in list(map(lambda x: x[0], o['interface'])):
-                interfaceName = optVal.name
+    
+        
 
         if interfaceName and type(rhsType) is ClassType:
             if rhsType.name in list(map(lambda x: x[0], o['struct'])):
@@ -824,10 +877,10 @@ class CodeGenerator(BaseVisitor,Utils):
             if type(leftType) is type(rightType) and type(leftType) is StringType:
                 if ast.op == "+":
                     leftCode = self.emit[className].emitSTRINGBUILDER(frame)
-                    leftCode += self.emit[className].emitDUP(frame)
+        
                     leftCode += self.visit(ast.left, env)[0]
                     leftCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/append", MType([StringType()], ClassType("java/lang/StringBuilder")), frame)
-                    leftCode += self.emit[className].emitDUP(frame)
+                    # leftCode += self.emit[className].emitDUP(frame)
                     rightCode = self.visit(ast.right, env)[0]
                     rightCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/append", MType([StringType()], ClassType("java/lang/StringBuilder")), frame)
                     rightCode += self.emit[className].emitINVOKEVIRTUAL("java/lang/StringBuilder/toString", MType([],  StringType()), frame )
@@ -907,6 +960,7 @@ class CodeGenerator(BaseVisitor,Utils):
         retCode = ""
         if ast.expr: retCode, retType = self.visit(ast.expr, env)
         else: retType = VoidType()
+        # print("retCode: ", retCode) 
         self.emit[o['className']].printout(retCode+self.emit[o['className']].emitRETURN(retType, o['frame']))
         return o
         
@@ -930,6 +984,7 @@ class CodeGenerator(BaseVisitor,Utils):
             valCode, valType = self.visit(element, env)
             retCode+=valCode
             retCode+= self.emit[className].emitASTORE(valType, frame)
+
         return retCode, retType
 
     def visitId(self, ast: Id, o):
