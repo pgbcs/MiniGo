@@ -1,0 +1,10 @@
+
+        func createArray() [5]int {
+            return [5]int{1, 2, 3, 4, 5};
+        }
+        func main() {
+            var arr [5]int = createArray();
+            putIntLn(arr[0]);
+            putIntLn(arr[1]);
+            putIntLn(arr[2]);
+        }

@@ -1,0 +1,13 @@
+
+        func add(a float, b float) float {
+            return a + b;
+        }
+        func main() {
+            var a float = 5.5;
+            var b float = 10.5;
+            var c float = add(a, b);
+            putFloatLn(c);
+            putFloatLn(add(3.5, 4.5));
+            putFloatLn(add(1.5, 2.5) + add(3.5, 4.5));
+            putFloatLn(add(add(1.5, 2.5), add(3.5, 4.5)));
+        }

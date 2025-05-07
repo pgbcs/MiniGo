@@ -2,20 +2,6 @@
 .class public MiniGoClass
 .super java.lang.Object
 
-.method public static getArea(LShape;)F
-.var 0 is s LShape; from Label0 to Label1
-Label0:
-Label2:
-	aload_0
-	invokeinterface Shape/area()F 1
-	freturn
-Label3:
-	nop
-Label1:
-.limit stack 1
-.limit locals 1
-.end method
-
 .method public static createCircle(F)LShape;
 .var 0 is radius F from Label0 to Label1
 Label0:
@@ -43,7 +29,7 @@ Label2:
 	invokestatic MiniGoClass/createCircle(F)LShape;
 	astore_1
 	aload_1
-	invokestatic MiniGoClass/getArea(LShape;)F
+	invokeinterface Shape/area()F 1
 	invokestatic io/putFloatLn(F)V
 Label3:
 	nop

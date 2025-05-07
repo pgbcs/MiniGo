@@ -1,0 +1,13 @@
+
+        type Person struct {
+            name string;
+            age int;
+        }
+        func (p Person) getOlder(years int) Person {
+            return Person{name: p.name, age: p.age + years};
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30};
+            var olderPerson = p.getOlder(5);
+            putInt(olderPerson.age);
+        }

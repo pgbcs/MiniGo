@@ -5,9 +5,6 @@
         type Circle struct {
             radius float
         }
-        func getArea(s Shape) float {
-            return s.area()
-        }
         func (c Circle) area() float {
             return 3.14 * c.radius * c.radius
         }
@@ -16,5 +13,5 @@
         }
         func main() {
             var c Shape = createCircle(5.0)
-            putFloatLn(getArea(c))
+            putFloatLn(c.area())
         }

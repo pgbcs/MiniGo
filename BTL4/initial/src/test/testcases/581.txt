@@ -1,0 +1,13 @@
+
+        func add(a int, b int) int {
+            return a + b;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c int = add(a, b);
+            putInt(c);
+            putInt(add(3, 4));
+            putInt(add(1, 2) + add(3, 4));
+            putInt(add(add(1, 2), add(3, 4)));
+        }

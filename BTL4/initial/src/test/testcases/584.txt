@@ -1,0 +1,12 @@
+
+        func isEven(n int) boolean {
+            return n % 2 == 0;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c boolean = isEven(a);
+            putBoolLn(c);
+            putBoolLn(isEven(b));
+            putBoolLn(isEven(3) && isEven(4));
+        }

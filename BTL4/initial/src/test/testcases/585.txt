@@ -1,0 +1,11 @@
+
+        func greet(name string) string {
+            return "Hello, " + name + "!";
+        }
+        func main() {
+            var a string = "Alice";
+            var b string = greet(a);
+            putStringLn(b);
+            putStringLn(greet("Bob"));
+            putStringLn(greet("Charlie") + " " + greet("Dave"));
+        }

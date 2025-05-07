@@ -963,7 +963,6 @@ func main(){
         self.assertTrue(TestCodeGen.test(input, expect, 578))
 
     def test_struct_method_with_param(self):
-        print("test_struct_method_with_param")
         input = """
         type Person struct {
             name string;
@@ -979,6 +978,170 @@ func main(){
 """
         expect = "Hello, Alice! My name is John"
         self.assertTrue(TestCodeGen.test(input, expect, 579))
+
+
+    def test_struct_method_return_other_struct(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func (p Person) getOlder(years int) Person {
+            return Person{name: p.name, age: p.age + years};
+        }
+        func main(){
+            var p Person = Person{name: "John", age: 30};
+            var olderPerson = p.getOlder(5);
+            putInt(olderPerson.age);
+        }
+"""
+        expect = "35"
+        self.assertTrue(TestCodeGen.test(input, expect, 580))
+
+    def test_int_function(self):
+        #include param and no param
+        input = """
+        func add(a int, b int) int {
+            return a + b;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c int = add(a, b);
+            putInt(c);
+            putInt(add(3, 4));
+            putInt(add(1, 2) + add(3, 4));
+            putInt(add(add(1, 2), add(3, 4)));
+        }
+"""
+        expect = "1571010"
+        self.assertTrue(TestCodeGen.test(input, expect, 581))
+
+    def test_float_function(self):
+        #include param and no param
+        input = """
+        func add(a float, b float) float {
+            return a + b;
+        }
+        func main() {
+            var a float = 5.5;
+            var b float = 10.5;
+            var c float = add(a, b);
+            putFloatLn(c);
+            putFloatLn(add(3.5, 4.5));
+            putFloatLn(add(1.5, 2.5) + add(3.5, 4.5));
+            putFloatLn(add(add(1.5, 2.5), add(3.5, 4.5)));
+        }
+"""
+        expect = "16.0\n8.0\n12.0\n12.0\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 582))
+
+    def test_sum_of_int_and_float(self):
+        input = """
+        func main() {
+            var a int = 5;
+            var b float = 10.5;
+            var c float = a + b;
+            putFloatLn(c);
+        }
+"""
+        expect = "15.5\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 583))
+    
+    def test_bool_function(self):
+        #include param and no param
+        input = """
+        func isEven(n int) boolean {
+            return n % 2 == 0;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c boolean = isEven(a);
+            putBoolLn(c);
+            putBoolLn(isEven(b));
+            putBoolLn(isEven(3) && isEven(4));
+        }
+"""
+        expect = "false\ntrue\nfalse\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 584))
+
+    def test_string_function(self):
+        #include param and no param
+        input = """
+        func greet(name string) string {
+            return "Hello, " + name + "!";
+        }
+        func main() {
+            var a string = "Alice";
+            var b string = greet(a);
+            putStringLn(b);
+            putStringLn(greet("Bob"));
+            putStringLn(greet("Charlie") + " " + greet("Dave"));
+        }
+"""
+        expect = "Hello, Alice!\nHello, Bob!\nHello, Charlie! Hello, Dave!\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 585))
+
+    def test_function_return_struct(self):
+        input = """
+        type Person struct {
+            name string;
+            age int;
+        }
+        func createPerson(name string, age int) Person {
+            return Person{name: name, age: age};
+        }
+        func main() {
+            var p Person = createPerson("Alice", 25);
+            putStringLn(p.name);
+            putIntLn(p.age);
+        }
+"""
+        expect = "Alice\n25\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 586))
+    
+    def test_function_return_interface(self):
+        input = """
+        type Shape interface {
+            area() float
+        }
+        type Circle struct {
+            radius float
+        }
+        func (c Circle) area() float {
+            return 3.14 * c.radius * c.radius
+        }
+        func createCircle(radius float) Shape {
+            return Circle{radius: radius}
+        }
+        func main() {
+            var c Shape = createCircle(5.0)
+            putFloatLn(c.area())
+        }
+"""
+        expect = "78.5\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 587))
+
+    def test_function_return_array(self):
+        input = """
+        func createArray() [5]int {
+            return [5]int{1, 2, 3, 4, 5};
+        }
+        func main() {
+            var arr [5]int = createArray();
+            putIntLn(arr[0]);
+            putIntLn(arr[1]);
+            putIntLn(arr[2]);
+        }
+"""
+        expect = "1\n2\n3\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 588))
+    
+    
+
+
+    # def test_struct_method_with_
 
     def test_interface6(self):
         input = """
@@ -1071,6 +1234,50 @@ func main(){
         expect = ""
         self.assertTrue(TestCodeGen.test(input, expect, 591))
 
+    def test_test_funcall_with_interface_as_param(self):
+        input = """
+        type Shape interface {
+            area() float
+        }
+        type Circle struct {
+            radius float
+        }
+        func getArea(s Shape) float {
+            return s.area()
+        }
+        func (c Circle) area() float {
+            return 3.14 * c.radius * c.radius
+        }
+        func createCircle(radius float) Shape {
+            return Circle{radius: radius}
+        }
+        func main() {
+            var c Shape = createCircle(5.0)
+            putFloatLn(getArea(c))
+        }
+"""
+        expect = "78.5\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 592))
+
+    def test_float_function_but_return_int(self):
+        input = """
+        func add(a int, b int) float {
+            return a + b;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c float = add(a, b);
+            putFloat(c);
+        }
+"""
+        expect = "15.0"
+        self.assertTrue(TestCodeGen.test(input, expect, 593))
+
+    
+
+    # def test
+
     # def test_interface9(self):
     #     input = """
     #     type Printer interface {
@@ -1106,7 +1313,7 @@ func main(){
 #local var same name with receiver
 #test order check env local->nonlocal
 #need write more test case for string
-
+#write test case for method call like function call
 #     def test_function_with_param(self):
 #         input = """
 #         func foo(a, b int) int{

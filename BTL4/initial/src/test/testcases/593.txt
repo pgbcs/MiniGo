@@ -1,0 +1,10 @@
+
+        func add(a int, b int) float {
+            return a + b;
+        }
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            var c float = add(a, b);
+            putFloat(c);
+        }
