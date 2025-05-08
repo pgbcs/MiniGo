@@ -1,0 +1,11 @@
+
+        func main() {
+            var a string = "hello";
+            var b string = "world";
+            if (a == b && 0/0 > 0) {
+                putStringLn(a + b);
+            }            else{
+                putStringLn(a + " " + b);
+            }
+        }
+        

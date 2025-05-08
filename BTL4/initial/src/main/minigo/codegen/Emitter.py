@@ -531,6 +531,98 @@ class Emitter():
     *   @param isStatic <code>true</code> if the method is static; <code>false</code> otherwise.
     '''
 
+    def emitFRELOP(self, op, frame):
+        #op: String
+        #in_: Type
+        #frame: Frame
+        #..., value1, value2 -> ..., result
+
+        result = list()
+        labelF = frame.getNewLabel()
+        labelO = frame.getNewLabel()
+
+        frame.pop()
+        frame.pop()
+        result.append(self.jvm.emitFCMPL())
+        if op == ">":
+            # result.append(self.emitGOTO(trueLabel, frame))
+            result.append(self.jvm.emitIFLE(labelF))
+        elif op == ">=":
+            result.append(self.jvm.emitIFLT(labelF))
+        elif op == "<":
+            result.append(self.jvm.emitIFGE(labelF))
+        elif op == "<=":
+            result.append(self.jvm.emitIFGT(labelF))
+        elif op == "!=":
+            result.append(self.jvm.emitIFEQ(labelF))
+        elif op == "==":
+            result.append(self.jvm.emitIFNE(labelF))
+        result.append(self.emitPUSHCONST("1", IntType(), frame))
+        frame.pop()
+        result.append(self.emitGOTO(labelO, frame))
+        result.append(self.emitLABEL(labelF, frame))
+        result.append(self.emitPUSHCONST("0", IntType(), frame))
+        result.append(self.emitLABEL(labelO, frame))
+        return ''.join(result)
+
+    def emitFRELOP1(self, op, falseLabel, frame):
+        #op: String
+        #in_: Type
+        #trueLabel: Int
+        #falseLabel: Int
+        #frame: Frame
+        #..., value1, value2 -> ..., result
+
+        result = list()
+
+        frame.pop()
+        frame.pop()
+        result.append(self.jvm.emitFCMPL())
+        if op == ">":
+            result.append(self.jvm.emitIFLE(falseLabel))
+            # result.append(self.emitGOTO(trueLabel, frame))
+        elif op == ">=":
+            result.append(self.jvm.emitIFLT(falseLabel))
+        elif op == "<":
+            result.append(self.jvm.emitIFGE(falseLabel))
+        elif op == "<=":
+            result.append(self.jvm.emitIFGT(falseLabel))
+        elif op == "!=":
+            result.append(self.jvm.emitIFEQ(falseLabel))
+        elif op == "==":
+            result.append(self.jvm.emitIFNE(falseLabel))
+        # if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
+        return ''.join(result)
+
+    def emitFRELOP2(self, op, trueLabel, frame):
+        #op: String
+        #in_: Type
+        #trueLabel: Int
+        #falseLabel: Int
+        #frame: Frame
+        #..., value1, value2 -> ..., result
+
+        result = list()
+
+        frame.pop()
+        frame.pop()
+        result.append(self.jvm.emitFCMPL())
+        if op == ">":
+            result.append(self.jvm.emitIFGT(trueLabel))
+            # result.append(self.emitGOTO(trueLabel, frame))
+        elif op == ">=":
+            result.append(self.jvm.emitIFGE(trueLabel))
+        elif op == "<":
+            result.append(self.jvm.emitIFLT(trueLabel))
+        elif op == "<=":
+            result.append(self.jvm.emitIFLE(trueLabel))
+        elif op == "!=":
+            result.append(self.jvm.emitIFNE(trueLabel))
+        elif op == "==":
+            result.append(self.jvm.emitIFEQ(trueLabel))
+        # if trueLabel: result.append(self.jvm.emitGOTO(trueLabel, frame))
+        return ''.join(result)
+
     def emitREOPSTRING(self, op, frame):
         result = list()
         labelF = frame.getNewLabel()

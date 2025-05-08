@@ -1,0 +1,11 @@
+
+        func main() {
+            var a float = 5.5;
+            var b float = 10.0;
+            if (a > b && 0/0 > 0) {
+                putFloatLn(a + b);
+            }            else{
+                putFloatLn(a - b);
+            }
+        }
+        

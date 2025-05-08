@@ -47,10 +47,12 @@ class CodeGenerator(BaseVisitor,Utils):
             return ArrayType(typ.dimens, self.getType(typ.eleType))
         return typ
 
-    def getLiteralValue(self, initExpr):
+    def getLiteralValue(self, initExpr, varType):
         if type(initExpr) in self.initType:
             if type(initExpr) is BooleanLiteral:
                 return "1" if initExpr.value else "0"
+            if type(varType) is FloatType:
+                return str(float(initExpr.value))
             return str(initExpr.value)
         return None
 
@@ -156,6 +158,11 @@ class CodeGenerator(BaseVisitor,Utils):
             name = mtype.name
             if name in list(map(lambda x: x[0], interfaceList)):
                 interfaceName = name
+        elif type(mtype) is ArrayType:
+            if type(mtype.eleType) in [ClassType, Id]:
+                name = mtype.eleType.name
+                if name in list(map(lambda x: x[0], interfaceList)):
+                    interfaceName = name
         return interfaceName
     
     def genImplementCode(self, mtype: ClassType, interfaceName, structList):
@@ -163,6 +170,11 @@ class CodeGenerator(BaseVisitor,Utils):
             className = mtype.name
             if className in list(map(lambda x: x[0], structList)):
                 self.emit[className].emitIMPLEMENT(interfaceName)
+        elif type(mtype) is ArrayType:
+            if interfaceName and type(mtype.eleType) in [ClassType, Id]:
+                className = mtype.eleType.name
+                if className in list(map(lambda x: x[0], structList)):
+                    self.emit[className].emitIMPLEMENT(interfaceName)
     #need add more built-in function
     def init(self):
         mem = [
@@ -318,6 +330,7 @@ class CodeGenerator(BaseVisitor,Utils):
         return o
 
     def visitVarDecl(self, ast: VarDecl, o):#need modify value init
+        if o['turn'] in [1,2]: return o
         varType = self.getType(ast.varType)
         if varType is None:
             env = o.copy()
@@ -326,7 +339,7 @@ class CodeGenerator(BaseVisitor,Utils):
         if o['turn'] == 3:
             if 'frame' not in o: # global var
                 o['env'][0].append(Symbol(ast.varName, varType, CName(self.className)))
-                self.emit[o['className']].printout(self.emit[o['className']].emitATTRIBUTE(ast.varName, varType, True, False, self.getLiteralValue(ast.varInit)))
+                self.emit[o['className']].printout(self.emit[o['className']].emitATTRIBUTE(ast.varName, varType, True, False, self.getLiteralValue(ast.varInit, varType)))
                 if not ast.varInit or not type(ast.varInit) in self.initType: o['globalInit'] = True
             else:
                 frame: Frame = o['frame']
@@ -347,6 +360,8 @@ class CodeGenerator(BaseVisitor,Utils):
                     elif type(initType) is ArrayType and type(varType) is ArrayType:
                         if type(initType.eleType) is IntType and type(varType.eleType) is FloatType:
                             initCode = self.assignIntArr2FloatArr(o, varType, initType, initCode)
+                        interfaceName = self.getInterfaceName(varType.eleType, o['interface'])
+                        self.genImplementCode(initType.eleType, interfaceName, o['struct'])
 
                     interfaceName = self.getInterfaceName(varType, o['interface'])
                     self.genImplementCode(initType, interfaceName, o['struct'])
@@ -369,6 +384,12 @@ class CodeGenerator(BaseVisitor,Utils):
                     elif type(initType) is ArrayType and type(varType) is ArrayType:
                         if type(initType.eleType) is IntType and type(varType.eleType) is FloatType:
                             varInitCode = self.assignIntArr2FloatArr(o, varType, initType, varInitCode)
+                        interfaceName = self.getInterfaceName(varType.eleType, o['interface'])
+                        self.genImplementCode(initType.eleType, interfaceName, o['struct'])
+
+                    interfaceName = self.getInterfaceName(varType, o['interface'])
+                    self.genImplementCode(initType, interfaceName, o['struct'])
+                        
                     self.emit[o['className']].printout(varInitCode)
                     self.emit[o['className']].printout(self.emit[o['className']].emitPUTSTATIC(self.className + '/' + ast.varName, varType, frame))
             else:
@@ -392,7 +413,7 @@ class CodeGenerator(BaseVisitor,Utils):
                                                            conType, 
                                                            True, 
                                                            True, 
-                                                           self.getLiteralValue(ast.iniExpr)))
+                                                           self.getLiteralValue(ast.iniExpr, conType)))
                 if not type(ast.iniExpr) in self.initType: o['globalInit'] = True
             else:
                 frame: Frame = o['frame']
@@ -728,11 +749,15 @@ class CodeGenerator(BaseVisitor,Utils):
                     if type(optVal[0].mtype) is FloatType:
                         rhsCode += self.emit[o['className']].emitI2F(frame)
                 elif type(optVal) is FloatType:
-                    rhsCode += self.emit[o['className']].emitI2F(frame)
+                    rhsCode += self.emit[o['className']].emitI2F(env['frame'])
             self.emit[o['className']].printout(rhsCode+lhsCode)
+
 
         interfaceName = None
         if type(optVal) is tuple:
+                if type(optVal[0].mtype) is ArrayType:
+                    interfaceName = self.getInterfaceName(optVal[0].mtype.eleType, o['interface'])
+                    self.genImplementCode(rhsType, interfaceName, o['struct'])
                 interfaceName = self.getInterfaceName(optVal[0].mtype, o['interface'])
         else:
                 interfaceName = self.getInterfaceName(optVal, o['interface'])
@@ -744,13 +769,14 @@ class CodeGenerator(BaseVisitor,Utils):
         env = o.copy()
         env['isLeft'] = False
         
-        className = o['className']
-        frame: Frame = o['frame']
+        
         retType =None
         #have many circuit ???
         if ast.op == "&&":
             retType =  BoolType()
             if 'onlyType' in o and o['onlyType']: return retType
+            className = o['className']
+            frame: Frame = o['frame']
             tempFlag = None
             if 'isFirstSCO' in o:
                 tempFlag = o['isFirstSCO']
@@ -817,6 +843,8 @@ class CodeGenerator(BaseVisitor,Utils):
                 o['isFirstSCA'] = True
             retType =  BoolType()
             if 'onlyType' in o and o['onlyType']: return retType
+            className = o['className']
+            frame: Frame = o['frame']
             if 'isFirstSCO' in o and o['isFirstSCO'] == False:
                 trueLabel = o['trueLabelO']
                 
@@ -891,6 +919,9 @@ class CodeGenerator(BaseVisitor,Utils):
                 retType = BoolType()
 
             if 'onlyType' in o and o['onlyType']: return retType
+            className = o['className']
+            frame: Frame = o['frame']
+
             env['onlyType'] = False
             if type(leftType) is type(rightType) and type(leftType) is StringType:
                 if ast.op == "+":
@@ -931,16 +962,25 @@ class CodeGenerator(BaseVisitor,Utils):
                             leftCode+=self.emit[className].emitI2F(frame)
                         else:
                             rightCode+=self.emit[className].emitI2F(frame)
-                        rightCode+= self.emit[className].emitMULOP(ast.op, leftType, frame) if ast.op in ["*", "/"] else self.emit[className].emitADDOP(ast.op, leftType, frame)
+                        rightCode+= self.emit[className].emitMULOP(ast.op, retType, frame) if ast.op in ["*", "/"] else self.emit[className].emitADDOP(ast.op, retType, frame)
                 elif ast.op == "%": 
                     rightCode+=self.emit[className].emitMOD(frame)
                 elif ast.op in ["==", "!=", "<", ">", "<=", ">="]:
                     if 'isFirstSCA' in o and o['isFirstSCA'] == False:
-                        rightCode+=self.emit[className].emitRELOP1(ast.op, o['falseLabelA'], frame)
+                        if type(leftType) is IntType:
+                            rightCode+=self.emit[className].emitRELOP1(ast.op, o['falseLabelA'], frame)
+                        elif type(leftType) is FloatType:
+                            rightCode +=self.emit[className].emitFRELOP1(ast.op, o['falseLabelA'], frame)
                     elif 'isFirstSCO' in o and o['isFirstSCO'] == False:
-                        rightCode+=self.emit[className].emitRELOP2(ast.op, o['trueLabelO'], frame)
-                    else: rightCode+=self.emit[className].emitREOP(ast.op, frame)
-
+                        if type(leftType) is IntType:
+                            rightCode+=self.emit[className].emitRELOP2(ast.op, o['trueLabelO'], frame)
+                        elif type(leftType) is FloatType:
+                            rightCode +=self.emit[className].emitFRELOP2(ast.op, o['trueLabelO'], frame)
+                    else: 
+                        if type(leftType) is IntType:
+                            rightCode+=self.emit[className].emitREOP(ast.op, frame)
+                        elif type(leftType) is FloatType:
+                            rightCode +=self.emit[className].emitFRELOP(ast.op, frame)
         return leftCode+rightCode, retType
 
     def visitUnaryOp(self, ast: UnaryOp, o):
@@ -1011,12 +1051,19 @@ class CodeGenerator(BaseVisitor,Utils):
             env = o.copy()
             env['isLeft'] = False
             valCode, valType = self.visit(element, env)
+            if type(valType) is IntType and type(eleType) is FloatType:
+                valCode += self.emit[className].emitI2F(frame)
+            # print("valType: ", valType.name, eleType.name)
+            interfaceName = self.getInterfaceName(eleType, o['interface'])
+            self.genImplementCode(valType, interfaceName, o['struct'])
+
             retCode+=valCode
-            retCode+= self.emit[className].emitASTORE(valType, frame)
+            retCode+= self.emit[className].emitASTORE(eleType, frame)
 
         return retCode, retType
 
     def visitId(self, ast: Id, o):
+        # print(list(map(lambda x: x.name,[j for i in o['env'] for j in i])))
         sym = next(filter(lambda x: x.name == ast.name, [j for i in o['env'] for j in i]),None)
         if 'onlyType' in o and o['onlyType']: return sym.mtype
         if type(sym.value) is Index:
@@ -1033,9 +1080,9 @@ class CodeGenerator(BaseVisitor,Utils):
                 return resCode,sym.mtype
         else:
             if o['isLeft']:
-                resCode = self.emit[o['className']].emitPUTSTATIC(f"{o['className']}/{sym.name}", sym.mtype, o['frame'])
+                resCode = self.emit[o['className']].emitPUTSTATIC(f"{sym.value.value}/{sym.name}", sym.mtype, o['frame'])
             else:
-                resCode = self.emit[o['className']].emitGETSTATIC(f"{o['className']}/{sym.name}",sym.mtype,o['frame'])
+                resCode = self.emit[o['className']].emitGETSTATIC(f"{sym.value.value}/{sym.name}",sym.mtype,o['frame'])
             return resCode,sym.mtype
             # return self.emit[o['className']].emitGETSTATIC(f"{self.className}/{sym.name}",sym.mtype,o['frame']),sym.mtype
         

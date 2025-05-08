@@ -11,18 +11,16 @@
             putStringLn(p.name)
         }
 
-        func (p Pearson) say() {
+        func (p Person) say() {
             putStringLn(p.name)
         }
 
         func main() {
-            var people Printer
-            //people := Person{name: "Anna"}
-            people := Pearson{name: "Bob"}
-            //people.print()
-        }
-
-        type Pearson struct {
-            name string
+            var people [3] Printer;
+            people := [3]Person{Person{name: "Anna"}, Person{name: "Ben"}, Person{name: "Cara"}}
+            for i := 0; i < 3; i := i + 1 {
+                var p Printer = people[i]
+                p.print()
+            }
         }
         

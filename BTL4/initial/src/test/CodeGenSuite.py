@@ -812,19 +812,6 @@ func main(){
         self.assertTrue(TestCodeGen.test(input, expect, 568))
 
 
-    
-#     def test_arraycell_without_init(self):
-#         input = """
-    
-#     func main(){
-#         var a[5] int;
-#         a[0]:=1
-#         putInt(a[0])
-#     }
-# """     
-#         expect = "1"
-#         self.assertTrue(TestCodeGen.test(input, expect, 568))
-    
     # def test_string_ref(self):
     #     input = """
     #     func foo(a string){
@@ -1520,42 +1507,113 @@ func main(){
         type Car struct {
             wheel [4]Wheel
         }
-};"""
+"""
         expect = "Michelin"
         self.assertTrue(TestCodeGen.test(input, expect, 609))
 
     def test_field_access_with_field_and_array_access1(self):
         input ="""func main(){
             var b int = 1
-            var car = Car{wheel: [4][2]Wheel{{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}}, {Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}, {Wheel{brand: "Pirelli"}, Wheel{brand: "Continental"}}, {Wheel{brand: "Hankook"}, Wheel{brand: "Toyo"}}}}
-            car.wheel[0][b].brand[1] := "Michelin";
-            putString(car.wheel[0][1].brand)
+            var car = Car{wheel: [4][2]Wheel{ { Wheel{brand: [2] string{"Michelin", "Br Br"}}, Wheel{brand: [2] string {"Bridgestone", "Hmmm"}} }, {Wheel{brand: [2] string {"Goodyear", "GoodLife"}}, Wheel{brand: [2] string{"Dunlop", "Jumbo"}}}, {Wheel{brand: [2] string {"Pirelli", "TungTungSahur"}}, Wheel{brand: [2] string {"Continental", "Bruh"}}}, {Wheel{brand: [2] string{"Hankook", "Boa"}}, Wheel{brand: [2] string {"Toyo", "ta"}}}}}
+            car.wheel[0][b].brand[1] := "Bridgestone";
+            putString(car.wheel[0][1].brand[0])
         };
         type Wheel struct {
-            brand string
+            brand [2] string
         }
         type Car struct {
             wheel [4][2]Wheel
         }
         """
-        expect = "Michelin"
+        expect = "Bridgestone"
         self.assertTrue(TestCodeGen.test(input, expect, 610))
-
-
-    def test_field_access_with_field_and_array_access2(self):
-        input ="""func main(){
-            
-            car[0][f].wheel[0].brand[1] := "Michelin";
-
-        };
-        
-        type Wheel struct {
-            brand string
+    def test_interface8(self):
+        input = """
+        type Printer interface {
+            print()
         }
-        type Car struct {
-            wheel [4][2]Wheel
+
+        type Person struct {
+            name string
+        }
+
+        func (p Person) print() {
+            putStringLn(p.name)
+        }
+
+        func (p Person) say() {
+            putStringLn(p.name)
+        }
+
+    # def test_floatop_all(self):
+    #     input = """
+
+
+    def test_for_short_circuit(self):
+        input = """
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            if (a > b && 0/0 > 0) {
+                putIntLn(a + b);
+            }            else{
+                putIntLn(a - b);
+            }
         }
         """
+        expect = "-5\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 611))
+
+    def test_float_short_circuit(self):
+        input = """
+        func main() {
+            var a float = 5.5;
+            var b float = 10.0;
+            if (a > b && 0/0 > 0) {
+                putFloatLn(a + b);
+            }            else{
+                putFloatLn(a - b);
+            }
+        }
+        """
+        expect = "-4.5\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 612))
+
+    def test_string_short_circuit(self):
+        input = """
+        func main() {
+            var a string = "hello";
+            var b string = "world";
+            if (a == b && 0/0 > 0) {
+                putStringLn(a + b);
+            }            else{
+                putStringLn(a + " " + b);
+            }
+        }
+        """
+        expect = "hello world\n"
+        self.assertTrue(TestCodeGen.test(input, expect, 613))
+    #     func main() {
+    #     input = """
+    #     func main() {
+    #         var a float = 5.5;
+    #         var b float = 2.0;
+
+    #         putFloatLn(a + b);      // 7.5
+    #         putFloatLn(a - b);      // 3.5
+    #         putFloatLn(a * b);      // 11.0
+    #         putFloatLn(a / b);      // 2.75
+
+    #         putBoolLn(a == b);      // false
+    #         putBoolLn(a != b);      // true
+    #         putBoolLn(a < b);       // false
+    #         putBoolLn(a <= b);      // false
+    #         putBoolLn(a > b);       // true
+    #         putBoolLn(a >= b);      // true
+    #     }
+    #     """
+    #     expect = "7.5\n3.5\n11.0\n2.75\nfalse\ntrue\nfalse\nfalse\ntrue\ntrue\n"
+    #     self.assertTrue(TestCodeGen.test(input, expect, 594))
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal

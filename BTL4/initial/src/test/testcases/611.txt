@@ -1,0 +1,11 @@
+
+        func main() {
+            var a int = 5;
+            var b int = 10;
+            if (a > b && 0/0 > 0) {
+                putIntLn(a + b);
+            }            else{
+                putIntLn(a - b);
+            }
+        }
+        

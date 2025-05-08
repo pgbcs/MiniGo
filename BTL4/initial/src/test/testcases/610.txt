@@ -1,11 +1,11 @@
 func main(){
             var b int = 1
-            var car = Car{wheel: [4][2]Wheel{{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}}, {Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}, {Wheel{brand: "Pirelli"}, Wheel{brand: "Continental"}}, {Wheel{brand: "Hankook"}, Wheel{brand: "Toyo"}}}}
-            car.wheel[0][b].brand[1] := "Michelin";
-            putString(car.wheel[0][1].brand)
+            var car = Car{wheel: [4][2]Wheel{ { Wheel{brand: [2] string{"Michelin", "Br Br"}}, Wheel{brand: [2] string {"Bridgestone", "Hmmm"}} }, {Wheel{brand: [2] string {"Goodyear", "GoodLife"}}, Wheel{brand: [2] string{"Dunlop", "Jumbo"}}}, {Wheel{brand: [2] string {"Pirelli", "TungTungSahur"}}, Wheel{brand: [2] string {"Continental", "Bruh"}}}, {Wheel{brand: [2] string{"Hankook", "Boa"}}, Wheel{brand: [2] string {"Toyo", "ta"}}}}}
+            car.wheel[0][b].brand[1] := "Bridgestone";
+            putString(car.wheel[0][1].brand[0])
         };
         type Wheel struct {
-            brand string
+            brand [2] string
         }
         type Car struct {
             wheel [4][2]Wheel
