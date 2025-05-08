@@ -1,0 +1,14 @@
+
+
+        func main() {
+            var car = Car{wheel: [4]Wheel{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}, Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}}
+            car.wheel[0].brand := "Michelin";
+            putString(car.wheel[0].brand)
+        }
+        type Wheel struct {
+            brand string
+        }
+        type Car struct {
+            wheel [4]Wheel
+        }
+};

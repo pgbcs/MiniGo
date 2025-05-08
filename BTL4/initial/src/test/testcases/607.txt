@@ -1,0 +1,9 @@
+
+        type Person struct {
+            name string
+            age int
+        }
+        func main() {
+            var a[5] Person = [5]Person{Person{name: "Alice", age: 20}, Person{name: "Bob", age: 25}, Person{name: "Charlie", age: 30}, Person{name: "David", age: 35}, Person{name: "Eve", age: 40}}
+            putInt(a[2].age)
+        }

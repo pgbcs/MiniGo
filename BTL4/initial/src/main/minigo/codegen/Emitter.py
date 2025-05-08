@@ -29,7 +29,7 @@ class Emitter():
             return "["*len(inType.dimens) + self.getJVMType(inType.eleType)
         elif typeIn is MType:
             return "(" + "".join(list(map(lambda x: self.getJVMType(x), inType.partype))) + ")" + self.getJVMType(inType.rettype)
-        elif typeIn is cgen.ClassType or typeIn is Id:
+        elif typeIn is cgen.ClassType or typeIn in [Id, StructType]:
             return "L" + inType.name + ";"
         else:
             return str(typeIn)
@@ -44,6 +44,8 @@ class Emitter():
             return "boolean"
         elif typeIn is cgen.StringType:
             return "java/lang/String"
+        elif typeIn in [cgen.ClassType, StructType, Id]:
+            return inType.name
         elif typeIn is VoidType:
             return "void"
 

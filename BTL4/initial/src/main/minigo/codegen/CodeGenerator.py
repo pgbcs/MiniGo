@@ -592,6 +592,7 @@ class CodeGenerator(BaseVisitor,Utils):
         recType = self.visit(ast.receiver, env)
         
         thisType = next(filter(lambda x: x[0] == recType.name, o['struct'] + o['interface']), None)
+    
         if len(thisType) == 2: #it is interface
             sym: Symbol = next(filter(lambda x: x.name == ast.metName, thisType[1]),None)
         else:
@@ -946,12 +947,13 @@ class CodeGenerator(BaseVisitor,Utils):
         env = o.copy()
         env['isLeft'] = False
         className = o['className']
-        bodyCode, bodyType = self.visit(ast.body, env)
-
+        env['onlyType'] = True
+        bodyType = self.visit(ast.body, env)
+        env['onlyType'] = False
         if 'onlyType' in o and o['onlyType']:
             return bodyType        
 
-        retCode =bodyCode
+        retCode = self.visit(ast.body, env)[0]
 
         if ast.op == "!":
             retCode+=self.emit[className].emitNOT(bodyType, o['frame'])

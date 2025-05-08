@@ -1,0 +1,9 @@
+
+        type Index struct {
+            value int
+        }
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b Index = Index{value: 2}
+            putInt(a[b.value])  
+        }

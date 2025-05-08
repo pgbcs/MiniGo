@@ -1,0 +1,13 @@
+func main(){
+            var b int = 1
+            var car = Car{wheel: [4][2]Wheel{{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}}, {Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}, {Wheel{brand: "Pirelli"}, Wheel{brand: "Continental"}}, {Wheel{brand: "Hankook"}, Wheel{brand: "Toyo"}}}}
+            car.wheel[0][b].brand[1] := "Michelin";
+            putString(car.wheel[0][1].brand)
+        };
+        type Wheel struct {
+            brand string
+        }
+        type Car struct {
+            wheel [4][2]Wheel
+        }
+        

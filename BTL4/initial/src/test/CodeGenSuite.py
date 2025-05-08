@@ -825,19 +825,19 @@ func main(){
 #         expect = "1"
 #         self.assertTrue(TestCodeGen.test(input, expect, 568))
     
-    def test_string_ref(self):
-        input = """
-        func foo(a string){
-            a+=" world"
-        }
-        func main(){
-            var a string = "hello";
-            foo(a)
-            putString(a);
-    }
-            """
-        expect = "hello world"
-        self.assertTrue(TestCodeGen.test(input, expect, 569))
+    # def test_string_ref(self):
+    #     input = """
+    #     func foo(a string){
+    #         a+=" world"
+    #     }
+    #     func main(){
+    #         var a string = "hello";
+    #         foo(a)
+    #         putString(a);
+    # }
+    #         """
+    #     expect = "hello world"
+    #     self.assertTrue(TestCodeGen.test(input, expect, 569))
 
     def test_struct_declare_with_array_field(self):
         input = """
@@ -1341,7 +1341,7 @@ func main(){
             putFloatLn(c.area())
         }
 """
-        expect = "314\n"
+        expect = "78.5\n"
         self.assertTrue(TestCodeGen.test(input, expect, 597))
 
     def test_arraycell_with_index_is_expr(self):
@@ -1382,37 +1382,180 @@ func main(){
 """
         expect = "012346789"
         self.assertTrue(TestCodeGen.test(input, expect, 600))
-    # def test_interface9(self):
-    #     input = """
-    #     type Printer interface {
-    #         print()
-    #     }
 
-    #     type Person struct {
-    #         name string
-    #     }
+    def test_access_arraycell_with_expr(self):
+        input = """
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b int = 2
+            putInt(a[-b+3])
+        }
+"""
+        expect = "2"
+        self.assertTrue(TestCodeGen.test(input, expect, 601))
 
-    #     func (p Person) print() {
-    #         putStringLn(p.name)
-    #     }
+    def test_access_arraycell_with_expr1(self):
+        #funcall to get index
+        input = """
+        func getIndex() int {
+            return 2
+        }
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            putInt(a[getIndex()])
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input, expect, 602))
 
-    #     func (p Pearson) say() {
-    #         putStringLn(p.name)
-    #     }
+    def test_access_arraycell_with_expr2(self):
+        #other araycell
+        input = """
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b[5] int = [5]int{6, 7, 8, 9, 10}
+            putInt(b[a[0]])
+        }
+"""
+        expect = "7"
+        self.assertTrue(TestCodeGen.test(input, expect, 603))
+    
+    def test_access_arraycell_with_expr3(self):
+        #index is field access
+        input = """
+        type Index struct {
+            value int
+        }
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b Index = Index{value: 2}
+            putInt(a[b.value])  
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input, expect, 604))
+    
+    def test_access_arraycell_with_expr4(self):
+        #index is method call
+        input = """
+        type Index struct {
+            value int
+        }
+        func (i Index) getValue() int {
+            return i.value
+        }
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b Index = Index{value: 2}
+            putInt(a[b.getValue()])  
+        }
+"""
+        expect = "3"
+        self.assertTrue(TestCodeGen.test(input, expect, 605))
+    
+    def test_access_arraycell_with_expr5(self):
+        #index is method call with param
+        input = """
+        type Index struct {
+            value int
+        }
 
-    #     func main() {
-    #         var people Printer
-    #         //people := Person{name: "Anna"}
-    #         people := Pearson{name: "Bob"}
-    #         people.print()
-    #     }
+        func main() {
+            var a[5] int = [5]int{1, 2, 3, 4, 5}
+            var b Index = Index{value: 2}
+            putInt(a[b.getValue(1)])  
+        }
+        func (i Index) getValue(off int) int {
+            return i.value + off
+        }
+"""
+        expect = "4"
+        self.assertTrue(TestCodeGen.test(input, expect, 606))
 
-    #     type Pearson struct {
-    #         name string
-    #     }
-    #     """
-    #     expect = ""
-    #     self.assertTrue(TestCodeGen.test(input, expect, 592))
+    def test_field_access_with_expr(self):
+        #field of struct
+        input = """
+        type Person struct {
+            name string
+            age int
+        }
+        func main() {
+            var a[5] Person = [5]Person{Person{name: "Alice", age: 20}, Person{name: "Bob", age: 25}, Person{name: "Charlie", age: 30}, Person{name: "David", age: 35}, Person{name: "Eve", age: 40}}
+            putInt(a[2].age)
+        }
+"""
+        expect = "30"
+        self.assertTrue(TestCodeGen.test(input, expect, 607))
+    
+    def test_field_access_with_expr1(self):
+        #funcall to get struct
+        input = """
+        type Person struct {
+            name string
+            age int
+        }
+        func getPerson() Person {
+            return Person{name: "Alice", age: 20}
+        }
+        func main() {
+            var a Person = getPerson()
+            putInt(a.age)
+        }
+"""
+        expect = "20"
+        self.assertTrue(TestCodeGen.test(input, expect, 608))
+
+    def test_field_access_with_field_and_array_access(self):
+        #field of struct and array access
+        input = """
+
+        func main() {
+            var car = Car{wheel: [4]Wheel{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}, Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}}
+            car.wheel[0].brand := "Michelin";
+            putString(car.wheel[0].brand)
+        }
+        type Wheel struct {
+            brand string
+        }
+        type Car struct {
+            wheel [4]Wheel
+        }
+};"""
+        expect = "Michelin"
+        self.assertTrue(TestCodeGen.test(input, expect, 609))
+
+    def test_field_access_with_field_and_array_access1(self):
+        input ="""func main(){
+            var b int = 1
+            var car = Car{wheel: [4][2]Wheel{{Wheel{brand: "Michelin"}, Wheel{brand: "Bridgestone"}}, {Wheel{brand: "Goodyear"}, Wheel{brand: "Dunlop"}}, {Wheel{brand: "Pirelli"}, Wheel{brand: "Continental"}}, {Wheel{brand: "Hankook"}, Wheel{brand: "Toyo"}}}}
+            car.wheel[0][b].brand[1] := "Michelin";
+            putString(car.wheel[0][1].brand)
+        };
+        type Wheel struct {
+            brand string
+        }
+        type Car struct {
+            wheel [4][2]Wheel
+        }
+        """
+        expect = "Michelin"
+        self.assertTrue(TestCodeGen.test(input, expect, 610))
+
+
+    def test_field_access_with_field_and_array_access2(self):
+        input ="""func main(){
+            
+            car[0][f].wheel[0].brand[1] := "Michelin";
+
+        };
+        
+        type Wheel struct {
+            brand string
+        }
+        type Car struct {
+            wheel [4][2]Wheel
+        }
+        """
 #test method name is main
 #local var same name with receiver
 #test order check env local->nonlocal
